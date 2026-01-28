@@ -1,20 +1,21 @@
 import { createClient } from "@/lib/supabase/server";
-import type { 
-  Notification, 
-  NotificationType, 
-  NotificationChannel, 
+import type {
+  Notification,
+  NotificationType,
+  NotificationChannel,
   NotificationPriority,
   NotificationCategory,
-  NotificationPreference 
+  NotificationPreference
 } from "@/lib/types";
-import { 
-  sendEmail, 
-  generateBookingConfirmationEmail, 
+import {
+  sendEmail,
+  generateBookingConfirmationEmail,
   generateServiceCompletedEmail,
   generatePaymentReceiptEmail,
   generateReminderEmail,
   generatePromotionalEmail
 } from "@/lib/email-service";
+import { sendWhatsAppMessage } from "@/lib/whatsapp-service";
 
 interface SendNotificationParams {
   userId: string | null;
@@ -86,7 +87,7 @@ const TYPE_TO_CHANNELS: Record<NotificationType, NotificationChannel[]> = {
 
 export async function sendNotification(params: SendNotificationParams): Promise<Notification | null> {
   const supabase = await createClient();
-  
+
   const category = TYPE_TO_CATEGORY[params.type];
   const priority = params.priority || TYPE_TO_DEFAULT_PRIORITY[params.type];
   let channels = TYPE_TO_CHANNELS[params.type];
@@ -122,11 +123,11 @@ export async function sendNotification(params: SendNotificationParams): Promise<
         const currentHour = now.getHours();
         const startHour = parseInt(preferences.quiet_hours_start.split(":")[0]);
         const endHour = parseInt(preferences.quiet_hours_end.split(":")[0]);
-        
-        const isQuietHours = startHour < endHour 
+
+        const isQuietHours = startHour < endHour
           ? currentHour >= startHour && currentHour < endHour
           : currentHour >= startHour || currentHour < endHour;
-        
+
         if (isQuietHours && priority !== "critical") {
           channels = ["in_app"];
         }
@@ -173,14 +174,14 @@ export async function sendNotification(params: SendNotificationParams): Promise<
 }
 
 async function sendEmailNotification(
-  userId: string, 
-  title: string, 
-  message: string, 
+  userId: string,
+  title: string,
+  message: string,
   type: NotificationType,
   data?: Record<string, any>
 ) {
   const supabase = await createClient();
-  
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("email, full_name")
@@ -264,7 +265,7 @@ async function sendEmailNotification(
 
 async function sendWhatsAppNotification(userId: string, message: string) {
   const supabase = await createClient();
-  
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("phone")
@@ -277,24 +278,17 @@ async function sendWhatsAppNotification(userId: string, message: string) {
   }
 
   try {
-    await fetch(`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/whatsapp`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        phone: profile.phone,
-        template_name: "custom_message",
-        params: [message],
-      }),
-    });
+    await sendWhatsAppMessage(profile.phone, "custom_message", [message]);
     console.log(`[WhatsApp] Sent to ${profile.phone}`);
   } catch (error) {
     console.error(`[WhatsApp] Failed to send:`, error);
   }
 }
 
+
 export async function markNotificationRead(notificationId: string, userId: string): Promise<boolean> {
   const supabase = await createClient();
-  
+
   const { error } = await supabase
     .from("notifications")
     .update({ read: true, read_at: new Date().toISOString() })
@@ -306,7 +300,7 @@ export async function markNotificationRead(notificationId: string, userId: strin
 
 export async function markAllNotificationsRead(userId: string): Promise<boolean> {
   const supabase = await createClient();
-  
+
   const { error } = await supabase
     .from("notifications")
     .update({ read: true, read_at: new Date().toISOString() })
@@ -318,7 +312,7 @@ export async function markAllNotificationsRead(userId: string): Promise<boolean>
 
 export async function getUnreadCount(userId: string): Promise<number> {
   const supabase = await createClient();
-  
+
   const { count, error } = await supabase
     .from("notifications")
     .select("*", { count: "exact", head: true })
@@ -330,11 +324,11 @@ export async function getUnreadCount(userId: string): Promise<number> {
 }
 
 export async function getUserNotifications(
-  userId: string, 
+  userId: string,
   options: { limit?: number; offset?: number; category?: NotificationCategory } = {}
 ): Promise<Notification[]> {
   const supabase = await createClient();
-  
+
   let query = supabase
     .from("notifications")
     .select("*")
@@ -378,7 +372,7 @@ export async function getUserPreferences(userId: string): Promise<NotificationPr
 
   try {
     const supabase = await createClient();
-    
+
     const { data, error } = await supabase
       .from("notification_preferences")
       .select("*")
@@ -396,7 +390,7 @@ export async function getUserPreferences(userId: string): Promise<NotificationPr
 }
 
 export async function updateUserPreferences(
-  userId: string, 
+  userId: string,
   updates: Partial<NotificationPreference>
 ): Promise<NotificationPreference> {
   const currentPrefs = await getUserPreferences(userId);
@@ -430,11 +424,11 @@ export async function sendBookingNotification(
     cancelled: `Your booking for ${bookingData.serviceName} on ${bookingData.date} has been cancelled.`,
   };
 
-  const notificationType: NotificationType = type === "created" 
-    ? "booking_created" 
-    : type === "approved" 
-    ? "booking_approved" 
-    : "service_completed";
+  const notificationType: NotificationType = type === "created"
+    ? "booking_created"
+    : type === "approved"
+      ? "booking_approved"
+      : "service_completed";
 
   const notification = await sendNotification({
     userId,
@@ -463,7 +457,7 @@ export async function sendBookingNotification(
         bookingId,
       });
     }
-    
+
     if (html) {
       await sendEmail({
         to: bookingData.customerEmail,
@@ -481,7 +475,7 @@ export async function sendAdminNotification(
   data: Record<string, any>
 ) {
   const supabase = await createClient();
-  
+
   const { data: admins } = await supabase
     .from("profiles")
     .select("id")
@@ -502,8 +496,8 @@ export async function sendAdminNotification(
   const notificationType: NotificationType = type === "new_booking"
     ? "admin_new_booking"
     : type === "high_value"
-    ? "admin_high_value"
-    : "admin_payment_failed";
+      ? "admin_high_value"
+      : "admin_payment_failed";
 
   if (admins && admins.length > 0) {
     for (const admin of admins) {
