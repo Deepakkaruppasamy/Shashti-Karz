@@ -144,9 +144,10 @@ export default function PackagesPage() {
     }
   };
 
-    return (
-      <main className="min-h-screen bg-[#0a0a0a]">
-        <div className="py-8 pb-16 max-w-6xl mx-auto px-4">
+  return (
+    <main className="min-h-screen bg-[#0a0a0a]">
+      <Navbar />
+      <div className="py-8 pb-16 max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold">Service Packages</h1>
@@ -178,9 +179,8 @@ export default function PackagesPage() {
                   key={pkg.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`rounded-2xl p-6 border-2 relative overflow-hidden ${
-                    pkg.active ? "bg-white/5 border-white/10" : "bg-white/2 border-white/5 opacity-50"
-                  }`}
+                  className={`rounded-2xl p-6 border-2 relative overflow-hidden ${pkg.active ? "bg-white/5 border-white/10" : "bg-white/2 border-white/5 opacity-50"
+                    }`}
                 >
                   {pkg.is_popular && (
                     <div className="absolute top-3 right-3">
@@ -229,8 +229,11 @@ export default function PackagesPage() {
                 </motion.div>
               ))}
             </div>
-        )}
+          )}
+        </div>
       </div>
+      <Footer />
     </main>
   );
 }
+

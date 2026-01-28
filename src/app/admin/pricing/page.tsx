@@ -53,9 +53,10 @@ export default function PricingRulesPage() {
   const getIcon = (t: string) => t === "weekend" ? Calendar : t === "peak_hour" ? Clock : t === "weather" ? Cloud : TrendingUp;
   const getColor = (t: string) => t === "weekend" ? "from-purple-500 to-pink-500" : t === "peak_hour" ? "from-orange-500 to-red-500" : t === "weather" ? "from-blue-500 to-cyan-500" : "from-green-500 to-emerald-500";
 
-    return (
-      <main className="min-h-screen bg-[#0a0a0a]">
-        <div className="py-8 pb-16 max-w-5xl mx-auto px-4">
+  return (
+    <main className="min-h-screen bg-[#0a0a0a]">
+      <Navbar />
+      <div className="py-8 pb-16 max-w-5xl mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
           <div><h1 className="text-3xl font-bold">Dynamic Pricing</h1><p className="text-[#888]">Configure surge & discounts</p></div>
           <button onClick={() => setShowModal(true)} className="btn-premium px-6 py-3 rounded-xl text-white flex items-center gap-2"><Plus size={18} />Add Rule</button>
@@ -81,8 +82,11 @@ export default function PricingRulesPage() {
                 );
               })}
             </div>
-        )}
+          )}
+        </div>
       </div>
+      <Footer />
     </main>
   );
 }
+

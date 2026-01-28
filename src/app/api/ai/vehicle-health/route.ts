@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google-generative-ai/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@/lib/supabase/server";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
@@ -53,14 +53,14 @@ export async function POST(req: Request) {
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
-    
+
     // Parse the JSON from the response
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     const aiData = jsonMatch ? JSON.parse(jsonMatch[0]) : { summary: text };
 
     // Update vehicle with the summary (if columns exist, otherwise just return)
     // For now, we'll just return it to the frontend
-    
+
     return NextResponse.json(aiData);
   } catch (error) {
     console.error("AI Health Error:", error);

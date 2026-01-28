@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google-generative-ai/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@/lib/supabase/server";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
-    
+
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     const aiData = jsonMatch ? JSON.parse(jsonMatch[0]) : { message: text };
 

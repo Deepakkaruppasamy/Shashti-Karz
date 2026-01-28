@@ -112,9 +112,10 @@ export default function SlotsPage() {
   const blockedSlots = slots.filter((s) => s.is_blocked).length;
   const bookedSlots = slots.filter((s) => s.current_occupancy >= s.max_capacity).length;
 
-    return (
-      <main className="min-h-screen bg-[#0a0a0a]">
-        <div className="py-8 pb-16 max-w-7xl mx-auto px-4">
+  return (
+    <main className="min-h-screen bg-[#0a0a0a]">
+      <Navbar />
+      <div className="py-8 pb-16 max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold">Slot Management</h1>
@@ -207,7 +208,7 @@ export default function SlotsPage() {
                       {weekDays.map((day, i) => {
                         const slot = getSlotForDateTime(day, time);
                         const isPast = day < new Date() && day.toDateString() !== new Date().toDateString();
-                        
+
                         if (!slot) {
                           return (
                             <td key={i} className="p-2">
@@ -226,13 +227,12 @@ export default function SlotsPage() {
                           <td key={i} className="p-2">
                             <motion.div
                               whileHover={{ scale: isPast ? 1 : 1.02 }}
-                              className={`h-16 rounded-lg p-2 relative overflow-hidden cursor-pointer transition-colors ${
-                                isBlocked
-                                  ? "bg-red-500/20 border border-red-500/50"
-                                  : isFull
+                              className={`h-16 rounded-lg p-2 relative overflow-hidden cursor-pointer transition-colors ${isBlocked
+                                ? "bg-red-500/20 border border-red-500/50"
+                                : isFull
                                   ? "bg-yellow-500/20 border border-yellow-500/50"
                                   : "bg-green-500/20 border border-green-500/50"
-                              } ${isPast ? "opacity-30 pointer-events-none" : ""}`}
+                                } ${isPast ? "opacity-30 pointer-events-none" : ""}`}
                               onClick={() => !isPast && toggleBlock(slot)}
                             >
                               <div className="flex items-center justify-between text-xs">
@@ -349,14 +349,18 @@ export default function SlotsPage() {
                   </select>
                 </div>
               </div>
-              <div className="flex gap-3 pt-4">
-                <button onClick={() => setShowGenerateModal(false)} className="flex-1 px-6 py-3 rounded-xl bg-white/5">Cancel</button>
-                <button onClick={generateSlots} className="flex-1 btn-premium px-6 py-3 rounded-xl text-white">Generate</button>
-              </div>
+            </div>
+            <div className="flex gap-3 pt-4">
+              <button onClick={() => setShowGenerateModal(false)} className="flex-1 px-6 py-3 rounded-xl bg-white/5">Cancel</button>
+              <button onClick={generateSlots} className="flex-1 btn-premium px-6 py-3 rounded-xl text-white">Generate</button>
             </div>
           </motion.div>
         </div>
-      </div>
+      )}
+      <Footer />
     </main>
   );
 }
+
+
+

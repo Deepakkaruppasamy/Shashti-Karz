@@ -121,7 +121,7 @@ export interface Review {
   recommend?: boolean;
   flagged?: boolean;
   abuse_score?: number;
-  admin_reply?: string | null;
+  admin_response?: string | null;
   replied_at?: string | null;
   feedback_category?: "service" | "app" | "staff" | "other";
   is_private?: boolean;
@@ -258,15 +258,15 @@ export interface PriceModifier {
   created_at: string;
 }
 
-export type NotificationType = 
-  | "booking_created" 
-  | "booking_approved" 
-  | "worker_assigned" 
-  | "service_started" 
-  | "service_completed" 
-  | "invoice_generated" 
-  | "refund_initiated" 
-  | "reminder" 
+export type NotificationType =
+  | "booking_created"
+  | "booking_approved"
+  | "worker_assigned"
+  | "service_started"
+  | "service_completed"
+  | "invoice_generated"
+  | "refund_initiated"
+  | "reminder"
   | "payment_received"
   | "admin_new_booking"
   | "admin_high_value"
