@@ -1,0 +1,822 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import {
+  LayoutDashboard, Calendar, Users, Package, Settings, LogOut, Bell, Search,
+  DollarSign, Car, Clock, CheckCircle, XCircle,
+  Download, Mail, Plus, Edit, Trash2, Eye, Filter
+} from "lucide-react";
+import { toast } from "sonner";
+import { useAuth } from "@/lib/auth-context";
+import type { Booking, Service, Profile } from "@/lib/types";
+import jsPDF from 'jspdf';
+import * as XLSX from 'xlsx';
+
+const statusColors: Record<string, string> = {
+  pending: "bg-yellow-500/20 text-yellow-500",
+  approved: "bg-green-500/20 text-green-500",
+  completed: "bg-blue-500/20 text-blue-500",
+  cancelled: "bg-red-500/20 text-red-500",
+};
+
+export default function AdminDashboardPage() {
+  const router = useRouter();
+  const { user, profile, signOut, isLoading: authLoading } = useAuth();
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [users, setUsers] = useState<Profile[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalRevenue: 0,
+    totalBookings: 0,
+    pendingBookings: 0,
+    completedBookings: 0
+  });
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login");
+      return;
+    }
+    loadData();
+  }, [authLoading, user, router]);
+
+  async function loadData() {
+    setIsLoading(true);
+    try {
+      const [bookingsRes, servicesRes] = await Promise.all([
+        fetch("/api/bookings"),
+        fetch("/api/services")
+      ]);
+      
+      const bookingsData = await bookingsRes.json();
+      const servicesData = await servicesRes.json();
+      
+      setBookings(bookingsData);
+      setServices(servicesData);
+      
+      const totalRevenue = bookingsData
+        .filter((b: Booking) => b.status === "completed")
+        .reduce((sum: number, b: Booking) => sum + b.price, 0);
+      
+      setStats({
+        totalRevenue,
+        totalBookings: bookingsData.length,
+        pendingBookings: bookingsData.filter((b: Booking) => b.status === "pending").length,
+        completedBookings: bookingsData.filter((b: Booking) => b.status === "completed").length
+      });
+    } catch (error) {
+      console.error("Failed to load data:", error);
+      toast.error("Failed to load dashboard data");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const handleStatusChange = async (bookingId: string, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update status");
+
+      setBookings(prev =>
+        prev.map(b => (b.id === bookingId ? { ...b, status: newStatus as Booking["status"] } : b))
+      );
+      toast.success(`Booking ${newStatus}!`);
+      loadData();
+    } catch {
+      toast.error("Failed to update booking status");
+    }
+  };
+
+  const handleApproveReview = async (bookingId: string) => {
+    try {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "approved" }),
+      });
+      
+      if (!response.ok) throw new Error("Failed to approve review");
+      
+      setBookings(prev =>
+        prev.map(b => (b.id === bookingId ? { ...b, status: "approved" as Booking["status"] } : b))
+      );
+      toast.success("Review approved!");
+      loadData();
+    } catch (error) {
+      console.error("Failed to approve review");
+      toast.error("Failed to approve review");
+    }
+  };
+
+  const handleRejectReview = async (bookingId: string) => {
+    try {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "rejected" }),
+      });
+      
+      if (!response.ok) throw new Error("Failed to reject review");
+      
+      setBookings(prev =>
+        prev.map(b => (b.id === bookingId ? { ...b, status: "rejected" as Booking["status"] } : b))
+      );
+      toast.success("Review rejected!");
+      loadData();
+    } catch (error) {
+      console.error("Failed to reject review");
+      toast.error("Failed to reject review");
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+    
+    try {
+      const response = await fetch(`/api/users/${userId}`, {
+        method: "DELETE",
+      });
+      
+      if (!response.ok) throw new Error("Failed to delete user");
+      
+      setUsers(prev => prev.filter(u => u.id !== userId));
+      toast.success("User deleted successfully!");
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+      toast.error("Failed to delete user");
+    }
+  };
+
+  const handleDeleteBooking = async (bookingId: string) => {
+    if (!confirm("Are you sure you want to delete this booking?")) return;
+    
+    try {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) throw new Error("Failed to delete");
+
+      setBookings(prev => prev.filter(b => b.id !== bookingId));
+      toast.success("Booking deleted!");
+    } catch {
+      toast.error("Failed to delete booking");
+    }
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    router.push("/login");
+  };
+
+  // Export functions
+  const exportToPDF = async () => {
+    try {
+      const doc = new jsPDF();
+      
+      // Add title
+      doc.setFontSize(16);
+      doc.text("Shashti Karz - Bookings Report", 20, 20, { align: "center" });
+      
+      // Add current date
+      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 12, 30, { align: "center" });
+      
+      // Add table headers
+      const tableHeaders = ["Booking ID", "Customer", "Service", "Date", "Time", "Amount", "Status"];
+      const headers = tableHeaders.map((header, index) => ({
+        name: header,
+        prompt: header,
+        align: "left"
+      }));
+      
+      // Add table data
+      const tableData = filteredBookings.map(booking => [
+        booking.booking_id,
+        booking.customer_name,
+        booking.service?.name || "N/A",
+        new Date(booking.date).toLocaleDateString(),
+        booking.time,
+        `₹${booking.price?.toLocaleString()}`,
+        booking.status.charAt(0).toUpperCase() + booking.status.slice(1).replace('_', ' ')
+      ]);
+      
+      // Create table
+      doc.autoTable({
+        head: headers,
+        body: tableData,
+        startY: 50,
+        styles: { 
+          fontSize: 10,
+          cellPadding: 3,
+          headStyles: { fillColor: [255, 99, 71], textColor: 255 }
+        }
+      });
+      
+      // Save the PDF
+      doc.save("bookings-report.pdf");
+      toast.success("PDF exported successfully!");
+    } catch (error) {
+      console.error("Error exporting PDF:", error);
+      toast.error("Failed to export PDF");
+    }
+  };
+
+  const exportToExcel = async () => {
+    try {
+      // Create workbook
+      const wb = XLSX.utils.book_new();
+      
+      // Add worksheet
+      const ws = XLSX.utils.aoa_to_sheet([
+        ["Booking ID", "Customer Name", "Customer Email", "Service", "Car Model", "Date", "Time", "Amount", "Status"]
+      ]);
+      
+      // Add headers
+      XLSX.utils.sheet_add_aoa(ws, "A1", "Booking ID");
+      XLSX.utils.sheet_add_aoa(ws, "B1", "Customer Name");
+      XLSX.utils.sheet_add_aoa(ws, "C1", "Customer Email");
+      XLSX.utils.sheet_add_aoa(ws, "D1", "Service");
+      XLSX.utils.sheet_add_aoa(ws, "E1", "Car Model");
+      XLSX.utils.sheet_add_aoa(ws, "F1", "Date");
+      XLSX.utils.sheet_add_aoa(ws, "G1", "Time");
+      XLSX.utils.sheet_add_aoa(ws, "H1", "Amount");
+      XLSX.utils.sheet_add_aoa(ws, "I1", "Status");
+      
+      // Add data
+      filteredBookings.forEach((booking, index) => {
+        const rowIndex = index + 2; // Start from row 2 (after headers)
+        XLSX.utils.sheet_add_aoa(ws, `A${rowIndex}`, booking.booking_id);
+        XLSX.utils.sheet_add_aoa(ws, `B${rowIndex}`, booking.customer_name);
+        XLSX.utils.sheet_add_aoa(ws, `C${rowIndex}`, booking.customer_email);
+        XLSX.utils.sheet_add_aoa(ws, `D${rowIndex}`, booking.service?.name || "N/A");
+        XLSX.utils.sheet_add_aoa(ws, `E${rowIndex}`, booking.car_model);
+        XLSX.utils.sheet_add_aoa(ws, `F${rowIndex}`, new Date(booking.date).toLocaleDateString());
+        XLSX.utils.sheet_add_aoa(ws, `G${rowIndex}`, booking.time);
+        XLSX.utils.sheet_add_aoa(ws, `H${rowIndex}`, `₹${booking.price?.toLocaleString()}`);
+        XLSX.utils.sheet_add_aoa(ws, `I${rowIndex}`, booking.status.charAt(0).toUpperCase() + booking.status.slice(1).replace('_', ' '));
+      });
+      
+      // Set column widths
+      const colWidths = [
+        { wch: 15 }, // Booking ID
+        { wch: 20 }, // Customer Name
+        { wch: 25 }, // Customer Email
+        { wch: 20 }, // Service
+        { wch: 15 }, // Car Model
+        { wch: 15 }, // Date
+        { wch: 12 }, // Time
+        { wch: 12 }, // Amount
+        { wch: 15 }  // Status
+      ];
+      ws['!cols'] = colWidths;
+      
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(wb, ws);
+      
+      // Save the Excel file
+      XLSX.writeFile(wb, "bookings-report.xlsx");
+      toast.success("Excel exported successfully!");
+    } catch (error) {
+      console.error("Error exporting Excel:", error);
+      toast.error("Failed to export Excel");
+    }
+  };
+
+  const filteredBookings = bookings.filter(
+    b =>
+      b.customer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      b.booking_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      b.customer_email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (authLoading || isLoading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#ff1744] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  const statsData = [
+    { label: "Total Revenue", value: `₹${stats.totalRevenue.toLocaleString()}`, icon: DollarSign, color: "#d4af37" },
+    { label: "Total Bookings", value: stats.totalBookings.toString(), icon: Calendar, color: "#ff1744" },
+    { label: "Completed", value: stats.completedBookings.toString(), icon: CheckCircle, color: "#4CAF50" },
+    { label: "Pending", value: stats.pendingBookings.toString(), icon: Clock, color: "#FF9800" },
+  ];
+
+  return (
+    <main className="min-h-screen bg-[#0a0a0a] flex">
+      <aside className="fixed left-0 top-0 bottom-0 w-64 bg-[#0d0d0d] border-r border-white/5 z-50 hidden lg:block">
+        <div className="p-6">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ff1744] to-[#d4af37] flex items-center justify-center">
+              <span className="text-white font-bold text-lg font-display">SK</span>
+            </div>
+            <div>
+              <span className="text-lg font-bold font-display text-gradient">Shashti Karz</span>
+              <p className="text-xs text-[#888]">Admin Panel</p>
+            </div>
+          </Link>
+        </div>
+
+        <nav className="px-4 space-y-1">
+          {[
+            { id: "users", label: "Users", icon: Users },
+            { id: "reviews", label: "Reviews", icon: Package },
+            { id: "gallery", label: "Gallery", icon: Package },
+            { id: "offers", label: "Offers", icon: Gift },
+            { id: "settings", label: "Settings", icon: Settings },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                activeTab === item.id
+                  ? "bg-[#ff1744]/20 text-[#ff1744]"
+                  : "text-[#888] hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <item.icon size={18} />
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#888] hover:bg-white/5 hover:text-white"
+          >
+            <LogOut size={18} />
+            Logout
+          </button>
+        </div>
+      </aside>
+
+      <div className="flex-1 lg:ml-64">
+        <header className="sticky top-0 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 z-40">
+          <div className="flex items-center justify-between h-16 px-6">
+            <div className="flex items-center gap-4 flex-1">
+              <div className="relative flex-1 max-w-md">
+                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#666]" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search bookings..."
+                  className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder:text-[#666] focus:outline-none focus:border-[#ff1744]/50"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <button className="relative p-2 text-[#888] hover:text-white">
+                <Bell size={20} />
+                {stats.pendingBookings > 0 && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-[#ff1744] rounded-full" />
+                )}
+              </button>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#ff1744] to-[#d4af37] flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">A</span>
+                </div>
+                <div className="hidden sm:block">
+                  <p className="text-sm font-medium">{profile?.full_name || "Admin"}</p>
+                  <p className="text-xs text-[#888]">Administrator</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div className="p-6">
+          {activeTab === "dashboard" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold font-display">Dashboard Overview</h1>
+                <button
+                  onClick={loadData}
+                  className="px-4 py-2 rounded-lg bg-white/5 text-sm hover:bg-white/10 flex items-center gap-2"
+                >
+                  Refresh Data
+                </button>
+              </div>
+
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {statsData.map((stat, i) => (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="glass-card rounded-2xl p-6"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div
+                        className="w-12 h-12 rounded-xl flex items-center justify-center"
+                        style={{ backgroundColor: `${stat.color}20` }}
+                      >
+                        <stat.icon size={24} style={{ color: stat.color }} />
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-bold">{stat.value}</h3>
+                    <p className="text-sm text-[#888]">{stat.label}</p>
+                  </motion.div>
+                ))}
+              </div>
+
+              <div className="grid lg:grid-cols-2 gap-6">
+                <div className="glass-card rounded-2xl p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="font-semibold">Recent Bookings</h3>
+                    <button
+                      onClick={() => setActiveTab("bookings")}
+                      className="text-sm text-[#ff1744] hover:underline"
+                    >
+                      View All
+                    </button>
+                  </div>
+                  <div className="space-y-4">
+                    {bookings.slice(0, 5).map((booking) => (
+                      <div key={booking.id} className="flex items-center gap-4 p-3 rounded-xl bg-white/5">
+                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#ff1744]/20 to-[#d4af37]/20 flex items-center justify-center">
+                          <Car size={20} className="text-[#ff1744]" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{booking.customer_name}</p>
+                          <p className="text-xs text-[#888]">{booking.service?.name || booking.service_id}</p>
+                        </div>
+                        <span className={`px-2 py-1 rounded text-xs ${statusColors[booking.status]}`}>
+                          {booking.status}
+                        </span>
+                      </div>
+                    ))}
+                    {bookings.length === 0 && (
+                      <p className="text-center text-[#666] py-4">No bookings yet</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="glass-card rounded-2xl p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="font-semibold">Top Services</h3>
+                    <span className="text-sm text-[#888]">This Month</span>
+                  </div>
+                  <div className="space-y-4">
+                    {services.slice(0, 5).map((service, i) => (
+                      <div key={service.id} className="flex items-center gap-4">
+                        <span className="text-lg font-bold text-[#666] w-6">{i + 1}</span>
+                        <div className="relative w-10 h-10 rounded-lg overflow-hidden">
+                          <Image src={service.image} alt={service.name} fill className="object-cover" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{service.name}</p>
+                          <p className="text-xs text-[#888]">₹{service.price.toLocaleString()}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "bookings" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold font-display">Manage Bookings</h1>
+                <div className="flex gap-2">
+                  <button className="px-4 py-2 rounded-lg bg-white/5 text-sm hover:bg-white/10 flex items-center gap-2">
+                    <Filter size={16} />
+                    Filter
+                  </button>
+                </div>
+              </div>
+
+              <div className="glass-card rounded-2xl overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-white/5">
+                      <tr>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Booking ID</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Customer</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Service</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Date & Time</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Amount</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Status</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredBookings.map((booking) => (
+                        <tr key={booking.id} className="border-t border-white/5">
+                          <td className="px-6 py-4 text-sm font-mono">{booking.booking_id}</td>
+                          <td className="px-6 py-4">
+                            <div>
+                              <p className="text-sm font-medium">{booking.customer_name}</p>
+                              <p className="text-xs text-[#888]">{booking.customer_email}</p>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <p className="text-sm">{booking.service?.name || booking.service_id}</p>
+                            <p className="text-xs text-[#888]">{booking.car_model}</p>
+                          </td>
+                          <td className="px-6 py-4 text-sm">
+                            {booking.date} • {booking.time}
+                          </td>
+                          <td className="px-6 py-4 text-sm font-medium text-[#d4af37]">
+                            ₹{booking.price.toLocaleString()}
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`px-3 py-1 rounded-full text-xs ${statusColors[booking.status]}`}>
+                              {booking.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2">
+                              {booking.status === "pending" && (
+                                <>
+                                  <button
+                                    onClick={() => handleStatusChange(booking.id, "approved")}
+                                    className="p-2 rounded-lg bg-green-500/10 text-green-500 hover:bg-green-500/20"
+                                    title="Approve"
+                                  >
+                                    <CheckCircle size={16} />
+                                  </button>
+                                  <button
+                                    onClick={() => handleStatusChange(booking.id, "cancelled")}
+                                    className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20"
+                                    title="Cancel"
+                                  >
+                                    <XCircle size={16} />
+                                  </button>
+                                </>
+                              )}
+                              {booking.status === "approved" && (
+                                <button
+                                  onClick={() => handleStatusChange(booking.id, "completed")}
+                                  className="p-2 rounded-lg bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
+                                  title="Mark Complete"
+                                >
+                                  <CheckCircle size={16} />
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleDeleteBooking(booking.id)}
+                                className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20"
+                                title="Delete"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                      {filteredBookings.length === 0 && (
+                        <tr>
+                          <td colSpan={7} className="px-6 py-8 text-center text-[#666]">
+                            No bookings found
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "reviews" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold font-display">Manage Reviews</h1>
+                <button
+                  onClick={() => setActiveTab("reviews")}
+                  className="text-sm text-[#ff1744] hover:underline"
+                >
+                  Refresh Reviews
+                </button>
+              </div>
+              <div className="glass-card rounded-2xl overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-white/5">
+                      <tr>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Review ID</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Customer</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Service</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Rating</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Date</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredBookings.map((booking) => (
+                        <tr key={booking.id} className="border-t border-white/5">
+                          <td className="px-6 py-4 text-sm font-mono">{booking.booking_id}</td>
+                          <td className="px-6 py-4">
+                            <div>
+                              <p className="text-sm font-medium">{booking.customer_name}</p>
+                              <p className="text-xs text-[#888]">{booking.service?.name || "N/A"}</p>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-sm">{new Date(booking.date).toLocaleDateString()}</td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => handleApproveReview(booking.id)}
+                                className="p-2 rounded-lg bg-green-500/10 text-green-500 hover:bg-green-600"
+                                title="Approve"
+                              >
+                                <CheckCircle size={16} />
+                              </button>
+                              <button
+                                onClick={() => handleRejectReview(booking.id)}
+                                className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-600/20"
+                                title="Reject"
+                              >
+                                <XCircle size={16} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </main>
+  );
+}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold font-display">Manage Services</h1>
+              </div>
+
+              <div className="glass-card rounded-2xl overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-white/5">
+                      <tr>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Service</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Base Price</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Duration</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Rating</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">AI Score</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {services.map((service) => (
+                        <tr key={service.id} className="border-t border-white/5">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="relative w-12 h-12 rounded-lg overflow-hidden">
+                                <Image src={service.image} alt={service.name} fill className="object-cover" />
+                              </div>
+                              <div>
+                                <p className="font-medium">{service.name}</p>
+                                <p className="text-xs text-[#888]">{service.short_desc}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-[#d4af37] font-medium">
+                            ₹{service.price.toLocaleString()}
+                          </td>
+                          <td className="px-6 py-4 text-sm">{service.duration}</td>
+                          <td className="px-6 py-4 text-sm">{service.rating} / 5.0</td>
+                          <td className="px-6 py-4 text-sm">{service.ai_rating}%</td>
+                          <td className="px-6 py-4">
+                            <span className={`px-2 py-1 rounded text-xs ${service.popular ? "bg-[#ff1744]/20 text-[#ff1744]" : service.premium ? "bg-[#d4af37]/20 text-[#d4af37]" : "bg-white/10 text-[#888]"}`}>
+                              {service.popular ? "Popular" : service.premium ? "Premium" : "Standard"}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "users" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold font-display">Manage Users</h1>
+                <button
+                  onClick={() => setActiveTab("users")}
+                  className="text-sm text-[#ff1744] hover:underline"
+                >
+                  Refresh Users
+                </button>
+              </div>
+              <div className="glass-card rounded-2xl overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-white/5">
+                      <tr>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">User ID</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Name</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Email</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Role</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Joined Date</th>
+                        <th className="text-left px-6 py-4 text-sm font-medium text-[#888]">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {users.map((user) => (
+                        <tr key={user.id} className="border-t border-white/5">
+                          <td className="px-6 py-4 text-sm font-mono">{user.id}</td>
+                          <td className="px-6 py-4">
+                            <div>
+                              <p className="text-sm font-medium">{user.full_name}</p>
+                              <p className="text-xs text-[#888]">{user.email}</p>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-sm">{new Date(user.created_at).toLocaleDateString()}</td>
+                          <td className="px-6 py-4">
+                            <span className={`px-2 py-1 rounded text-xs ${user.email === 'admin@example.com' ? "bg-[#ff1744]/20 text-[#ff1744]" : "bg-white/10 text-[#888]"}`}>
+                              {user.email === 'admin@example.com' ? "Admin" : "Customer"}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => handleDeleteUser(user.id)}
+                                className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20"
+                                title="Delete User"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </main>
+  );
+}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <h1 className="text-2xl font-bold font-display">Admin Settings</h1>
+              
+              <div className="glass-card rounded-2xl p-6">
+                <h3 className="font-semibold mb-4">Business Hours</h3>
+                <div className="space-y-4">
+                  {[
+                    { day: "Monday - Friday", hours: "9:00 AM - 7:00 PM" },
+                    { day: "Saturday", hours: "9:00 AM - 6:00 PM" },
+                    { day: "Sunday", hours: "10:00 AM - 4:00 PM" },
+                  ].map((item) => (
+                    <div key={item.day} className="flex items-center justify-between">
+                      <span className="text-sm text-[#888]">{item.day}</span>
+                      <input
+                        type="text"
+                        defaultValue={item.hours}
+                        className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white w-48"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-4">
+                  <button className="mt-4 btn-premium px-4 py-2 rounded-lg text-sm" onClick={exportToPDF}>
+                    <Download size={16} className="mr-2" />
+                    Export PDF
+                  </button>
+                  <button className="mt-4 btn-premium px-4 py-2 rounded-lg text-sm bg-green-500 hover:bg-green-600 text-white" onClick={exportToExcel}>
+                    <Download size={16} className="mr-2" />
+                    Export Excel
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </main>
+  );
+}
