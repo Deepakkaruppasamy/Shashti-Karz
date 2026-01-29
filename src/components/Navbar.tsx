@@ -59,7 +59,6 @@ export function Navbar() {
             />
             <div className="hidden sm:block">
               <h1 className="text-xl font-bold font-display text-gradient">{businessInfo.name}</h1>
-              <p className="text-xs text-[#888] tracking-widest uppercase">{businessInfo.tagline}</p>
             </div>
           </Link>
 
