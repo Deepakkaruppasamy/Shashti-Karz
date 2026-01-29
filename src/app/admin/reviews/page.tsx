@@ -9,8 +9,6 @@ import toast from "react-hot-toast";
 import Image from "next/image";
 import { jsPDF } from "jspdf";
 import * as XLSX from "xlsx";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import type { Review } from "@/lib/types";
 
 export default function ReviewsAdminPage() {
@@ -157,9 +155,7 @@ export default function ReviewsAdminPage() {
   const avgRating = reviews.length > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) : "0";
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
-      <div className="py-8 pb-16 max-w-7xl mx-auto px-4">
+    <div className="py-4 px-4 max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold">Review Management</h1>
@@ -530,7 +526,6 @@ export default function ReviewsAdminPage() {
           )}
         </AnimatePresence>
       </div>
-      <Footer />
-    </main>
+    </div>
   );
 }

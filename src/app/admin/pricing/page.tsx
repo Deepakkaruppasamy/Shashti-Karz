@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { TrendingUp, Plus, X, Trash2, Calendar, Clock, Cloud, Power } from "lucide-react";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import toast from "react-hot-toast";
 import type { PricingRule } from "@/lib/types";
 
@@ -54,9 +52,7 @@ export default function PricingRulesPage() {
   const getColor = (t: string) => t === "weekend" ? "from-purple-500 to-pink-500" : t === "peak_hour" ? "from-orange-500 to-red-500" : t === "weather" ? "from-blue-500 to-cyan-500" : "from-green-500 to-emerald-500";
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
-      <div className="py-8 pb-16 max-w-5xl mx-auto px-4">
+    <div className="py-4 px-4 max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div><h1 className="text-3xl font-bold">Dynamic Pricing</h1><p className="text-[#888]">Configure surge & discounts</p></div>
           <button onClick={() => setShowModal(true)} className="btn-premium px-6 py-3 rounded-xl text-white flex items-center gap-2"><Plus size={18} />Add Rule</button>
@@ -85,8 +81,7 @@ export default function PricingRulesPage() {
           )}
         </div>
       </div>
-      <Footer />
-    </main>
+    </div>
   );
 }
 

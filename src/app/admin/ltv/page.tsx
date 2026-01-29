@@ -5,7 +5,6 @@ import { TrendingUp, Users, AlertTriangle, Crown, DollarSign } from "lucide-reac
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useAuth } from "@/lib/auth-context";
 
 interface Customer {
     user_id: string;
@@ -40,19 +39,9 @@ export default function LTVAdminPage() {
     const [selectedSegment, setSelectedSegment] = useState<string>("all");
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const { user, isLoading: authLoading } = useAuth();
-
     useEffect(() => {
-        if (!authLoading && !user) {
-            router.push("/login");
-        }
-    }, [authLoading, user, router]);
-
-    useEffect(() => {
-        if (user) {
-            fetchLTVData();
-        }
-    }, [selectedSegment, user]);
+        fetchLTVData();
+    }, [selectedSegment]);
 
     const fetchLTVData = async () => {
         try {
@@ -63,11 +52,7 @@ export default function LTVAdminPage() {
 
             const response = await fetch(`/api/customers/ltv?${params}`);
 
-            if (response.status === 401) {
-                toast.error("Please login to access this page");
-                router.push("/login");
-                return;
-            }
+
 
             if (!response.ok) {
                 throw new Error("Failed to fetch LTV data");

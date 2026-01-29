@@ -5,7 +5,6 @@ import { MessageCircle, Send, Users, Clock, CheckCheck, Plus } from "lucide-reac
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useAuth } from "@/lib/auth-context";
 
 interface WhatsAppTemplate {
     id: string;
@@ -32,19 +31,9 @@ export default function WhatsAppAdminPage() {
     const [stats, setStats] = useState<WhatsAppStats | null>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const { user, isLoading: authLoading } = useAuth();
-
     useEffect(() => {
-        if (!authLoading && !user) {
-            router.push("/login");
-        }
-    }, [authLoading, user, router]);
-
-    useEffect(() => {
-        if (user) {
-            fetchWhatsAppData();
-        }
-    }, [user]);
+        fetchWhatsAppData();
+    }, []);
 
     const fetchWhatsAppData = async () => {
         try {
