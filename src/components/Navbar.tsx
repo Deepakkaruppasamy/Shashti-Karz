@@ -36,10 +36,11 @@ export function Navbar() {
 
   const navLinks = [
     { href: "/", label: t('home') },
-    { href: "/virtual-tour", label: "360° Tour" },
     { href: "/services", label: t('services') },
     { href: "/booking", label: t('book_now') },
     { href: "/gallery", label: t('gallery') },
+    { href: "/rewards", label: "Rewards", highlight: true },
+    ...(user ? [{ href: "/my-bookings", label: "My Bookings" }] : []),
     { href: "/contact", label: t('contact') },
   ];
 
