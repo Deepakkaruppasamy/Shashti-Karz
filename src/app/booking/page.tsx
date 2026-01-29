@@ -17,6 +17,7 @@ import { GlowingBorder, PulsingDot } from "@/components/animations/GlowingBorder
 import { MagneticButton, TiltCard } from "@/components/animations/MagneticButton";
 import { AnimatedCounter } from "@/components/animations/AnimatedCounter";
 import { ProgressLoader } from "@/components/animations/CarLoader";
+import { SuccessConfetti } from "@/components/animations/ConfettiEffect";
 
 const timeSlots = [
   '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
@@ -35,11 +36,11 @@ function BookingForm() {
   const preselectedAddons = searchParams.get("addons");
   const preselectedTotal = searchParams.get("total");
   const { user, profile } = useAuth();
-  
+
   const [services, setServices] = useState<Service[]>([]);
   const [carTypes, setCarTypes] = useState<CarType[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
-  
+
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [formData, setFormData] = useState({
@@ -67,13 +68,13 @@ function BookingForm() {
           fetch("/api/services"),
           fetch("/api/car-types")
         ]);
-        
+
         if (!servicesRes.ok) throw new Error("Failed to load services");
         if (!carTypesRes.ok) throw new Error("Failed to load car types");
-        
+
         const servicesData = await servicesRes.json();
         const carTypesData = await carTypesRes.json();
-        
+
         setServices(Array.isArray(servicesData) ? servicesData : []);
         setCarTypes(Array.isArray(carTypesData) ? carTypesData : []);
       } catch (error) {
@@ -102,16 +103,16 @@ function BookingForm() {
   const selectedService = services.find(s => s.id === formData.service);
   const selectedCarType = carTypes.find(c => c.id === formData.carType);
   const baseServicePrice = 300;
-  const finalPrice = customPrice !== null 
-    ? customPrice 
-    : (selectedService && selectedCarType 
-        ? Math.round(baseServicePrice * selectedCarType.price_multiplier)
-        : 0);
+  const finalPrice = customPrice !== null
+    ? customPrice
+    : (selectedService && selectedCarType
+      ? Math.round(baseServicePrice * selectedCarType.price_multiplier)
+      : 0);
 
-  const bookingType = preselectedAddon ? `Addon: ${preselectedAddon}` 
-    : preselectedPackage ? `Package: ${preselectedPackage}` 
-    : preselectedAddons ? `With extras` 
-    : null;
+  const bookingType = preselectedAddon ? `Addon: ${preselectedAddon}`
+    : preselectedPackage ? `Package: ${preselectedPackage}`
+      : preselectedAddons ? `With extras`
+        : null;
 
   const getAIRecommendation = () => {
     if (formData.carType === "luxury" || formData.carType === "supercar") {
@@ -148,11 +149,11 @@ function BookingForm() {
       });
 
       if (!response.ok) throw new Error("Failed to create booking");
-      
-const booking = await response.json();
-        setBookingId(booking.booking_id);
-        setBookingUUID(booking.id);
-        setIsComplete(true);
+
+      const booking = await response.json();
+      setBookingId(booking.booking_id);
+      setBookingUUID(booking.id);
+      setIsComplete(true);
       toast.success("Booking confirmed! Check your email for details.");
     } catch {
       toast.error("Failed to create booking. Please try again.");
@@ -221,85 +222,87 @@ const booking = await response.json();
 
   if (isComplete) {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="max-w-2xl mx-auto text-center py-16"
-      >
+      <>
+        <SuccessConfetti trigger={isComplete} />
         <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", delay: 0.2 }}
-          className="relative"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-2xl mx-auto text-center py-16"
         >
           <motion.div
-            animate={{
-              boxShadow: [
-                "0 0 0 0 rgba(255, 23, 68, 0.4)",
-                "0 0 0 20px rgba(255, 23, 68, 0)",
-              ],
-            }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="w-24 h-24 rounded-full bg-gradient-to-r from-[#ff1744] to-[#d4af37] flex items-center justify-center mx-auto mb-8"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", delay: 0.2 }}
+            className="relative"
           >
-            <CheckCircle size={48} className="text-white" />
+            <motion.div
+              animate={{
+                boxShadow: [
+                  "0 0 0 0 rgba(255, 23, 68, 0.4)",
+                  "0 0 0 20px rgba(255, 23, 68, 0)",
+                ],
+              }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="w-24 h-24 rounded-full bg-gradient-to-r from-[#ff1744] to-[#d4af37] flex items-center justify-center mx-auto mb-8"
+            >
+              <CheckCircle size={48} className="text-white" />
+            </motion.div>
           </motion.div>
-        </motion.div>
-        
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="text-3xl font-bold font-display mb-4"
-        >
-          Booking Confirmed!
-        </motion.h2>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="text-[#888] mb-8"
-        >
-          Your appointment has been scheduled. We&apos;ll contact you shortly to confirm.
-        </motion.p>
-        
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <GlowingBorder className="rounded-2xl">
-            <div className="p-6 bg-[#0a0a0a] rounded-2xl text-left">
-              <h3 className="font-semibold mb-4 text-[#d4af37]">Booking Details:</h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-[#888]">Booking ID:</span>
-                  <span className="font-mono">{bookingId}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[#888]">Service:</span>
-                  <span>{selectedService?.name}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[#888]">Vehicle:</span>
-                  <span>{formData.carModel} ({selectedCarType?.name})</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[#888]">Date & Time:</span>
-                  <span>{formData.date} at {formData.time}</span>
-                </div>
-                <div className="flex justify-between border-t border-white/10 pt-3 mt-3">
-                  <span className="text-[#888]">Total Amount:</span>
-                  <span className="text-xl font-bold text-gradient">
-                    ₹<AnimatedCounter end={finalPrice} duration={1000} />
-                  </span>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-3xl font-bold font-display mb-4"
+          >
+            Booking Confirmed!
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="text-[#888] mb-8"
+          >
+            Your appointment has been scheduled. We&apos;ll contact you shortly to confirm.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <GlowingBorder className="rounded-2xl">
+              <div className="p-6 bg-[#0a0a0a] rounded-2xl text-left">
+                <h3 className="font-semibold mb-4 text-[#d4af37]">Booking Details:</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-[#888]">Booking ID:</span>
+                    <span className="font-mono">{bookingId}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#888]">Service:</span>
+                    <span>{selectedService?.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#888]">Vehicle:</span>
+                    <span>{formData.carModel} ({selectedCarType?.name})</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#888]">Date & Time:</span>
+                    <span>{formData.date} at {formData.time}</span>
+                  </div>
+                  <div className="flex justify-between border-t border-white/10 pt-3 mt-3">
+                    <span className="text-[#888]">Total Amount:</span>
+                    <span className="text-xl font-bold text-gradient">
+                      ₹<AnimatedCounter end={finalPrice} duration={1000} />
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </GlowingBorder>
-        </motion.div>
+            </GlowingBorder>
+          </motion.div>
 
-<motion.div
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7 }}
@@ -358,7 +361,8 @@ const booking = await response.json();
             </motion.div>
             <p className="text-xs text-[#666]">Your car is on its way to premium care!</p>
           </motion.div>
-      </motion.div>
+        </motion.div>
+      </>
     );
   }
 
@@ -371,7 +375,7 @@ const booking = await response.json();
               const StepIcon = stepIcons[i];
               const isActive = step === i + 1;
               const isCompleted = step > i + 1;
-              
+
               return (
                 <motion.div
                   key={i}
@@ -383,13 +387,12 @@ const booking = await response.json();
                   <motion.div
                     whileHover={isCompleted ? { scale: 1.1 } : {}}
                     onClick={() => isCompleted && setStep(i + 1)}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold cursor-pointer transition-all ${
-                      isActive
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold cursor-pointer transition-all ${isActive
                         ? "bg-gradient-to-r from-[#ff1744] to-[#d4af37] text-white shadow-lg shadow-[#ff1744]/30"
                         : isCompleted
-                        ? "bg-green-500 text-white"
-                        : "bg-white/5 text-[#666]"
-                    }`}
+                          ? "bg-green-500 text-white"
+                          : "bg-white/5 text-[#666]"
+                      }`}
                   >
                     {isCompleted ? <CheckCircle size={18} /> : <StepIcon size={18} />}
                   </motion.div>
@@ -431,11 +434,10 @@ const booking = await response.json();
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.05 }}
                         onClick={() => setFormData({ ...formData, carType: car.id })}
-                        className={`p-4 rounded-xl text-left transition-all ${
-                          formData.carType === car.id
+                        className={`p-4 rounded-xl text-left transition-all ${formData.carType === car.id
                             ? "bg-[#ff1744]/20 border-2 border-[#ff1744] shadow-lg shadow-[#ff1744]/20"
                             : "bg-white/5 border-2 border-transparent hover:bg-white/10"
-                        }`}
+                          }`}
                       >
                         <motion.div
                           animate={formData.carType === car.id ? { scale: [1, 1.2, 1] } : {}}
@@ -506,11 +508,10 @@ const booking = await response.json();
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: i * 0.05 }}
                         onClick={() => setFormData({ ...formData, service: service.id })}
-                        className={`p-4 rounded-xl text-left transition-all flex gap-4 ${
-                          formData.service === service.id
+                        className={`p-4 rounded-xl text-left transition-all flex gap-4 ${formData.service === service.id
                             ? "bg-[#ff1744]/20 border-2 border-[#ff1744] shadow-lg shadow-[#ff1744]/20"
                             : "bg-white/5 border-2 border-transparent hover:bg-white/10"
-                        }`}
+                          }`}
                       >
                         <div className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0">
                           <Image src={service.image} alt={service.name} fill className="object-cover" />
@@ -534,8 +535,8 @@ const booking = await response.json();
                           <p className="text-xs text-[#888] mt-1">{service.short_desc}</p>
                           <div className="flex items-center gap-4 mt-2">
                             <span className="text-[#d4af37] font-semibold">
-                              ₹{selectedCarType 
-                                ? Math.round(service.price * selectedCarType.price_multiplier).toLocaleString() 
+                              ₹{selectedCarType
+                                ? Math.round(service.price * selectedCarType.price_multiplier).toLocaleString()
                                 : service.price.toLocaleString()}
                             </span>
                             <span className="text-xs text-[#666]">{service.duration}</span>
@@ -577,11 +578,10 @@ const booking = await response.json();
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: i * 0.05 }}
                         onClick={() => setFormData({ ...formData, time: slot })}
-                        className={`p-3 rounded-xl text-sm font-medium transition-all ${
-                          formData.time === slot
+                        className={`p-3 rounded-xl text-sm font-medium transition-all ${formData.time === slot
                             ? "bg-[#ff1744] text-white shadow-lg shadow-[#ff1744]/30"
                             : "bg-white/5 text-[#888] hover:bg-white/10 hover:text-white"
-                        }`}
+                          }`}
                       >
                         {slot}
                       </motion.button>
@@ -734,7 +734,7 @@ const booking = await response.json();
                 <Sparkles size={18} className="text-[#d4af37]" />
                 Booking Summary
               </h3>
-              
+
               {selectedService ? (
                 <div className="space-y-4">
                   <div className="relative h-40 rounded-xl overflow-hidden">
@@ -837,7 +837,7 @@ export default function BookingPage() {
   return (
     <main className="min-h-screen bg-[#0a0a0a]">
       <Navbar />
-      
+
       <section className="pt-32 pb-24 hero-gradient">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal variant="fadeUp" className="text-center mb-12">
@@ -848,7 +848,7 @@ export default function BookingPage() {
               Schedule Your <span className="text-gradient">Service</span>
             </h1>
             <p className="text-[#888] max-w-xl mx-auto">
-              Book your car detailing appointment in just a few clicks. 
+              Book your car detailing appointment in just a few clicks.
               Our AI will help you choose the perfect service.
             </p>
           </ScrollReveal>
