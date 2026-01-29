@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Clock, Plus, X, Ban, RefreshCw, ChevronLeft, ChevronRight, Users } from "lucide-react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
+import { AdminSidebar } from "@/components/AdminSidebar";
 import type { AvailabilitySlot } from "@/lib/types";
 
 export default function SlotsPage() {
@@ -111,178 +112,182 @@ export default function SlotsPage() {
   const bookedSlots = slots.filter((s) => s.current_occupancy >= s.max_capacity).length;
 
   return (
-    <div className="py-4 px-4 max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">Slot Management</h1>
-            <p className="text-[#888]">Configure availability and booking slots</p>
-          </div>
-          <button
-            onClick={() => setShowGenerateModal(true)}
-            className="btn-premium px-6 py-3 rounded-xl text-white flex items-center gap-2"
-          >
-            <Plus size={18} />
-            Generate Slots
-          </button>
-        </div>
-
-        <div className="grid sm:grid-cols-3 gap-4 mb-8">
-          {[
-            { label: "Total Slots", value: totalSlots, icon: Calendar, color: "from-blue-500 to-cyan-500" },
-            { label: "Blocked", value: blockedSlots, icon: Ban, color: "from-red-500 to-orange-500" },
-            { label: "Fully Booked", value: bookedSlots, icon: Users, color: "from-green-500 to-emerald-500" },
-          ].map((stat, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="glass-card rounded-2xl p-6"
-            >
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3`}>
-                <stat.icon size={24} className="text-white" />
-              </div>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <div className="text-sm text-[#888]">{stat.label}</div>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="glass-card rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigateWeek(-1)}
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10"
-              >
-                <ChevronLeft size={20} />
-              </button>
-              <h2 className="font-semibold">
-                {currentWeekStart.toLocaleDateString("en-IN", { month: "short", day: "numeric" })} -{" "}
-                {weekDays[6].toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}
-              </h2>
-              <button
-                onClick={() => navigateWeek(1)}
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10"
-              >
-                <ChevronRight size={20} />
-              </button>
+    <div className="flex min-h-screen bg-[#0a0a0a]">
+      <AdminSidebar />
+      <div className="flex-1 overflow-auto">
+        <div className="p-4 lg:p-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold">Slot Management</h1>
+              <p className="text-[#888]">Configure availability and booking slots</p>
             </div>
             <button
-              onClick={loadSlots}
-              className="p-2 rounded-lg bg-white/5 hover:bg-white/10"
+              onClick={() => setShowGenerateModal(true)}
+              className="btn-premium px-6 py-3 rounded-xl text-white flex items-center gap-2"
             >
-              <RefreshCw size={18} />
+              <Plus size={18} />
+              Generate Slots
             </button>
           </div>
 
-          {isLoading ? (
-            <div className="text-center py-12">
-              <div className="w-8 h-8 border-2 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="grid sm:grid-cols-3 gap-4 mb-8">
+            {[
+              { label: "Total Slots", value: totalSlots, icon: Calendar, color: "from-blue-500 to-cyan-500" },
+              { label: "Blocked", value: blockedSlots, icon: Ban, color: "from-red-500 to-orange-500" },
+              { label: "Fully Booked", value: bookedSlots, icon: Users, color: "from-green-500 to-emerald-500" },
+            ].map((stat, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className="glass-card rounded-2xl p-6"
+              >
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3`}>
+                  <stat.icon size={24} className="text-white" />
+                </div>
+                <div className="text-2xl font-bold">{stat.value}</div>
+                <div className="text-sm text-[#888]">{stat.label}</div>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="glass-card rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => navigateWeek(-1)}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <h2 className="font-semibold">
+                  {currentWeekStart.toLocaleDateString("en-IN", { month: "short", day: "numeric" })} -{" "}
+                  {weekDays[6].toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}
+                </h2>
+                <button
+                  onClick={() => navigateWeek(1)}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+              <button
+                onClick={loadSlots}
+                className="p-2 rounded-lg bg-white/5 hover:bg-white/10"
+              >
+                <RefreshCw size={18} />
+              </button>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr>
-                    <th className="p-3 text-left text-sm text-[#888] font-medium w-20">Time</th>
-                    {weekDays.map((day, i) => {
-                      const isToday = day.toDateString() === new Date().toDateString();
-                      return (
-                        <th key={i} className={`p-3 text-center text-sm font-medium ${isToday ? "text-[#ff1744]" : "text-[#888]"}`}>
-                          <div>{day.toLocaleDateString("en-IN", { weekday: "short" })}</div>
-                          <div className={`text-lg ${isToday ? "text-[#ff1744]" : "text-white"}`}>{day.getDate()}</div>
-                        </th>
-                      );
-                    })}
-                  </tr>
-                </thead>
-                <tbody>
-                  {timeSlots.map((time) => (
-                    <tr key={time}>
-                      <td className="p-3 text-sm text-[#888] font-medium">{time}</td>
+
+            {isLoading ? (
+              <div className="text-center py-12">
+                <div className="w-8 h-8 border-2 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto" />
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr>
+                      <th className="p-3 text-left text-sm text-[#888] font-medium w-20">Time</th>
                       {weekDays.map((day, i) => {
-                        const slot = getSlotForDateTime(day, time);
-                        const isPast = day < new Date() && day.toDateString() !== new Date().toDateString();
-
-                        if (!slot) {
-                          return (
-                            <td key={i} className="p-2">
-                              <div className={`h-16 rounded-lg border-2 border-dashed border-white/10 flex items-center justify-center ${isPast ? "opacity-30" : ""}`}>
-                                <span className="text-xs text-[#666]">-</span>
-                              </div>
-                            </td>
-                          );
-                        }
-
-                        const isFull = slot.current_occupancy >= slot.max_capacity;
-                        const isBlocked = slot.is_blocked;
-                        const utilization = (slot.current_occupancy / slot.max_capacity) * 100;
-
+                        const isToday = day.toDateString() === new Date().toDateString();
                         return (
-                          <td key={i} className="p-2">
-                            <motion.div
-                              whileHover={{ scale: isPast ? 1 : 1.02 }}
-                              className={`h-16 rounded-lg p-2 relative overflow-hidden cursor-pointer transition-colors ${isBlocked
-                                ? "bg-red-500/20 border border-red-500/50"
-                                : isFull
-                                  ? "bg-yellow-500/20 border border-yellow-500/50"
-                                  : "bg-green-500/20 border border-green-500/50"
-                                } ${isPast ? "opacity-30 pointer-events-none" : ""}`}
-                              onClick={() => !isPast && toggleBlock(slot)}
-                            >
-                              <div className="flex items-center justify-between text-xs">
-                                <span className={isBlocked ? "text-red-500" : isFull ? "text-yellow-500" : "text-green-500"}>
-                                  {isBlocked ? "Blocked" : `${slot.current_occupancy}/${slot.max_capacity}`}
-                                </span>
-                                {!isBlocked && (
-                                  <div className="flex gap-1">
-                                    <button
-                                      onClick={(e) => { e.stopPropagation(); updateCapacity(slot, -1); }}
-                                      className="w-5 h-5 rounded bg-white/10 flex items-center justify-center text-xs"
-                                    >
-                                      -
-                                    </button>
-                                    <button
-                                      onClick={(e) => { e.stopPropagation(); updateCapacity(slot, 1); }}
-                                      className="w-5 h-5 rounded bg-white/10 flex items-center justify-center text-xs"
-                                    >
-                                      +
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
-                              {!isBlocked && (
-                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
-                                  <div
-                                    className={`h-full ${isFull ? "bg-yellow-500" : "bg-green-500"}`}
-                                    style={{ width: `${utilization}%` }}
-                                  />
-                                </div>
-                              )}
-                            </motion.div>
-                          </td>
+                          <th key={i} className={`p-3 text-center text-sm font-medium ${isToday ? "text-[#ff1744]" : "text-[#888]"}`}>
+                            <div>{day.toLocaleDateString("en-IN", { weekday: "short" })}</div>
+                            <div className={`text-lg ${isToday ? "text-[#ff1744]" : "text-white"}`}>{day.getDate()}</div>
+                          </th>
                         );
                       })}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  </thead>
+                  <tbody>
+                    {timeSlots.map((time) => (
+                      <tr key={time}>
+                        <td className="p-3 text-sm text-[#888] font-medium">{time}</td>
+                        {weekDays.map((day, i) => {
+                          const slot = getSlotForDateTime(day, time);
+                          const isPast = day < new Date() && day.toDateString() !== new Date().toDateString();
 
-          <div className="mt-6 flex items-center gap-6 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-green-500/30 border border-green-500" />
-              <span className="text-[#888]">Available</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-yellow-500/30 border border-yellow-500" />
-              <span className="text-[#888]">Full</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-red-500/30 border border-red-500" />
-              <span className="text-[#888]">Blocked</span>
+                          if (!slot) {
+                            return (
+                              <td key={i} className="p-2">
+                                <div className={`h-16 rounded-lg border-2 border-dashed border-white/10 flex items-center justify-center ${isPast ? "opacity-30" : ""}`}>
+                                  <span className="text-xs text-[#666]">-</span>
+                                </div>
+                              </td>
+                            );
+                          }
+
+                          const isFull = slot.current_occupancy >= slot.max_capacity;
+                          const isBlocked = slot.is_blocked;
+                          const utilization = (slot.current_occupancy / slot.max_capacity) * 100;
+
+                          return (
+                            <td key={i} className="p-2">
+                              <motion.div
+                                whileHover={{ scale: isPast ? 1 : 1.02 }}
+                                className={`h-16 rounded-lg p-2 relative overflow-hidden cursor-pointer transition-colors ${isBlocked
+                                  ? "bg-red-500/20 border border-red-500/50"
+                                  : isFull
+                                    ? "bg-yellow-500/20 border border-yellow-500/50"
+                                    : "bg-green-500/20 border border-green-500/50"
+                                  } ${isPast ? "opacity-30 pointer-events-none" : ""}`}
+                                onClick={() => !isPast && toggleBlock(slot)}
+                              >
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className={isBlocked ? "text-red-500" : isFull ? "text-yellow-500" : "text-green-500"}>
+                                    {isBlocked ? "Blocked" : `${slot.current_occupancy}/${slot.max_capacity}`}
+                                  </span>
+                                  {!isBlocked && (
+                                    <div className="flex gap-1">
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); updateCapacity(slot, -1); }}
+                                        className="w-5 h-5 rounded bg-white/10 flex items-center justify-center text-xs"
+                                      >
+                                        -
+                                      </button>
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); updateCapacity(slot, 1); }}
+                                        className="w-5 h-5 rounded bg-white/10 flex items-center justify-center text-xs"
+                                      >
+                                        +
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                                {!isBlocked && (
+                                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
+                                    <div
+                                      className={`h-full ${isFull ? "bg-yellow-500" : "bg-green-500"}`}
+                                      style={{ width: `${utilization}%` }}
+                                    />
+                                  </div>
+                                )}
+                              </motion.div>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            <div className="mt-6 flex items-center gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-green-500/30 border border-green-500" />
+                <span className="text-[#888]">Available</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-yellow-500/30 border border-yellow-500" />
+                <span className="text-[#888]">Full</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-red-500/30 border border-red-500" />
+                <span className="text-[#888]">Blocked</span>
+              </div>
             </div>
           </div>
         </div>
