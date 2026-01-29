@@ -5,7 +5,6 @@ import { Send, Users, Calendar, TrendingUp, Eye, Plus } from "lucide-react";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useAuth } from "@/lib/auth-context";
 
 interface Campaign {
     id: string;
@@ -26,29 +25,15 @@ export default function CampaignsAdminPage() {
     const [loading, setLoading] = useState(true);
     const [showCreateForm, setShowCreateForm] = useState(false);
     const router = useRouter();
-    const { user, isLoading: authLoading } = useAuth();
-
     useEffect(() => {
-        if (!authLoading && !user) {
-            router.push("/login");
-        }
-    }, [authLoading, user, router]);
-
-    useEffect(() => {
-        if (user) {
-            fetchCampaigns();
-        }
-    }, [user]);
+        fetchCampaigns();
+    }, []);
 
     const fetchCampaigns = async () => {
         try {
             const response = await fetch("/api/campaigns");
 
-            if (response.status === 401) {
-                toast.error("Please login to access this page");
-                router.push("/login");
-                return;
-            }
+
 
             if (!response.ok) {
                 throw new Error("Failed to fetch campaigns");

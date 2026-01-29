@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Package, Plus, X, Trash2, Star, Power, Edit3 } from "lucide-react";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import toast from "react-hot-toast";
 import type { Service } from "@/lib/types";
 
@@ -146,8 +144,7 @@ export default function PackagesPage() {
 
   return (
     <main className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
-      <div className="py-8 pb-16 max-w-6xl mx-auto px-4">
+      <main className="min-h-screen pt-16 pb-16 lg:pt-20 lg:pb-20 bg-gradient-to-b from-[#0a0a0a] to-[#0a0a0a]">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold">Service Packages</h1>
@@ -231,9 +228,7 @@ export default function PackagesPage() {
             </div>
           )}
         </div>
-      </div>
-      <Footer />
+      </main>
     </main>
   );
 }
-

@@ -5,7 +5,6 @@ import { Wrench, AlertCircle, Calendar, TrendingDown, CheckCircle2, Plus } from 
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useAuth } from "@/lib/auth-context";
 
 interface Equipment {
     id: string;
@@ -36,29 +35,15 @@ export default function EquipmentAdminPage() {
     const [alerts, setAlerts] = useState<MaintenanceAlert[]>([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const { user, isLoading: authLoading } = useAuth();
-
     useEffect(() => {
-        if (!authLoading && !user) {
-            router.push("/login");
-        }
-    }, [authLoading, user, router]);
-
-    useEffect(() => {
-        if (user) {
-            fetchEquipment();
-        }
-    }, [user]);
+        fetchEquipment();
+    }, []);
 
     const fetchEquipment = async () => {
         try {
             const response = await fetch("/api/equipment");
 
-            if (response.status === 401) {
-                toast.error("Please login to access this page");
-                router.push("/login");
-                return;
-            }
+
 
             if (!response.ok) {
                 throw new Error("Failed to fetch equipment");

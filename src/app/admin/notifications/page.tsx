@@ -29,7 +29,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { AdminSidebar } from "@/components/AdminSidebar";
-import { useAuth } from "@/lib/auth-context";
 
 type TabType = "send" | "history" | "rules" | "templates" | "analytics";
 
@@ -64,7 +63,6 @@ interface NotificationRule {
 export default function AdminNotificationsPage() {
   const [activeTab, setActiveTab] = useState<TabType>("send");
   const [isLoading, setIsLoading] = useState(false);
-  const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
   const [rules, setRules] = useState<NotificationRule[]>([
@@ -128,16 +126,10 @@ export default function AdminNotificationsPage() {
   });
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push("/login");
-    }
-  }, [authLoading, user, router]);
-
-  useEffect(() => {
-    if (activeTab === "history" && user) {
+    if (activeTab === "history") {
       fetchHistory();
     }
-  }, [activeTab, user]);
+  }, [activeTab]);
 
   const fetchHistory = async () => {
     setHistoryLoading(true);
