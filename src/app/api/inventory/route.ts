@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   const lowStock = searchParams.get("low_stock");
 
   let query = supabase
-    .from("inventory_items")
+    .from("inventory")
     .select("*")
     .order("name", { ascending: true });
 
@@ -25,38 +25,65 @@ export async function GET(request: Request) {
   let filteredData = data || [];
   if (lowStock === "true") {
     filteredData = filteredData.filter(
-      (item) => item.current_stock <= item.min_stock_threshold
+      (item) => item.quantity <= item.min_quantity
     );
   }
 
-  return NextResponse.json(filteredData);
+  // Map to match frontend expectations
+  const mappedData = filteredData.map(item => ({
+    id: item.id,
+    name: item.name,
+    category: item.category,
+    description: item.description,
+    current_stock: item.quantity,
+    min_stock_threshold: item.min_quantity,
+    max_stock_threshold: item.max_quantity,
+    unit: item.unit,
+    cost_per_unit: item.price_per_unit,
+    supplier: item.supplier,
+    last_restocked_at: item.last_restocked,
+    location: item.location,
+    sku: item.sku,
+    status: item.status,
+    created_at: item.created_at,
+    updated_at: item.updated_at
+  }));
+
+  return NextResponse.json(mappedData);
 }
 
 export async function POST(request: Request) {
   const supabase = await createClient();
   const body = await request.json();
 
+  // Handle restock action
   if (body.action === "restock") {
     const { item_id, quantity } = body;
-    
-    const { data: item, error: fetchError } = await supabase
-      .from("inventory_items")
-      .select("current_stock")
-      .eq("id", item_id)
-      .single();
 
-    if (fetchError) {
-      return NextResponse.json({ error: fetchError.message }, { status: 500 });
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // Create transaction record
+    const { error: transactionError } = await supabase
+      .from("inventory_transactions")
+      .insert({
+        inventory_id: item_id,
+        type: "restock",
+        quantity: quantity,
+        notes: "Manual restock via admin panel",
+        performed_by: user?.id
+      });
+
+    if (transactionError) {
+      return NextResponse.json({ error: transactionError.message }, { status: 500 });
     }
 
+    // The trigger will automatically update the inventory quantity
+    // Fetch the updated item
     const { data, error } = await supabase
-      .from("inventory_items")
-      .update({
-        current_stock: (item?.current_stock || 0) + quantity,
-        last_restocked_at: new Date().toISOString(),
-      })
+      .from("inventory")
+      .select("*")
       .eq("id", item_id)
-      .select()
       .single();
 
     if (error) {
@@ -66,9 +93,25 @@ export async function POST(request: Request) {
     return NextResponse.json(data);
   }
 
+  // Handle new item creation
+  const inventoryData = {
+    name: body.name,
+    category: body.category,
+    description: body.description || null,
+    quantity: body.current_stock || 0,
+    min_quantity: body.min_stock_threshold || 10,
+    max_quantity: body.max_stock_threshold || 100,
+    unit: body.unit || "units",
+    price_per_unit: body.cost_per_unit || 0,
+    supplier: body.supplier || null,
+    location: body.location || null,
+    sku: body.sku || null,
+    status: "active"
+  };
+
   const { data, error } = await supabase
-    .from("inventory_items")
-    .insert(body)
+    .from("inventory")
+    .insert(inventoryData)
     .select()
     .single();
 
