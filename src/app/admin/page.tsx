@@ -12,7 +12,7 @@ import {
   TrendingUp, TrendingDown, Award, Crown, Zap, Send, RefreshCw,
   Brain, Sparkles, AlertTriangle, ArrowUp, ArrowDown, Target,
   PieChart, Activity, Lightbulb, ChevronRight, X, FileText, Download, CreditCard, Receipt, ArrowUpRight,
-  Menu, ChevronDown, ImageIcon, Edit2
+  Menu, ChevronDown, ImageIcon, Edit2, Star
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
@@ -21,6 +21,16 @@ import type { AIInsight } from "@/lib/shashti-ai";
 import { jsPDF } from "jspdf";
 import * as XLSX from "xlsx";
 import { supabase } from "@/lib/supabase/client";
+import { useRealtimeSubscription, useOnlineUsers } from "@/hooks/useRealtimeSubscription";
+import { useNotificationSound } from "@/hooks/useNotificationSound";
+import { RealtimeIndicator } from "@/components/admin/RealtimeIndicator";
+import { SuccessConfetti } from "@/components/animations/ConfettiEffect";
+import { useRealtimeAnalytics } from "@/hooks/useRealtimeAnalytics";
+import { RevenueChart } from "@/components/admin/charts/RevenueChart";
+import { BookingTrendsChart } from "@/components/admin/charts/BookingTrendsChart";
+import { ServicePopularityChart } from "@/components/admin/charts/ServicePopularityChart";
+import { AnimatedMetricCard } from "@/components/admin/AnimatedMetricCard";
+import { LiveActivityFeed } from "@/components/admin/LiveActivityFeed";
 
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
@@ -117,6 +127,101 @@ function AdminDashboardContent() {
   const [inspectionData, setInspectionData] = useState<any>({
     paint: 5, interior: 5, wheels: 5, glass: 5, notes: ""
   });
+
+  // Real-time hooks
+  const { playSound } = useNotificationSound();
+  const { onlineCount, updatePresence } = useOnlineUsers();
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [realtimeConnected, setRealtimeConnected] = useState(false);
+
+  // Real-time: Bookings
+  const { isConnected: bookingsConnected, lastUpdate: bookingsLastUpdate } = useRealtimeSubscription<Booking>({
+    table: 'bookings',
+    event: '*',
+    onInsert: (booking) => {
+      setBookings(prev => [booking, ...prev]);
+      toast.success(`New booking from ${booking.customer_name}!`, {
+        description: `${booking.service_name} on ${booking.date}`
+      });
+      playSound('success');
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 3000);
+      loadAnalytics();
+    },
+    onUpdate: (booking) => {
+      setBookings(prev => prev.map(b => b.id === booking.id ? booking : b));
+      if (booking.status === 'completed') {
+        toast.success('Service completed!', {
+          description: `Booking ${booking.booking_id} is done`
+        });
+        playSound('success');
+      }
+      loadAnalytics();
+    },
+    onDelete: ({ old }) => {
+      setBookings(prev => prev.filter(b => b.id !== old.id));
+      loadAnalytics();
+    }
+  });
+
+  // Real-time: Reviews
+  useRealtimeSubscription({
+    table: 'reviews',
+    event: 'INSERT',
+    onInsert: (review: any) => {
+      const stars = '⭐'.repeat(review.rating);
+      toast(review.rating <= 2 ? 'warning' : 'success', {
+        title: `New ${review.rating}-star review`,
+        description: `${stars} from ${review.customer_name}`
+      });
+      if (review.rating <= 2) {
+        playSound('alert');
+      } else {
+        playSound('info');
+      }
+      loadAnalytics();
+    }
+  });
+
+  // Real-time: Payments
+  useRealtimeSubscription({
+    table: 'payments',
+    event: 'INSERT',
+    onInsert: (payment: any) => {
+      setPulseRevenue(true);
+      setTimeout(() => setPulseRevenue(false), 1000);
+      toast.success(`Payment received: ₹${payment.amount}`, {
+        description: `From ${payment.customer_name || 'Customer'}`
+      });
+      playSound('success');
+      if (payment.amount > 10000) {
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 3000);
+      }
+      loadAnalytics();
+      loadFinanceData();
+    }
+  });
+
+  // Update online presence
+  useEffect(() => {
+    if (user && profile) {
+      updatePresence(user.id, profile.role || 'admin', '/admin');
+      const interval = setInterval(() => {
+        updatePresence(user.id, profile.role || 'admin', '/admin');
+      }, 60000); // Update every minute
+      return () => clearInterval(interval);
+    }
+  }, [user, profile, updatePresence]);
+
+  // Set overall connection status
+  useEffect(() => {
+    setRealtimeConnected(bookingsConnected);
+  }, [bookingsConnected]);
+
+  // Real-time analytics
+  const { analytics: liveAnalytics, isLoading: analyticsLoading, lastUpdate: analyticsLastUpdate } = useRealtimeAnalytics(timeRange);
+
 
   const loadAnalytics = useCallback(async () => {
     try {
@@ -604,6 +709,9 @@ function AdminDashboardContent() {
 
   return (
     <div>{/* Bottom padding now handled in layout */}
+      {/* Confetti for celebrations */}
+      <SuccessConfetti trigger={showConfetti} />
+
       <header className="sticky top-0 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 z-40">
         <div className="flex items-center justify-between h-14 lg:h-16 pl-14 pr-3 lg:px-6">{/* Added pl-14 for mobile menu button */}
           <div className="flex items-center gap-2 lg:gap-4 flex-1">
@@ -648,10 +756,16 @@ function AdminDashboardContent() {
               <Bell size={18} />
               {analytics && analytics.anomalies.length > 0 && <span className="absolute top-1 right-1 w-2 h-2 bg-[#ff1744] rounded-full animate-pulse" />}
             </button>
-            <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-xs font-medium text-green-500">{onlineUsers} Online</span>
+
+            {/* Real-time Indicator */}
+            <div className="hidden lg:block">
+              <RealtimeIndicator
+                isConnected={realtimeConnected}
+                lastUpdate={bookingsLastUpdate}
+                showOnlineUsers={true}
+              />
             </div>
+
             <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-gradient-to-br from-[#ff1744] to-[#d4af37] flex items-center justify-center">
               <span className="text-white font-bold text-xs lg:text-sm">A</span>
             </div>
@@ -766,6 +880,143 @@ function AdminDashboardContent() {
                     </div>
                   </div>
                 </div>
+
+                {/* NEW: World-Class Real-time Analytics */}
+                {liveAnalytics && (
+                  <>
+                    {/* Animated Metric Cards */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                      <AnimatedMetricCard
+                        title="Revenue Today"
+                        value={liveAnalytics.todayRevenue}
+                        prefix="₹"
+                        icon={<DollarSign size={20} className="text-white" />}
+                        gradient="from-[#d4af37] to-[#ffd700]"
+                        trend={liveAnalytics.revenueGrowth}
+                        trendLabel="yesterday"
+                        isLive={true}
+                      />
+                      <AnimatedMetricCard
+                        title="Bookings Today"
+                        value={liveAnalytics.todayBookings}
+                        icon={<Calendar size={20} className="text-white" />}
+                        gradient="from-blue-500 to-cyan-500"
+                        trend={liveAnalytics.bookingsGrowth}
+                        trendLabel="yesterday"
+                        isLive={true}
+                      />
+                      <AnimatedMetricCard
+                        title="Satisfaction"
+                        value={liveAnalytics.satisfactionScore}
+                        suffix="%"
+                        icon={<Star size={20} className="text-white" />}
+                        gradient="from-yellow-500 to-orange-500"
+                        isLive={true}
+                        decimals={1}
+                      />
+                      <AnimatedMetricCard
+                        title="Active Workers"
+                        value={liveAnalytics.activeWorkers}
+                        icon={<Users size={20} className="text-white" />}
+                        gradient="from-purple-500 to-pink-500"
+                        isLive={true}
+                      />
+                    </div>
+
+                    {/* Live Charts Grid */}
+                    <div className="grid lg:grid-cols-2 gap-6">
+                      <RevenueChart
+                        data={liveAnalytics.revenueByHour}
+                        isLive={true}
+                      />
+                      <BookingTrendsChart
+                        data={{
+                          pending: liveAnalytics.pendingBookings,
+                          completed: liveAnalytics.completedBookings,
+                          cancelled: liveAnalytics.cancelledBookings
+                        }}
+                      />
+                    </div>
+
+                    {/* Service Popularity & Activity Feed */}
+                    <div className="grid lg:grid-cols-2 gap-6">
+                      <ServicePopularityChart
+                        data={liveAnalytics.popularServices}
+                      />
+                      <LiveActivityFeed maxItems={8} />
+                    </div>
+
+                    {/* Additional Metrics Row */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="glass-card rounded-xl p-4 border border-white/5"
+                      >
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                            <CheckCircle size={20} className="text-green-500" />
+                          </div>
+                          <div>
+                            <div className="text-xs text-[#888] uppercase">Completion</div>
+                            <div className="text-xl font-bold">{liveAnalytics.serviceCompletion.toFixed(1)}%</div>
+                          </div>
+                        </div>
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.1 }}
+                        className="glass-card rounded-xl p-4 border border-white/5"
+                      >
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                            <Star size={20} className="text-blue-500" />
+                          </div>
+                          <div>
+                            <div className="text-xs text-[#888] uppercase">Avg Rating</div>
+                            <div className="text-xl font-bold">{liveAnalytics.averageRating.toFixed(1)} ⭐</div>
+                          </div>
+                        </div>
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.2 }}
+                        className="glass-card rounded-xl p-4 border border-white/5"
+                      >
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${liveAnalytics.lowStockItems > 0 ? 'bg-red-500/20' : 'bg-green-500/20'}`}>
+                            <Package size={20} className={liveAnalytics.lowStockItems > 0 ? 'text-red-500' : 'text-green-500'} />
+                          </div>
+                          <div>
+                            <div className="text-xs text-[#888] uppercase">Low Stock</div>
+                            <div className="text-xl font-bold">{liveAnalytics.lowStockItems}</div>
+                          </div>
+                        </div>
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.3 }}
+                        className="glass-card rounded-xl p-4 border border-white/5"
+                      >
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-10 h-10 rounded-lg bg-[#d4af37]/20 flex items-center justify-center">
+                            <Package size={20} className="text-[#d4af37]" />
+                          </div>
+                          <div>
+                            <div className="text-xs text-[#888] uppercase">Inventory</div>
+                            <div className="text-lg font-bold">₹{(liveAnalytics.totalInventoryValue / 1000).toFixed(0)}K</div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="space-y-6">
