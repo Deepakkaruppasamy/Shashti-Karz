@@ -12,6 +12,7 @@ import {
   Mail, MessageCircle, Car, User, Phone, Hash, Clock, Menu
 } from "lucide-react";
 import { toast } from "sonner";
+import { AdminSidebar } from "@/components/AdminSidebar";
 import { useAuth } from "@/lib/auth-context";
 import { jsPDF } from "jspdf";
 import * as XLSX from "xlsx";
@@ -416,463 +417,467 @@ export default function AdminBillingPage() {
   );
 
   return (
-    <div className="p-4 lg:p-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold font-display flex items-center gap-3">
-            <Receipt className="text-[#ff1744]" />
-            Billing & Invoices
-          </h1>
-          <p className="text-[#888] mt-1 text-sm lg:text-base">Create and manage offline customer invoices</p>
-        </div>
-        <div className="flex bg-white/5 p-1 rounded-xl">
-          <button
-            onClick={() => setActiveTab("create")}
-            className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === "create" ? "bg-[#ff1744] text-white shadow-lg" : "text-[#888] hover:text-white"}`}
-          >
-            Create New
-          </button>
-          <button
-            onClick={() => setActiveTab("history")}
-            className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === "history" ? "bg-[#ff1744] text-white shadow-lg" : "text-[#888] hover:text-white"}`}
-          >
-            History
-          </button>
-        </div>
-      </div>
-
-      {activeTab === "create" && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
-        >
-          <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
-              <div className="glass-card rounded-2xl p-6">
-                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <User size={20} className="text-[#ff1744]" />
-                  Customer Details
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-[#888] uppercase tracking-widest mb-2">Customer Name *</label>
-                    <input
-                      type="text"
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      placeholder="Enter customer name"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-[#888] uppercase tracking-widest mb-2">Phone Number</label>
-                    <input
-                      type="tel"
-                      value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value)}
-                      placeholder="+91 98765 43210"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-[#888] uppercase tracking-widest mb-2">Email</label>
-                    <input
-                      type="email"
-                      value={customerEmail}
-                      onChange={(e) => setCustomerEmail(e.target.value)}
-                      placeholder="customer@email.com"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-[#888] uppercase tracking-widest mb-2">Vehicle Number</label>
-                    <input
-                      type="text"
-                      value={vehicleNumber}
-                      onChange={(e) => setVehicleNumber(e.target.value)}
-                      placeholder="TN 39 AB 1234"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none transition-colors"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="glass-card rounded-2xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold flex items-center gap-2">
-                    <Receipt size={20} className="text-[#d4af37]" />
-                    Service Items
-                  </h2>
-                  <button
-                    onClick={addItem}
-                    className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold hover:bg-white/10 transition-all flex items-center gap-2"
-                  >
-                    <Plus size={16} />
-                    Add Item
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  {items.map((item) => (
-                    <div key={item.id} className="grid grid-cols-12 gap-3 items-center">
-                      <div className="col-span-12 sm:col-span-4">
-                        <input
-                          type="text"
-                          value={item.service_name}
-                          onChange={(e) => updateItem(item.id, "service_name", e.target.value)}
-                          placeholder="Service name (e.g. Ceramic Coating)"
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none transition-colors"
-                        />
-                      </div>
-                      <div className="col-span-12 sm:col-span-3">
-                        <input
-                          type="text"
-                          value={item.description}
-                          onChange={(e) => updateItem(item.id, "description", e.target.value)}
-                          placeholder="Note (e.g. 3 layers)"
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none transition-colors"
-                        />
-                      </div>
-                      <div className="col-span-4 sm:col-span-1">
-                        <input
-                          type="number"
-                          value={item.quantity}
-                          onChange={(e) => updateItem(item.id, "quantity", parseInt(e.target.value) || 0)}
-                          min="1"
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-2 py-3 text-sm text-white text-center focus:border-[#ff1744] focus:outline-none transition-colors"
-                        />
-                      </div>
-                      <div className="col-span-4 sm:col-span-2">
-                        <input
-                          type="number"
-                          value={item.rate}
-                          onChange={(e) => updateItem(item.id, "rate", parseFloat(e.target.value) || 0)}
-                          min="0"
-                          placeholder="Rate"
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white text-right focus:border-[#ff1744] focus:outline-none transition-colors"
-                        />
-                      </div>
-                      <div className="col-span-3 sm:col-span-1 text-right text-sm text-[#d4af37] font-bold">
-                        ₹{item.amount.toLocaleString()}
-                      </div>
-                      <div className="col-span-1 text-right">
-                        <button
-                          onClick={() => removeItem(item.id)}
-                          disabled={items.length === 1}
-                          className="p-3 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 disabled:opacity-20 transition-colors"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="glass-card rounded-2xl p-6">
-                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <CreditCard size={20} className="text-green-500" />
-                  Payment Details
-                </h2>
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-xs font-bold text-[#888] uppercase tracking-widest mb-3">Payment Mode</label>
-                    <div className="flex flex-wrap gap-2">
-                      {PAYMENT_MODES.map((mode) => (
-                        <button
-                          key={mode.id}
-                          onClick={() => setPaymentMode(mode.id)}
-                          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-all ${
-                            paymentMode === mode.id
-                              ? "bg-[#ff1744] border-[#ff1744] text-white shadow-lg shadow-[#ff1744]/20"
-                              : "bg-white/5 border-white/10 text-[#888] hover:text-white"
-                          }`}
-                        >
-                          <mode.icon size={16} />
-                          {mode.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-[#888] uppercase tracking-widest mb-2">Reference ID</label>
-                      <input
-                        type="text"
-                        value={paymentReference}
-                        onChange={(e) => setPaymentReference(e.target.value)}
-                        placeholder="UPI Ref / Last 4 digits"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-[#888] uppercase tracking-widest mb-2">Discount (%)</label>
-                      <input
-                        type="number"
-                        value={discountPercent}
-                        onChange={(e) => setDiscountPercent(parseFloat(e.target.value) || 0)}
-                        min="0"
-                        max="100"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-[#888] uppercase tracking-widest mb-2">GST (%)</label>
-                      <input
-                        type="number"
-                        value={taxPercent}
-                        onChange={(e) => setTaxPercent(parseFloat(e.target.value) || 0)}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
+    <div className="flex min-h-screen bg-[#0a0a0a]">
+      <AdminSidebar />
+      <div className="flex-1 overflow-auto">
+        <div className="p-4 lg:p-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+            <div>
+              <h1 className="text-3xl font-bold font-display flex items-center gap-3">
+                <Receipt className="text-[#ff1744]" />
+                Billing & Invoices
+              </h1>
+              <p className="text-[#888] mt-1 text-sm lg:text-base">Create and manage offline customer invoices</p>
             </div>
-
-            <div className="lg:col-span-1">
-              <div className="glass-card rounded-2xl p-6 sticky top-24">
-                <h2 className="text-lg font-semibold mb-6">Invoice Summary</h2>
-                <div className="space-y-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-[#888]">Subtotal</span>
-                    <span className="font-medium">₹{subtotal.toLocaleString()}</span>
-                  </div>
-                  {discountPercent > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-[#888]">Discount ({discountPercent}%)</span>
-                      <span className="text-red-500 font-medium">-₹{discountAmount.toLocaleString()}</span>
-                    </div>
-                  )}
-                  {taxPercent > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-[#888]">GST ({taxPercent}%)</span>
-                      <span className="font-medium">₹{taxAmount.toLocaleString()}</span>
-                    </div>
-                  )}
-                  <div className="h-px bg-white/10 my-4" />
-                  <div className="flex justify-between items-end">
-                    <div>
-                      <p className="text-xs text-[#888] font-bold uppercase tracking-widest">Total Amount</p>
-                      <p className="text-3xl font-bold text-gradient">₹{totalAmount.toLocaleString()}</p>
-                    </div>
-                  </div>
-                  <div className="pt-6 space-y-3">
-                    <button
-                      onClick={handleSaveInvoice}
-                      disabled={isSaving}
-                      className="w-full px-6 py-4 rounded-2xl bg-gradient-to-r from-[#ff1744] to-[#d4af37] text-white font-bold shadow-lg shadow-[#ff1744]/20 hover:scale-[1.02] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                    >
-                      {isSaving ? <RefreshCw className="animate-spin" size={20} /> : <Save size={20} />}
-                      Save & Preview
-                    </button>
-                    <button
-                      onClick={resetForm}
-                      className="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-bold hover:bg-white/10 transition-all"
-                    >
-                      Clear All
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      )}
-
-      {activeTab === "history" && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
-        >
-          <div className="glass-card rounded-2xl p-6 border border-white/5">
-            <div className="flex flex-col md:flex-row gap-4 mb-6">
-              <div className="relative flex-1">
-                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#666]" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by invoice number, name or phone..."
-                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none"
-                />
-              </div>
+            <div className="flex bg-white/5 p-1 rounded-xl">
               <button
-                onClick={exportInvoices}
-                className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-bold hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+                onClick={() => setActiveTab("create")}
+                className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === "create" ? "bg-[#ff1744] text-white shadow-lg" : "text-[#888] hover:text-white"}`}
               >
-                <Download size={18} />
-                Export
+                Create New
+              </button>
+              <button
+                onClick={() => setActiveTab("history")}
+                className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === "history" ? "bg-[#ff1744] text-white shadow-lg" : "text-[#888] hover:text-white"}`}
+              >
+                History
               </button>
             </div>
+          </div>
 
-            {isLoading ? (
-              <div className="text-center py-20">
-                <div className="w-10 h-10 border-2 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-[#888]">Loading history...</p>
-              </div>
-            ) : filteredInvoices.length === 0 ? (
-              <div className="text-center py-20 border-2 border-dashed border-white/5 rounded-2xl">
-                <FileText size={48} className="mx-auto text-[#333] mb-4" />
-                <p className="text-[#888]">No invoices found</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="text-left border-b border-white/5">
-                      <th className="px-4 py-4 text-xs font-bold text-[#888] uppercase tracking-widest">Invoice</th>
-                      <th className="px-4 py-4 text-xs font-bold text-[#888] uppercase tracking-widest">Customer</th>
-                      <th className="px-4 py-4 text-xs font-bold text-[#888] uppercase tracking-widest">Date</th>
-                      <th className="px-4 py-4 text-xs font-bold text-[#888] uppercase tracking-widest">Amount</th>
-                      <th className="px-4 py-4 text-xs font-bold text-[#888] uppercase tracking-widest text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {filteredInvoices.map((invoice) => (
-                      <tr key={invoice.id} className="hover:bg-white/[0.02] transition-colors group">
-                        <td className="px-4 py-4">
-                          <span className="font-mono text-sm text-[#aaa]">{invoice.invoice_number}</span>
-                        </td>
-                        <td className="px-4 py-4">
-                          <p className="font-bold text-sm">{invoice.customer_name}</p>
-                          <p className="text-[10px] text-[#666]">{invoice.customer_phone}</p>
-                        </td>
-                        <td className="px-4 py-4 text-sm text-[#888]">
-                          {new Date(invoice.invoice_date).toLocaleDateString()}
-                        </td>
-                        <td className="px-4 py-4">
-                          <span className="text-sm font-bold text-[#d4af37]">₹{invoice.total_amount.toLocaleString()}</span>
-                        </td>
-                        <td className="px-4 py-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
+          {activeTab === "create" && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
+              <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-6">
+                  <div className="glass-card rounded-2xl p-6">
+                    <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <User size={20} className="text-[#ff1744]" />
+                      Customer Details
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-[#888] uppercase tracking-widest mb-2">Customer Name *</label>
+                        <input
+                          type="text"
+                          value={customerName}
+                          onChange={(e) => setCustomerName(e.target.value)}
+                          placeholder="Enter customer name"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-[#888] uppercase tracking-widest mb-2">Phone Number</label>
+                        <input
+                          type="tel"
+                          value={customerPhone}
+                          onChange={(e) => setCustomerPhone(e.target.value)}
+                          placeholder="+91 98765 43210"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-[#888] uppercase tracking-widest mb-2">Email</label>
+                        <input
+                          type="email"
+                          value={customerEmail}
+                          onChange={(e) => setCustomerEmail(e.target.value)}
+                          placeholder="customer@email.com"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-[#888] uppercase tracking-widest mb-2">Vehicle Number</label>
+                        <input
+                          type="text"
+                          value={vehicleNumber}
+                          onChange={(e) => setVehicleNumber(e.target.value)}
+                          placeholder="TN 39 AB 1234"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none transition-colors"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="glass-card rounded-2xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-lg font-semibold flex items-center gap-2">
+                        <Receipt size={20} className="text-[#d4af37]" />
+                        Service Items
+                      </h2>
+                      <button
+                        onClick={addItem}
+                        className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold hover:bg-white/10 transition-all flex items-center gap-2"
+                      >
+                        <Plus size={16} />
+                        Add Item
+                      </button>
+                    </div>
+
+                    <div className="space-y-4">
+                      {items.map((item) => (
+                        <div key={item.id} className="grid grid-cols-12 gap-3 items-center">
+                          <div className="col-span-12 sm:col-span-4">
+                            <input
+                              type="text"
+                              value={item.service_name}
+                              onChange={(e) => updateItem(item.id, "service_name", e.target.value)}
+                              placeholder="Service name (e.g. Ceramic Coating)"
+                              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none transition-colors"
+                            />
+                          </div>
+                          <div className="col-span-12 sm:col-span-3">
+                            <input
+                              type="text"
+                              value={item.description}
+                              onChange={(e) => updateItem(item.id, "description", e.target.value)}
+                              placeholder="Note (e.g. 3 layers)"
+                              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none transition-colors"
+                            />
+                          </div>
+                          <div className="col-span-4 sm:col-span-1">
+                            <input
+                              type="number"
+                              value={item.quantity}
+                              onChange={(e) => updateItem(item.id, "quantity", parseInt(e.target.value) || 0)}
+                              min="1"
+                              className="w-full bg-white/5 border border-white/10 rounded-xl px-2 py-3 text-sm text-white text-center focus:border-[#ff1744] focus:outline-none transition-colors"
+                            />
+                          </div>
+                          <div className="col-span-4 sm:col-span-2">
+                            <input
+                              type="number"
+                              value={item.rate}
+                              onChange={(e) => updateItem(item.id, "rate", parseFloat(e.target.value) || 0)}
+                              min="0"
+                              placeholder="Rate"
+                              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white text-right focus:border-[#ff1744] focus:outline-none transition-colors"
+                            />
+                          </div>
+                          <div className="col-span-3 sm:col-span-1 text-right text-sm text-[#d4af37] font-bold">
+                            ₹{item.amount.toLocaleString()}
+                          </div>
+                          <div className="col-span-1 text-right">
                             <button
-                              onClick={() => { setSelectedInvoice(invoice); setShowPreview(true); }}
-                              className="p-2.5 rounded-lg bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
-                              title="Preview"
+                              onClick={() => removeItem(item.id)}
+                              disabled={items.length === 1}
+                              className="p-3 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 disabled:opacity-20 transition-colors"
                             >
-                              <Eye size={16} />
-                            </button>
-                            <button
-                              onClick={() => handleDownloadPDF(invoice)}
-                              className="p-2.5 rounded-lg bg-purple-500/10 text-purple-500 hover:bg-purple-500/20"
-                              title="Download PDF"
-                            >
-                              <Download size={16} />
-                            </button>
-                            <button
-                              onClick={() => handleSendWhatsApp(invoice)}
-                              className="p-2.5 rounded-lg bg-green-500/10 text-green-500 hover:bg-green-500/20"
-                              title="Send WhatsApp"
-                            >
-                              <MessageCircle size={16} />
+                              <Trash2 size={16} />
                             </button>
                           </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </motion.div>
-      )}
-
-      <AnimatePresence>
-        {showPreview && selectedInvoice && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm" onClick={() => setShowPreview(false)}>
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white text-black rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-8">
-                <div className="flex justify-between items-start mb-10 border-b pb-8">
-                  <div>
-                    <h1 className="text-2xl font-black uppercase italic tracking-tighter text-[#ff1744] mb-1">Shashti Karz</h1>
-                    <p className="text-xs text-gray-500 uppercase tracking-[0.2em] font-bold">Car Detailing Xpert</p>
-                  </div>
-                  <div className="text-right">
-                    <h2 className="text-sm font-black uppercase mb-1">Invoice</h2>
-                    <p className="text-xs font-mono text-gray-500">{selectedInvoice.invoice_number}</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-12 mb-10">
-                  <div>
-                    <h3 className="text-[10px] font-black uppercase text-gray-400 mb-2">Billed To</h3>
-                    <p className="text-lg font-bold mb-1">{selectedInvoice.customer_name}</p>
-                    <p className="text-xs text-gray-600">{selectedInvoice.customer_phone}</p>
-                    {selectedInvoice.vehicle_number && <p className="text-xs font-bold text-[#ff1744] mt-2">{selectedInvoice.vehicle_number}</p>}
-                  </div>
-                  <div className="text-right">
-                    <h3 className="text-[10px] font-black uppercase text-gray-400 mb-2">Payment Info</h3>
-                    <p className="text-sm font-bold uppercase">{selectedInvoice.payment_mode}</p>
-                    <p className="text-xs text-gray-600">Date: {new Date(selectedInvoice.invoice_date).toLocaleDateString()}</p>
-                  </div>
-                </div>
-
-                <div className="mb-10">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b-2 border-black text-left">
-                        <th className="py-3 text-[10px] font-black uppercase">Service</th>
-                        <th className="py-3 text-[10px] font-black uppercase text-center">Qty</th>
-                        <th className="py-3 text-[10px] font-black uppercase text-right">Amount</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                      {selectedInvoice.invoice_items?.map((item, index) => (
-                        <tr key={index}>
-                          <td className="py-4">
-                            <p className="font-bold text-sm">{item.service_name}</p>
-                            <p className="text-[10px] text-gray-500">{item.description}</p>
-                          </td>
-                          <td className="py-4 text-center text-sm">{item.quantity}</td>
-                          <td className="py-4 text-right font-bold text-sm">₹{item.amount.toLocaleString()}</td>
-                        </tr>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
+                    </div>
+                  </div>
 
-                <div className="flex justify-end mb-10">
-                  <div className="w-64 space-y-2">
-                    <div className="flex justify-between text-xs font-bold text-gray-500">
-                      <span>Subtotal</span>
-                      <span>₹{selectedInvoice.subtotal.toLocaleString()}</span>
-                    </div>
-                    {selectedInvoice.discount_amount > 0 && (
-                      <div className="flex justify-between text-xs font-bold text-red-500">
-                        <span>Discount ({selectedInvoice.discount_percent}%)</span>
-                        <span>-₹{selectedInvoice.discount_amount.toLocaleString()}</span>
+                  <div className="glass-card rounded-2xl p-6">
+                    <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <CreditCard size={20} className="text-green-500" />
+                      Payment Details
+                    </h2>
+                    <div className="space-y-6">
+                      <div>
+                        <label className="block text-xs font-bold text-[#888] uppercase tracking-widest mb-3">Payment Mode</label>
+                        <div className="flex flex-wrap gap-2">
+                          {PAYMENT_MODES.map((mode) => (
+                            <button
+                              key={mode.id}
+                              onClick={() => setPaymentMode(mode.id)}
+                              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-all ${paymentMode === mode.id
+                                ? "bg-[#ff1744] border-[#ff1744] text-white shadow-lg shadow-[#ff1744]/20"
+                                : "bg-white/5 border-white/10 text-[#888] hover:text-white"
+                                }`}
+                            >
+                              <mode.icon size={16} />
+                              {mode.label}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    )}
-                    <div className="flex justify-between text-xs font-bold text-gray-500">
-                      <span>GST ({selectedInvoice.tax_percent}%)</span>
-                      <span>₹{selectedInvoice.tax_amount.toLocaleString()}</span>
-                    </div>
-                    <div className="border-t-2 border-black pt-4 mt-2 flex justify-between items-end">
-                      <span className="text-[10px] font-black uppercase">Total Amount</span>
-                      <span className="text-2xl font-black">₹{selectedInvoice.total_amount.toLocaleString()}</span>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold text-[#888] uppercase tracking-widest mb-2">Reference ID</label>
+                          <input
+                            type="text"
+                            value={paymentReference}
+                            onChange={(e) => setPaymentReference(e.target.value)}
+                            placeholder="UPI Ref / Last 4 digits"
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-[#888] uppercase tracking-widest mb-2">Discount (%)</label>
+                          <input
+                            type="number"
+                            value={discountPercent}
+                            onChange={(e) => setDiscountPercent(parseFloat(e.target.value) || 0)}
+                            min="0"
+                            max="100"
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-[#888] uppercase tracking-widest mb-2">GST (%)</label>
+                          <input
+                            type="number"
+                            value={taxPercent}
+                            onChange={(e) => setTaxPercent(parseFloat(e.target.value) || 0)}
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex justify-center gap-3">
-                  <button onClick={() => handleDownloadPDF(selectedInvoice)} className="flex-1 py-4 rounded-2xl bg-black text-white text-xs font-black uppercase tracking-widest hover:bg-gray-900 transition-all">Download PDF</button>
-                  <button onClick={() => setShowPreview(false)} className="px-8 py-4 rounded-2xl bg-gray-100 text-gray-500 text-xs font-black uppercase tracking-widest hover:bg-gray-200 transition-all">Close</button>
+                <div className="lg:col-span-1">
+                  <div className="glass-card rounded-2xl p-6 sticky top-24">
+                    <h2 className="text-lg font-semibold mb-6">Invoice Summary</h2>
+                    <div className="space-y-4">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-[#888]">Subtotal</span>
+                        <span className="font-medium">₹{subtotal.toLocaleString()}</span>
+                      </div>
+                      {discountPercent > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-[#888]">Discount ({discountPercent}%)</span>
+                          <span className="text-red-500 font-medium">-₹{discountAmount.toLocaleString()}</span>
+                        </div>
+                      )}
+                      {taxPercent > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-[#888]">GST ({taxPercent}%)</span>
+                          <span className="font-medium">₹{taxAmount.toLocaleString()}</span>
+                        </div>
+                      )}
+                      <div className="h-px bg-white/10 my-4" />
+                      <div className="flex justify-between items-end">
+                        <div>
+                          <p className="text-xs text-[#888] font-bold uppercase tracking-widest">Total Amount</p>
+                          <p className="text-3xl font-bold text-gradient">₹{totalAmount.toLocaleString()}</p>
+                        </div>
+                      </div>
+                      <div className="pt-6 space-y-3">
+                        <button
+                          onClick={handleSaveInvoice}
+                          disabled={isSaving}
+                          className="w-full px-6 py-4 rounded-2xl bg-gradient-to-r from-[#ff1744] to-[#d4af37] text-white font-bold shadow-lg shadow-[#ff1744]/20 hover:scale-[1.02] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                        >
+                          {isSaving ? <RefreshCw className="animate-spin" size={20} /> : <Save size={20} />}
+                          Save & Preview
+                        </button>
+                        <button
+                          onClick={resetForm}
+                          className="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-bold hover:bg-white/10 transition-all"
+                        >
+                          Clear All
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+          )}
+
+          {activeTab === "history" && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
+              <div className="glass-card rounded-2xl p-6 border border-white/5">
+                <div className="flex flex-col md:flex-row gap-4 mb-6">
+                  <div className="relative flex-1">
+                    <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#666]" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search by invoice number, name or phone..."
+                      className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-sm text-white focus:border-[#ff1744] focus:outline-none"
+                    />
+                  </div>
+                  <button
+                    onClick={exportInvoices}
+                    className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-bold hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+                  >
+                    <Download size={18} />
+                    Export
+                  </button>
+                </div>
+
+                {isLoading ? (
+                  <div className="text-center py-20">
+                    <div className="w-10 h-10 border-2 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                    <p className="text-[#888]">Loading history...</p>
+                  </div>
+                ) : filteredInvoices.length === 0 ? (
+                  <div className="text-center py-20 border-2 border-dashed border-white/5 rounded-2xl">
+                    <FileText size={48} className="mx-auto text-[#333] mb-4" />
+                    <p className="text-[#888]">No invoices found</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="text-left border-b border-white/5">
+                          <th className="px-4 py-4 text-xs font-bold text-[#888] uppercase tracking-widest">Invoice</th>
+                          <th className="px-4 py-4 text-xs font-bold text-[#888] uppercase tracking-widest">Customer</th>
+                          <th className="px-4 py-4 text-xs font-bold text-[#888] uppercase tracking-widest">Date</th>
+                          <th className="px-4 py-4 text-xs font-bold text-[#888] uppercase tracking-widest">Amount</th>
+                          <th className="px-4 py-4 text-xs font-bold text-[#888] uppercase tracking-widest text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {filteredInvoices.map((invoice) => (
+                          <tr key={invoice.id} className="hover:bg-white/[0.02] transition-colors group">
+                            <td className="px-4 py-4">
+                              <span className="font-mono text-sm text-[#aaa]">{invoice.invoice_number}</span>
+                            </td>
+                            <td className="px-4 py-4">
+                              <p className="font-bold text-sm">{invoice.customer_name}</p>
+                              <p className="text-[10px] text-[#666]">{invoice.customer_phone}</p>
+                            </td>
+                            <td className="px-4 py-4 text-sm text-[#888]">
+                              {new Date(invoice.invoice_date).toLocaleDateString()}
+                            </td>
+                            <td className="px-4 py-4">
+                              <span className="text-sm font-bold text-[#d4af37]">₹{invoice.total_amount.toLocaleString()}</span>
+                            </td>
+                            <td className="px-4 py-4 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => { setSelectedInvoice(invoice); setShowPreview(true); }}
+                                  className="p-2.5 rounded-lg bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
+                                  title="Preview"
+                                >
+                                  <Eye size={16} />
+                                </button>
+                                <button
+                                  onClick={() => handleDownloadPDF(invoice)}
+                                  className="p-2.5 rounded-lg bg-purple-500/10 text-purple-500 hover:bg-purple-500/20"
+                                  title="Download PDF"
+                                >
+                                  <Download size={16} />
+                                </button>
+                                <button
+                                  onClick={() => handleSendWhatsApp(invoice)}
+                                  className="p-2.5 rounded-lg bg-green-500/10 text-green-500 hover:bg-green-500/20"
+                                  title="Send WhatsApp"
+                                >
+                                  <MessageCircle size={16} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          <AnimatePresence>
+            {showPreview && selectedInvoice && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm" onClick={() => setShowPreview(false)}>
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.9, opacity: 0 }}
+                  className="bg-white text-black rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="p-8">
+                    <div className="flex justify-between items-start mb-10 border-b pb-8">
+                      <div>
+                        <h1 className="text-2xl font-black uppercase italic tracking-tighter text-[#ff1744] mb-1">Shashti Karz</h1>
+                        <p className="text-xs text-gray-500 uppercase tracking-[0.2em] font-bold">Car Detailing Xpert</p>
+                      </div>
+                      <div className="text-right">
+                        <h2 className="text-sm font-black uppercase mb-1">Invoice</h2>
+                        <p className="text-xs font-mono text-gray-500">{selectedInvoice.invoice_number}</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-12 mb-10">
+                      <div>
+                        <h3 className="text-[10px] font-black uppercase text-gray-400 mb-2">Billed To</h3>
+                        <p className="text-lg font-bold mb-1">{selectedInvoice.customer_name}</p>
+                        <p className="text-xs text-gray-600">{selectedInvoice.customer_phone}</p>
+                        {selectedInvoice.vehicle_number && <p className="text-xs font-bold text-[#ff1744] mt-2">{selectedInvoice.vehicle_number}</p>}
+                      </div>
+                      <div className="text-right">
+                        <h3 className="text-[10px] font-black uppercase text-gray-400 mb-2">Payment Info</h3>
+                        <p className="text-sm font-bold uppercase">{selectedInvoice.payment_mode}</p>
+                        <p className="text-xs text-gray-600">Date: {new Date(selectedInvoice.invoice_date).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+
+                    <div className="mb-10">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b-2 border-black text-left">
+                            <th className="py-3 text-[10px] font-black uppercase">Service</th>
+                            <th className="py-3 text-[10px] font-black uppercase text-center">Qty</th>
+                            <th className="py-3 text-[10px] font-black uppercase text-right">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                          {selectedInvoice.invoice_items?.map((item, index) => (
+                            <tr key={index}>
+                              <td className="py-4">
+                                <p className="font-bold text-sm">{item.service_name}</p>
+                                <p className="text-[10px] text-gray-500">{item.description}</p>
+                              </td>
+                              <td className="py-4 text-center text-sm">{item.quantity}</td>
+                              <td className="py-4 text-right font-bold text-sm">₹{item.amount.toLocaleString()}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="flex justify-end mb-10">
+                      <div className="w-64 space-y-2">
+                        <div className="flex justify-between text-xs font-bold text-gray-500">
+                          <span>Subtotal</span>
+                          <span>₹{selectedInvoice.subtotal.toLocaleString()}</span>
+                        </div>
+                        {selectedInvoice.discount_amount > 0 && (
+                          <div className="flex justify-between text-xs font-bold text-red-500">
+                            <span>Discount ({selectedInvoice.discount_percent}%)</span>
+                            <span>-₹{selectedInvoice.discount_amount.toLocaleString()}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between text-xs font-bold text-gray-500">
+                          <span>GST ({selectedInvoice.tax_percent}%)</span>
+                          <span>₹{selectedInvoice.tax_amount.toLocaleString()}</span>
+                        </div>
+                        <div className="border-t-2 border-black pt-4 mt-2 flex justify-between items-end">
+                          <span className="text-[10px] font-black uppercase">Total Amount</span>
+                          <span className="text-2xl font-black">₹{selectedInvoice.total_amount.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-center gap-3">
+                      <button onClick={() => handleDownloadPDF(selectedInvoice)} className="flex-1 py-4 rounded-2xl bg-black text-white text-xs font-black uppercase tracking-widest hover:bg-gray-900 transition-all">Download PDF</button>
+                      <button onClick={() => setShowPreview(false)} className="px-8 py-4 rounded-2xl bg-gray-100 text-gray-500 text-xs font-black uppercase tracking-widest hover:bg-gray-200 transition-all">Close</button>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
     </div>
   );
 }

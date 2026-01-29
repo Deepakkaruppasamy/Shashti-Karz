@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Package, Plus, X, Trash2, Star, Power, Edit3 } from "lucide-react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
+import { AdminSidebar } from "@/components/AdminSidebar";
 import type { Service } from "@/lib/types";
 
 interface ServicePackage {
@@ -143,92 +144,95 @@ export default function PackagesPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a]">
-      <main className="min-h-screen pt-16 pb-16 lg:pt-20 lg:pb-20 bg-gradient-to-b from-[#0a0a0a] to-[#0a0a0a]">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">Service Packages</h1>
-            <p className="text-[#888]">Create and manage bundled service packages</p>
+    <div className="flex min-h-screen bg-[#0a0a0a]">
+      <AdminSidebar />
+      <div className="flex-1 overflow-auto">
+        <div className="p-4 lg:p-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold">Service Packages</h1>
+              <p className="text-[#888]">Create and manage bundled service packages</p>
+            </div>
+            <button
+              onClick={() => { resetForm(); setEditingPackage(null); setShowModal(true); }}
+              className="btn-premium px-6 py-3 rounded-xl text-white flex items-center gap-2"
+            >
+              <Plus size={18} />
+              Create Package
+            </button>
           </div>
-          <button
-            onClick={() => { resetForm(); setEditingPackage(null); setShowModal(true); }}
-            className="btn-premium px-6 py-3 rounded-xl text-white flex items-center gap-2"
-          >
-            <Plus size={18} />
-            Create Package
-          </button>
-        </div>
 
-        <div className="glass-card rounded-2xl p-6">
-          {isLoading ? (
-            <div className="text-center py-12">
-              <div className="w-8 h-8 border-2 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto" />
-            </div>
-          ) : packages.length === 0 ? (
-            <div className="text-center py-12 text-[#888]">
-              <Package size={32} className="mx-auto mb-2 opacity-50" />
-              <p>No packages created yet</p>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {packages.map((pkg) => (
-                <motion.div
-                  key={pkg.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`rounded-2xl p-6 border-2 relative overflow-hidden ${pkg.active ? "bg-white/5 border-white/10" : "bg-white/2 border-white/5 opacity-50"
-                    }`}
-                >
-                  {pkg.is_popular && (
-                    <div className="absolute top-3 right-3">
-                      <span className="px-3 py-1 rounded-full bg-[#ff1744] text-xs font-medium flex items-center gap-1">
-                        <Star size={12} className="fill-white" />
-                        Popular
-                      </span>
+          <div className="glass-card rounded-2xl p-6">
+            {isLoading ? (
+              <div className="text-center py-12">
+                <div className="w-8 h-8 border-2 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto" />
+              </div>
+            ) : packages.length === 0 ? (
+              <div className="text-center py-12 text-[#888]">
+                <Package size={32} className="mx-auto mb-2 opacity-50" />
+                <p>No packages created yet</p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {packages.map((pkg) => (
+                  <motion.div
+                    key={pkg.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`rounded-2xl p-6 border-2 relative overflow-hidden ${pkg.active ? "bg-white/5 border-white/10" : "bg-white/2 border-white/5 opacity-50"
+                      }`}
+                  >
+                    {pkg.is_popular && (
+                      <div className="absolute top-3 right-3">
+                        <span className="px-3 py-1 rounded-full bg-[#ff1744] text-xs font-medium flex items-center gap-1">
+                          <Star size={12} className="fill-white" />
+                          Popular
+                        </span>
+                      </div>
+                    )}
+                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${getTierColor(pkg.tier)} flex items-center justify-center mb-4`}>
+                      <Package size={28} className="text-white" />
                     </div>
-                  )}
-                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${getTierColor(pkg.tier)} flex items-center justify-center mb-4`}>
-                    <Package size={28} className="text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-1">{pkg.name}</h3>
-                  <span className="text-xs text-[#888] uppercase tracking-wider">{pkg.tier}</span>
-                  {pkg.description && (
-                    <p className="text-sm text-[#888] mt-2 line-clamp-2">{pkg.description}</p>
-                  )}
-                  <div className="mt-4">
-                    <span className="text-3xl font-bold text-gradient">₹{pkg.price.toLocaleString()}</span>
-                  </div>
-                  {pkg.service_ids && pkg.service_ids.length > 0 && (
-                    <div className="mt-3 text-xs text-[#666]">
-                      {pkg.service_ids.length} services included
+                    <h3 className="text-xl font-bold mb-1">{pkg.name}</h3>
+                    <span className="text-xs text-[#888] uppercase tracking-wider">{pkg.tier}</span>
+                    {pkg.description && (
+                      <p className="text-sm text-[#888] mt-2 line-clamp-2">{pkg.description}</p>
+                    )}
+                    <div className="mt-4">
+                      <span className="text-3xl font-bold text-gradient">₹{pkg.price.toLocaleString()}</span>
                     </div>
-                  )}
-                  <div className="flex gap-2 mt-4 pt-4 border-t border-white/10">
-                    <button
-                      onClick={() => openEditModal(pkg)}
-                      className="flex-1 p-2 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center gap-1 text-sm"
-                    >
-                      <Edit3 size={14} /> Edit
-                    </button>
-                    <button
-                      onClick={() => toggleActive(pkg)}
-                      className={`p-2 rounded-lg ${pkg.active ? "bg-green-500/10 text-green-500" : "bg-white/5 text-[#888]"}`}
-                    >
-                      <Power size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(pkg.id)}
-                      className="p-2 rounded-lg bg-red-500/10 text-red-500"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
+                    {pkg.service_ids && pkg.service_ids.length > 0 && (
+                      <div className="mt-3 text-xs text-[#666]">
+                        {pkg.service_ids.length} services included
+                      </div>
+                    )}
+                    <div className="flex gap-2 mt-4 pt-4 border-t border-white/10">
+                      <button
+                        onClick={() => openEditModal(pkg)}
+                        className="flex-1 p-2 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center gap-1 text-sm"
+                      >
+                        <Edit3 size={14} /> Edit
+                      </button>
+                      <button
+                        onClick={() => toggleActive(pkg)}
+                        className={`p-2 rounded-lg ${pkg.active ? "bg-green-500/10 text-green-500" : "bg-white/5 text-[#888]"}`}
+                      >
+                        <Power size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(pkg.id)}
+                        className="p-2 rounded-lg bg-red-500/10 text-red-500"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </main>
-    </main>
+      </div>
+    </div>
   );
 }
