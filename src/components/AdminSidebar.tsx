@@ -46,6 +46,17 @@ export function AdminSidebar({ mobileMenuOpen, setMobileMenuOpen }: { mobileMenu
     return pathname.startsWith(item.href);
   };
 
+  const handleAdminLogout = async () => {
+    try {
+      await fetch("/api/admin/auth", {
+        method: "DELETE",
+      });
+      window.location.href = "/admin/login";
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
   return (
     <>
       <aside className={`fixed left-0 top-0 bottom-0 w-64 bg-[#0d0d0d] border-r border-white/5 z-50 transition-transform lg:translate-x-0 ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
@@ -108,7 +119,7 @@ export function AdminSidebar({ mobileMenuOpen, setMobileMenuOpen }: { mobileMenu
             Ask Shashti AI
           </button>
           <button
-            onClick={() => signOut()}
+            onClick={handleAdminLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#888] hover:bg-white/5 hover:text-white"
           >
             <LogOut size={18} />

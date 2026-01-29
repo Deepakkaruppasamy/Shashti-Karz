@@ -603,9 +603,9 @@ function AdminDashboardContent() {
   }
 
   return (
-    <div className="pb-20 lg:pb-0">
+    <div>{/* Bottom padding now handled in layout */}
       <header className="sticky top-0 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 z-40">
-        <div className="flex items-center justify-between h-14 lg:h-16 px-3 lg:px-6">
+        <div className="flex items-center justify-between h-14 lg:h-16 pl-14 pr-3 lg:px-6">{/* Added pl-14 for mobile menu button */}
           <div className="flex items-center gap-2 lg:gap-4 flex-1">
             <div className="relative flex-1 max-w-md hidden sm:block">
               <Brain size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#ff1744]" />

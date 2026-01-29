@@ -21,8 +21,12 @@ import { ScrollReveal, StaggerContainer, StaggerItem } from "@/components/animat
 import { AnimatedCounter } from "@/components/animations/AnimatedCounter";
 import { MouseParallax, ScrollProgress } from "@/components/animations/ParallaxSection";
 import { MagneticButton, TiltCard } from "@/components/animations/MagneticButton";
-
 import { GlowingBorder, NeonText, PulsingDot } from "@/components/animations/GlowingBorder";
+import { FloatingParticlesReact } from "@/components/animations/FloatingParticles";
+import { TypewriterText } from "@/components/animations/TypewriterText";
+import { LiquidButton } from "@/components/animations/LiquidButton";
+import { ShimmerCard } from "@/components/animations/AdvancedShimmer";
+import { BlobBackground } from "@/components/animations/WaveBackground";
 import { useSound } from "@/hooks/useSound";
 import { HeadlightGlow, ExhaustSmoke } from "@/components/VisualEffects";
 import { useLanguage } from "@/lib/LanguageContext";
@@ -71,8 +75,22 @@ function HeroSection() {
         <div className="absolute bottom-0 left-0 w-full h-1/4 bg-gradient-to-t from-[#0a0a0a] to-transparent" />
       </div>
 
-      <MouseParallax strength={30} className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#ff1744]/20 rounded-full blur-[120px]" />
-      <MouseParallax strength={-20} className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#d4af37]/20 rounded-full blur-[120px]" />
+      {/* Floating Particles */}
+      <FloatingParticlesReact
+        count={40}
+        colors={["#ff1744", "#d4af37", "#ffffff"]}
+        className="z-[2]"
+      />
+
+      {/* Blob Background */}
+      <BlobBackground
+        count={3}
+        colors={["#ff1744", "#d4af37", "#4CAF50"]}
+        className="z-[1]"
+      />
+
+      <MouseParallax strength={30}><div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#ff1744]/20 rounded-full blur-[120px]" /></MouseParallax>
+      <MouseParallax strength={-20}><div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#d4af37]/20 rounded-full blur-[120px]" /></MouseParallax>
 
       <motion.div
         style={{ opacity, scale }}
@@ -174,7 +192,7 @@ function HeroSection() {
         </motion.div>
       </motion.div>
 
-      <motion.div 
+      <motion.div
         style={{ x: carX }}
         className="absolute bottom-20 left-0 opacity-20 pointer-events-none"
       >
@@ -320,7 +338,7 @@ function WhyUsSection() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
             </div>
-            
+
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -461,7 +479,7 @@ function CTASection() {
         className="absolute inset-0"
       />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#ff1744]/10 rounded-full blur-[150px]" />
-      
+
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <ScrollReveal variant="scale">
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold font-display mb-6">
@@ -517,13 +535,13 @@ export default function HomePage() {
           fetch("/api/reviews"),
           fetch("/api/offers"),
         ]);
-        
+
         const [servicesData, reviewsData, offersData] = await Promise.all([
           servicesRes.json(),
           reviewsRes.json(),
           offersRes.json(),
         ]);
-        
+
         setServices(servicesData);
         setReviews(reviewsData);
         setOffers(offersData);
@@ -540,7 +558,7 @@ export default function HomePage() {
     <main className="min-h-screen bg-[#0a0a0a]">
       <ScrollProgress />
       <Navbar />
-      
+
       <HeroSection />
 
       {!isLoading && services.length > 0 && (
@@ -557,22 +575,22 @@ export default function HomePage() {
       )}
 
       {!isLoading && services.length > 0 && <PriceCalculator services={services} />}
-      
+
       <ServiceTrackerDemo />
-      
+
       <ServiceComparison />
-      
+
       <LoyaltyProgramDemo />
-      
+
       <VideoTestimonials />
-      
+
       <CarWashShowcase />
 
       <WhyUsSection />
-      
+
       {!isLoading && offers.length > 0 && <OffersSection offers={offers} />}
       {!isLoading && reviews.length > 0 && <ReviewsSection reviews={reviews} />}
-      
+
       <CTASection />
       <Footer />
       <FloatingButtons />
