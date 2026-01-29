@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS reviews (
   admin_response_at TIMESTAMPTZ,
   
   -- Moderation
-  status TEXT DEFAULT 'approved' CHECK (status IN ('pending', 'approved', 'rejected')),
+  approved BOOLEAN DEFAULT true,
+  flagged BOOLEAN DEFAULT false,
   moderated_by UUID REFERENCES profiles(id),
   moderated_at TIMESTAMPTZ,
   
@@ -93,7 +94,7 @@ CREATE INDEX IF NOT EXISTS idx_reviews_user_id ON reviews(user_id);
 CREATE INDEX IF NOT EXISTS idx_reviews_booking_id ON reviews(booking_id);
 CREATE INDEX IF NOT EXISTS idx_reviews_service_id ON reviews(service_id);
 CREATE INDEX IF NOT EXISTS idx_reviews_rating ON reviews(rating);
-CREATE INDEX IF NOT EXISTS idx_reviews_status ON reviews(status);
+CREATE INDEX IF NOT EXISTS idx_reviews_approved ON reviews(approved);
 CREATE INDEX IF NOT EXISTS idx_reviews_created_at ON reviews(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_reviews_is_featured ON reviews(is_featured) WHERE is_featured = true;
 CREATE INDEX IF NOT EXISTS idx_review_helpful_review_id ON review_helpful(review_id);
@@ -109,7 +110,7 @@ ALTER TABLE service_ratings ENABLE ROW LEVEL SECURITY;
 -- RLS Policies for reviews
 CREATE POLICY "Users can view approved reviews"
   ON reviews FOR SELECT
-  USING (status = 'approved' OR user_id = auth.uid());
+  USING (approved = true OR user_id = auth.uid());
 
 CREATE POLICY "Users can create their own reviews"
   ON reviews FOR INSERT
@@ -197,7 +198,7 @@ BEGIN
     COUNT(*) FILTER (WHERE rating = 1),
     SUM(COALESCE(array_length(photos, 1), 0))
   FROM reviews
-  WHERE service_id = NEW.service_id AND status = 'approved'
+  WHERE service_id = NEW.service_id AND approved = true
   ON CONFLICT (service_id) DO UPDATE SET
     total_reviews = EXCLUDED.total_reviews,
     average_rating = EXCLUDED.average_rating,
@@ -215,7 +216,7 @@ $$ LANGUAGE plpgsql;
 
 -- Trigger to auto-update service ratings
 CREATE TRIGGER trigger_update_service_ratings
-AFTER INSERT OR UPDATE OF rating, status ON reviews
+AFTER INSERT OR UPDATE OF rating, approved ON reviews
 FOR EACH ROW
 EXECUTE FUNCTION update_service_ratings();
 
@@ -288,7 +289,7 @@ BEGIN
     r.admin_response, r.admin_response_at, r.is_featured, r.helpful_count,
     r.created_at
   FROM reviews r
-  WHERE r.service_id = service_id_param AND r.status = 'approved'
+  WHERE r.service_id = service_id_param AND r.approved = true
   ORDER BY r.is_featured DESC, r.created_at DESC;
 END;
 $$ LANGUAGE plpgsql;
