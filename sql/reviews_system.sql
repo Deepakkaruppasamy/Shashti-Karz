@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS reviews (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   booking_id UUID NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
-  service_id UUID REFERENCES services(id),
+  service_id TEXT REFERENCES services(id),
   rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
   comment TEXT NOT NULL,
   recommend BOOLEAN,
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS review_photos (
 
 -- Service Rating Summary (Materialized View Alternative)
 CREATE TABLE IF NOT EXISTS service_ratings (
-  service_id UUID PRIMARY KEY REFERENCES services(id) ON DELETE CASCADE,
+  service_id TEXT PRIMARY KEY REFERENCES services(id) ON DELETE CASCADE,
   total_reviews INTEGER DEFAULT 0,
   average_rating DECIMAL DEFAULT 0,
   rating_5_count INTEGER DEFAULT 0,
@@ -262,7 +262,7 @@ FOR EACH ROW
 EXECUTE FUNCTION update_review_report_count();
 
 -- Function to get reviews with stats
-CREATE OR REPLACE FUNCTION get_service_reviews(service_id_param UUID)
+CREATE OR REPLACE FUNCTION get_service_reviews(service_id_param TEXT)
 RETURNS TABLE (
   id UUID,
   user_id UUID,
