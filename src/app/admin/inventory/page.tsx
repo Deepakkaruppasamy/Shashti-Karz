@@ -1,5 +1,15 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
-import { Sparkles, Brain, Zap, Activity, RefreshCw, BarChart3, TrendingUp, TrendingDown, Target, ShieldCheck, ShoppingCart, Box, Layers, History } from "lucide-react";
+import {
+  Sparkles, Brain, Zap, Activity, RefreshCw, BarChart3, TrendingUp, TrendingDown, Target, ShieldCheck, ShoppingCart, Box, Layers, History,
+  Plus, AlertTriangle, RotateCcw, Trash2, X
+} from "lucide-react";
+import { AdminSidebar } from "@/components/AdminSidebar";
+import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+import type { InventoryItem } from "@/lib/types";
 
 export default function InventoryPage() {
   const [items, setItems] = useState<InventoryItem[]>([]);

@@ -1,5 +1,42 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
-import { Sparkles, Activity, ShieldAlert, Zap, Layers, RefreshCw } from "lucide-react";
+import {
+    Sparkles,
+    Activity,
+    ShieldAlert,
+    Zap,
+    Layers,
+    RefreshCw,
+    Plus,
+    CheckCircle2,
+    Calendar,
+    TrendingDown
+} from "lucide-react";
+import { AdminSidebar } from "@/components/AdminSidebar";
+import { toast } from "sonner";
+import { motion } from "framer-motion";
+
+interface Equipment {
+    id: string;
+    name: string;
+    equipment_type: string;
+    location: string;
+    is_active: boolean;
+    current_condition: string;
+    next_maintenance_due: string;
+    total_maintenance_cost: number;
+}
+
+interface MaintenanceAlert {
+    id: string;
+    equipment_name: string;
+    priority: string;
+    message: string;
+    due_date: string;
+}
 
 export default function EquipmentAdminPage() {
     const [equipment, setEquipment] = useState<Equipment[]>([]);

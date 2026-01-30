@@ -1,5 +1,18 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
-import { Sparkles, Brain, Zap, Activity, RefreshCw, BarChart3, TrendingUp, TrendingDown, Target, ShieldCheck } from "lucide-react";
+import {
+  Sparkles, Brain, Zap, Activity, RefreshCw, BarChart3, TrendingUp, TrendingDown, Target, ShieldCheck,
+  Star, MessageSquare, Clock, CheckCircle2, Trash2, Send, Download, FileText, ExternalLink
+} from "lucide-react";
+import { AdminSidebar } from "@/components/AdminSidebar";
+import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+import type { Review } from "@/lib/types";
+import * as XLSX from "xlsx";
+import { jsPDF } from "jspdf";
 
 export default function ReviewsAdminPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
