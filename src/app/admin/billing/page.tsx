@@ -16,6 +16,8 @@ import { AdminSidebar } from "@/components/AdminSidebar";
 import { useAuth } from "@/lib/auth-context";
 import { jsPDF } from "jspdf";
 import * as XLSX from "xlsx";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
+import { Sparkles, Brain, Zap, Activity, ChartBar, TrendingUp, TrendingDown, Target, ShieldCheck, ShoppingCart, Box, Layers, History, DollarSign, Wallet, PieChart } from "lucide-react";
 
 interface InvoiceItem {
   id: string;
@@ -98,18 +100,61 @@ export default function AdminBillingPage() {
   const [filterDateStart, setFilterDateStart] = useState("");
   const [filterDateEnd, setFilterDateEnd] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [aiInsight, setAiInsight] = useState<string>("");
+  const [isAiLoading, setIsAiLoading] = useState(false);
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push("/login");
+  // Real-time subscription
+  useRealtimeSubscription<Invoice>({
+    table: "invoices",
+    onInsert: (newInvoice) => {
+      setInvoices(prev => [newInvoice, ...prev]);
+      toast.success(`New Invoice generated: ${newInvoice.invoice_number}`, {
+        icon: '💰'
+      });
+    },
+    onUpdate: (updatedInvoice) => {
+      setInvoices(prev => prev.map(inv => inv.id === updatedInvoice.id ? updatedInvoice : inv));
     }
-  }, [authLoading, user, router]);
+  });
 
   useEffect(() => {
     if (activeTab === "history") {
       loadInvoices();
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    if (invoices.length > 0 && !aiInsight) {
+      generateAiInsight();
+    }
+  }, [invoices]);
+
+  const generateAiInsight = async () => {
+    setIsAiLoading(true);
+    try {
+      const res = await fetch("/api/ai/admin-command", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          command: "Analyze recent invoice data. Detect revenue leakages, identify top-performing services by profit margin, and suggest tax-saving strategies for the current quarter.",
+          context: {
+            type: "financial_analysis",
+            recent_invoices: invoices.slice(0, 5).map(inv => ({
+              amount: inv.total_amount,
+              date: inv.invoice_date,
+              customer: inv.customer_name
+            }))
+          }
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAiInsight(data.response);
+      }
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
 
   async function loadInvoices() {
     setIsLoading(true);
@@ -421,28 +466,60 @@ export default function AdminBillingPage() {
       <AdminSidebar />
       <div className="flex-1 overflow-auto">
         <div className="p-4 lg:p-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
             <div>
-              <h1 className="text-3xl font-bold font-display flex items-center gap-3">
-                <Receipt className="text-[#ff1744]" />
-                Billing & Invoices
+              <h1 className="text-4xl font-black tracking-tighter flex items-center gap-3">
+                <Wallet className="text-[#ff1744]" />
+                Finance Nexus
               </h1>
-              <p className="text-[#888] mt-1 text-sm lg:text-base">Create and manage offline customer invoices</p>
+              <p className="text-[#888] mt-1 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                Live Revenue Processor
+              </p>
             </div>
-            <div className="flex bg-white/5 p-1 rounded-xl">
+
+            <div className="flex bg-white/5 p-1 rounded-[1.2rem] border border-white/5">
               <button
                 onClick={() => setActiveTab("create")}
-                className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === "create" ? "bg-[#ff1744] text-white shadow-lg" : "text-[#888] hover:text-white"}`}
+                className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === "create" ? "bg-white text-black shadow-2xl" : "text-[#888] hover:text-white"}`}
               >
-                Create New
+                Draft Invoice
               </button>
               <button
                 onClick={() => setActiveTab("history")}
-                className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === "history" ? "bg-[#ff1744] text-white shadow-lg" : "text-[#888] hover:text-white"}`}
+                className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === "history" ? "bg-white text-black shadow-2xl" : "text-[#888] hover:text-white"}`}
               >
-                History
+                Revenue Vault
               </button>
             </div>
+          </div>
+
+          <div className="grid lg:grid-cols-4 gap-6 mb-12">
+            {[
+              { label: "Gross Revenue", value: `₹${invoices.reduce((s, i) => s + i.total_amount, 0).toLocaleString()}`, icon: DollarSign, color: "text-green-500", bg: "bg-green-500/10" },
+              { label: "Invoices Circulating", value: invoices.length, icon: Receipt, color: "text-blue-500", bg: "bg-blue-500/10" },
+              { label: "Avg Ticket Size", value: `₹${(invoices.reduce((s, i) => s + i.total_amount, 0) / (invoices.length || 1)).toFixed(0)}`, icon: Target, color: "text-[#d4af37]", bg: "bg-[#d4af37]/10" },
+              { label: "Tax Liability", value: `₹${invoices.reduce((s, i) => s + i.tax_amount, 0).toLocaleString()}`, icon: ShieldCheck, color: "text-red-500", bg: "bg-red-500/10" },
+            ].map((stat, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: i * 0.1 }}
+                className="glass-card rounded-[2rem] p-6 border border-white/5 relative overflow-hidden group"
+              >
+                <div className={`absolute top-0 right-0 w-20 h-20 ${stat.bg} rounded-full blur-[40px] opacity-20`} />
+                <div className="relative flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center`}>
+                    <stat.icon size={20} />
+                  </div>
+                  <div>
+                    <div className="text-xl font-black tracking-tighter">{stat.value}</div>
+                    <div className="text-[10px] font-black text-[#444] uppercase tracking-widest">{stat.label}</div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
 
           {activeTab === "create" && (

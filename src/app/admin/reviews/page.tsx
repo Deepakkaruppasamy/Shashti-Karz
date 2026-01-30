@@ -1,16 +1,5 @@
-"use client";
-
-"use client";
-
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Star, MessageSquare, CheckCircle2, XCircle, Send, Trash2, ExternalLink, Image as ImageIcon, Brain, TrendingUp, TrendingDown, BarChart3, Search, Sparkles, Shield, AlertTriangle, Download, FileText, Loader2, Minus, Clock } from "lucide-react";
-import { toast } from "sonner";
-import { AdminSidebar } from "@/components/AdminSidebar";
-import Image from "next/image";
-import { jsPDF } from "jspdf";
-import * as XLSX from "xlsx";
-import type { Review } from "@/lib/types";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
+import { Sparkles, Brain, Zap, Activity, RefreshCw, BarChart3, TrendingUp, TrendingDown, Target, ShieldCheck } from "lucide-react";
 
 export default function ReviewsAdminPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -23,12 +12,38 @@ export default function ReviewsAdminPage() {
   const [aiQuery, setAiQuery] = useState("");
   const [aiAnswer, setAiAnswer] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [smartSummary, setSmartSummary] = useState<string>("");
+
+  // Real-time subscription
+  useRealtimeSubscription<Review>({
+    table: "reviews",
+    onInsert: (newReview) => {
+      setReviews((prev) => [newReview, ...prev]);
+      toast.success(`New ${newReview.rating}-star review from ${newReview.name}!`, {
+        icon: '🌟',
+        description: newReview.comment.substring(0, 50) + '...'
+      });
+    },
+    onUpdate: (updatedReview) => {
+      setReviews((prev) => prev.map((r) => (r.id === updatedReview.id ? updatedReview : r)));
+    },
+    onDelete: (payload) => {
+      setReviews((prev) => prev.filter((r) => r.id !== payload.old.id));
+    },
+  });
 
   useEffect(() => {
     loadReviews();
   }, []);
 
+  useEffect(() => {
+    if (reviews.length > 0 && !smartSummary) {
+      generateSmartSummary();
+    }
+  }, [reviews]);
+
   const loadReviews = async () => {
+    setIsLoading(true);
     try {
       const res = await fetch("/api/reviews?admin=true");
       if (res.ok) {
@@ -40,6 +55,25 @@ export default function ReviewsAdminPage() {
     }
   };
 
+  const generateSmartSummary = async () => {
+    try {
+      const res = await fetch("/api/ai/admin-command", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          command: "Provide a 2-sentence executive summary of recent customer sentiment. Identify the single biggest pain point and the most praised aspect.",
+          context: { type: "reviews_summary", reviews: reviews.slice(0, 20) }
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSmartSummary(data.response);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleApprove = async (id: string, approved: boolean) => {
     const res = await fetch(`/api/reviews/${id}`, {
       method: "PATCH",
@@ -47,8 +81,7 @@ export default function ReviewsAdminPage() {
       body: JSON.stringify({ approved }),
     });
     if (res.ok) {
-      toast.success(approved ? "Review approved!" : "Review hidden");
-      loadReviews();
+      toast.success(approved ? "Review approved and visible!" : "Review hidden from public");
     }
   };
 
@@ -56,8 +89,7 @@ export default function ReviewsAdminPage() {
     if (!confirm("Delete this review permanently?")) return;
     const res = await fetch(`/api/reviews/${id}`, { method: "DELETE" });
     if (res.ok) {
-      toast.success("Review deleted");
-      loadReviews();
+      toast.success("Review permanently removed");
       if (selectedReview?.id === id) setSelectedReview(null);
     }
   };
@@ -75,9 +107,8 @@ export default function ReviewsAdminPage() {
         }),
       });
       if (res.ok) {
-        toast.success("Response posted!");
+        toast.success("Public response updated");
         setResponse("");
-        loadReviews();
         setSelectedReview(null);
       }
     } finally {
@@ -132,19 +163,6 @@ export default function ReviewsAdminPage() {
     }
   };
 
-  const requestGoogleReview = async (review: Review) => {
-    await fetch("/api/whatsapp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        phone: "919876543210",
-        template_name: "review_request",
-        params: [review.name, review.service, "https://g.page/r/shashti-karz/review"],
-      }),
-    });
-    toast.success("Review request sent via WhatsApp!");
-  };
-
   const filteredReviews = reviews.filter((r) => {
     if (filter === "pending") return !r.approved;
     if (filter === "approved") return r.approved;
@@ -156,367 +174,353 @@ export default function ReviewsAdminPage() {
   const avgRating = reviews.length > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) : "0";
 
   return (
-    <div className="flex min-h-screen bg-[#0a0a0a]">
+    <div className="flex min-h-screen bg-[#0a0a0a] text-white">
       <AdminSidebar />
       <div className="flex-1 overflow-auto">
         <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
             <div>
-              <h1 className="text-3xl font-bold">Review Management</h1>
-              <p className="text-[#888]">AI-powered service insights & feedback</p>
+              <h1 className="text-4xl font-black tracking-tighter flex items-center gap-3">
+                <Star className="text-[#d4af37] fill-[#d4af37]" />
+                Feedback Echo
+              </h1>
+              <p className="text-[#888] mt-1 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                Live Reputation Monitoring
+              </p>
             </div>
-            <div className="flex gap-2 p-1 bg-white/5 rounded-xl">
-              <button
-                onClick={() => setActiveTab("list")}
-                className={`px-4 py-2 rounded-lg text-sm transition-all ${activeTab === "list" ? "bg-[#ff1744] text-white" : "text-[#888] hover:text-white"}`}
-              >
-                Review List
-              </button>
-              <button
-                onClick={() => setActiveTab("analytics")}
-                className={`px-4 py-2 rounded-lg text-sm transition-all ${activeTab === "analytics" ? "bg-[#ff1744] text-white" : "text-[#888] hover:text-white"}`}
-              >
-                AI Analytics
-              </button>
+            <div className="flex items-center gap-3 p-1.5 glass-card rounded-2xl border border-white/5">
+              {(["list", "analytics"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab ? "bg-[#ff1744] text-white shadow-lg shadow-[#ff1744]/20" : "text-[#888] hover:text-white"}`}
+                >
+                  {tab === "list" ? "Inbox" : "Insights Engine"}
+                </button>
+              ))}
             </div>
           </div>
 
           <AnimatePresence mode="wait">
             {activeTab === "list" ? (
-              <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <div className="grid sm:grid-cols-4 gap-4 mb-8">
+              <motion.div key="list" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                {/* AI Smart Summary Bar */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="mb-8 p-6 glass-card rounded-[2.5rem] border border-[#d4af37]/20 bg-gradient-to-r from-[#d4af37]/10 to-transparent flex items-center gap-6"
+                >
+                  <div className="w-16 h-16 rounded-[1.5rem] bg-gradient-to-br from-[#d4af37] to-[#ffd700] flex items-center justify-center shrink-0 shadow-lg">
+                    <Sparkles className="text-[#0a0a0a]" size={28} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h2 className="font-black uppercase tracking-widest text-[10px] text-[#d4af37]">AI Reputation Pulse</h2>
+                      <span className="w-1 h-1 rounded-full bg-white/20" />
+                      <button onClick={generateSmartSummary} className="text-[10px] font-black underline uppercase text-[#888] hover:text-white transition-colors">Regenerate</button>
+                    </div>
+                    <p className="text-sm text-[#ccc] leading-relaxed italic">
+                      {smartSummary || "Synthesizing recent feedback clusters..."}
+                    </p>
+                  </div>
+                </motion.div>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                   {[
-                    { label: "Total Reviews", value: reviews.length, icon: MessageSquare, color: "from-blue-500 to-cyan-500" },
-                    { label: "Pending", value: pendingCount, icon: Clock, color: pendingCount > 0 ? "from-yellow-500 to-orange-500" : "from-green-500 to-emerald-500" },
-                    { label: "Avg Rating", value: avgRating, icon: Star, color: "from-[#d4af37] to-[#ffd700]" },
-                    { label: "Flagged", value: reviews.filter(r => r.flagged).length, icon: AlertTriangle, color: "from-red-500 to-pink-500" },
+                    { label: "Inbox", value: reviews.length, icon: MessageSquare, color: "text-blue-500" },
+                    { label: "Awaiting Action", value: pendingCount, icon: Clock, color: pendingCount > 0 ? "text-orange-500" : "text-green-500" },
+                    { label: "Global Rating", value: avgRating, icon: Star, color: "text-[#d4af37]" },
+                    { label: "Flagged", value: reviews.filter(r => r.flagged).length, icon: ShieldCheck, color: "text-red-500" },
                   ].map((stat, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.1 }}
-                      className="glass-card rounded-2xl p-6"
-                    >
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3`}>
-                        <stat.icon size={24} className="text-white" />
+                    <div key={i} className="glass-card rounded-2xl p-6 border border-white/5 flex items-center gap-4">
+                      <div className={`p-3 rounded-xl bg-white/5 ${stat.color}`}>
+                        <stat.icon size={20} />
                       </div>
-                      <div className="text-2xl font-bold">{stat.value}</div>
-                      <div className="text-sm text-[#888]">{stat.label}</div>
-                    </motion.div>
+                      <div>
+                        <div className="text-2xl font-black tracking-tighter">{stat.value}</div>
+                        <div className="text-[10px] font-black text-[#555] uppercase tracking-widest">{stat.label}</div>
+                      </div>
+                    </div>
                   ))}
                 </div>
 
-                <div className="grid lg:grid-cols-3 gap-6">
-                  <div className="lg:col-span-2">
-                    <div className="glass-card rounded-2xl p-6">
-                      <div className="flex items-center justify-between mb-6">
-                        <h2 className="font-semibold">Recent Reviews</h2>
-                        <div className="flex gap-2">
-                          {(["all", "pending", "approved", "flagged"] as const).map((f) => (
-                            <button
-                              key={f}
-                              onClick={() => setFilter(f)}
-                              className={`px-4 py-2 rounded-lg text-sm capitalize transition-all ${filter === f ? "bg-[#ff1744] text-white" : "bg-white/5 text-[#888] hover:text-white"
-                                }`}
-                            >
-                              {f}
-                            </button>
-                          ))}
-                        </div>
+                <div className="grid lg:grid-cols-3 gap-8">
+                  <div className="lg:col-span-2 space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-black text-[#888] uppercase tracking-[0.3em] ml-1">Live Feed</h3>
+                      <div className="flex gap-2">
+                        {(["all", "pending", "approved"] as const).map((f) => (
+                          <button
+                            key={f}
+                            onClick={() => setFilter(f)}
+                            className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${filter === f ? "bg-white text-[#0a0a0a] border-white" : "text-[#888] border-white/10 hover:border-white/30"}`}
+                          >
+                            {f}
+                          </button>
+                        ))}
                       </div>
+                    </div>
 
-                      {isLoading ? (
-                        <div className="text-center py-12">
-                          <div className="w-8 h-8 border-2 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto" />
-                        </div>
-                      ) : filteredReviews.length === 0 ? (
-                        <div className="text-center py-12 text-[#888]">
-                          <MessageSquare size={32} className="mx-auto mb-2 opacity-50" />
-                          <p>No reviews found</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          {filteredReviews.map((review) => (
-                            <motion.div
-                              key={review.id}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              className={`p-4 rounded-xl cursor-pointer transition-all ${selectedReview?.id === review.id
-                                ? "bg-[#ff1744]/10 border-2 border-[#ff1744]"
-                                : "bg-white/5 border-2 border-transparent hover:border-white/10"
-                                } ${!review.approved ? "border-l-4 border-l-yellow-500" : ""}`}
-                              onClick={() => { setSelectedReview(review); setResponse(review.admin_response || ""); }}
-                            >
-                              <div className="flex items-start gap-4">
-                                <Image
-                                  src={review.avatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100"}
-                                  alt={review.name}
-                                  width={48}
-                                  height={48}
-                                  className="rounded-full object-cover"
-                                />
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center justify-between">
-                                    <h4 className="font-semibold">{review.name}</h4>
-                                    <div className="flex items-center gap-1">
-                                      {[...Array(5)].map((_, i) => (
-                                        <Star
-                                          key={i}
-                                          size={14}
-                                          className={i < review.rating ? "text-[#d4af37] fill-[#d4af37]" : "text-[#444]"}
-                                        />
-                                      ))}
-                                    </div>
-                                  </div>
-                                  <p className="text-sm text-[#888]">{review.car} • {review.service}</p>
-                                  <p className="text-sm mt-2 line-clamp-2">{review.comment}</p>
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                  <button
-                                    onClick={(e) => { e.stopPropagation(); handleApprove(review.id, !review.approved); }}
-                                    className={`p-2 rounded-lg ${review.approved ? "bg-green-500/10 text-green-500" : "bg-yellow-500/10 text-yellow-500"
-                                      }`}
-                                  >
-                                    {review.approved ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
-                                  </button>
-                                  <button
-                                    onClick={(e) => { e.stopPropagation(); handleDelete(review.id); }}
-                                    className="p-2 rounded-lg bg-red-500/10 text-red-500"
-                                  >
-                                    <Trash2 size={16} />
-                                  </button>
+                    {isLoading ? (
+                      <div className="text-center py-20 space-y-4">
+                        <div className="w-12 h-12 border-4 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto" />
+                        <p className="text-[10px] font-black uppercase tracking-widest text-[#444]">Syncing Reviews...</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {filteredReviews.map((review) => (
+                          <motion.div
+                            key={review.id}
+                            initial={{ opacity: 0, scale: 0.98 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            whileHover={{ y: -2 }}
+                            className={`glass-card rounded-3xl p-6 border-2 transition-all cursor-pointer relative overflow-hidden group ${selectedReview?.id === review.id ? "border-[#ff1744]/40 bg-[#ff1744]/5" : "border-white/5 hover:border-white/10"}`}
+                            onClick={() => { setSelectedReview(review); setResponse(review.admin_response || ""); }}
+                          >
+                            <div className="flex items-start gap-5 relative">
+                              <div className="relative shrink-0">
+                                <Image src={review.avatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100"} alt={review.name} width={50} height={50} className="rounded-2xl object-cover ring-2 ring-white/5" />
+                                <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-lg flex items-center justify-center text-[8px] font-black border-2 border-[#0a0a0a] ${review.rating >= 4 ? "bg-green-500" : "bg-red-500"}`}>
+                                  {review.rating}
                                 </div>
                               </div>
-                            </motion.div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between mb-1">
+                                  <h4 className="font-bold text-white group-hover:text-[#ff1744] transition-colors">{review.name}</h4>
+                                  <span className="text-[9px] font-black text-[#444] uppercase tracking-widest">{new Date(review.created_at).toLocaleDateString()}</span>
+                                </div>
+                                <div className="flex items-center gap-2 mb-3">
+                                  <span className="text-[9px] font-black uppercase text-[#444] border border-white/5 px-2 py-0.5 rounded-md">{review.service}</span>
+                                  {review.admin_response && <span className="text-[9px] font-black uppercase text-green-500 flex items-center gap-1"><CheckCircle2 size={10} /> Replied</span>}
+                                </div>
+                                <p className="text-sm text-[#aaa] leading-relaxed line-clamp-2 italic">&quot;{review.comment}&quot;</p>
+                              </div>
+                              <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleApprove(review.id, !review.approved); }}
+                                  className={`p-2.5 rounded-xl transition-all ${review.approved ? "bg-green-500/10 text-green-500 hover:bg-green-500/20" : "bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20"}`}
+                                >
+                                  {review.approved ? <CheckCircle2 size={18} /> : <Clock size={18} />}
+                                </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleDelete(review.id); }}
+                                  className="p-2.5 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-all"
+                                >
+                                  <Trash2 size={18} />
+                                </button>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
+                  {/* Inspector Panel */}
                   <div className="lg:col-span-1">
                     {selectedReview ? (
-                      <div className="glass-card rounded-2xl p-6 sticky top-28">
-                        <h3 className="font-semibold mb-4">Review Details</h3>
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-3">
-                            <Image
-                              src={selectedReview.avatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100"}
-                              alt={selectedReview.name}
-                              width={56}
-                              height={56}
-                              className="rounded-full object-cover"
-                            />
+                      <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="glass-card rounded-[2.5rem] p-8 space-y-8 border border-white/5 sticky top-28">
+                        <div>
+                          <h3 className="text-[10px] font-black text-[#555] uppercase tracking-[0.3em] mb-6">Review Inspector</h3>
+                          <div className="flex items-center gap-4 mb-6">
+                            <Image src={selectedReview.avatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100"} alt={selectedReview.name} width={64} height={64} className="rounded-2xl" />
                             <div>
-                              <h4 className="font-semibold">{selectedReview.name}</h4>
-                              <div className="flex items-center gap-1">
+                              <h4 className="text-xl font-black">{selectedReview.name}</h4>
+                              <div className="flex items-center gap-1 mt-1">
                                 {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    size={14}
-                                    className={i < selectedReview.rating ? "text-[#d4af37] fill-[#d4af37]" : "text-[#444]"}
-                                  />
+                                  <Star key={i} size={14} className={i < selectedReview.rating ? "text-[#d4af37] fill-[#d4af37]" : "text-[#222]"} />
                                 ))}
                               </div>
                             </div>
                           </div>
-
-                          <div className="p-4 rounded-xl bg-white/5">
-                            <p className="text-sm">&quot;{selectedReview.comment}&quot;</p>
-                          </div>
-
-                          <div className="text-sm text-[#888]">
-                            <p>Service: {selectedReview.service}</p>
-                            <p>Vehicle: {selectedReview.car}</p>
-                            <p>Date: {new Date(selectedReview.created_at).toLocaleDateString()}</p>
-                          </div>
-
-                          <div>
-                            <label className="block text-sm text-[#888] mb-2">Your Response</label>
-                            <textarea
-                              value={response}
-                              onChange={(e) => setResponse(e.target.value)}
-                              placeholder="Thank you for your feedback..."
-                              rows={4}
-                              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-[#ff1744] focus:outline-none resize-none text-sm"
-                            />
-                          </div>
-
-                          <div className="flex gap-2">
-                            <button
-                              onClick={handleResponse}
-                              disabled={!response.trim() || isSubmitting}
-                              className="flex-1 btn-premium px-4 py-2 rounded-xl text-white text-sm flex items-center justify-center gap-2 disabled:opacity-50"
-                            >
-                              <Send size={14} />
-                              Post Response
-                            </button>
+                          <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 relative">
+                            <Sparkles className="absolute -top-2 -right-2 text-[#d4af37]/20" size={32} />
+                            <p className="text-sm font-medium leading-relaxed italic text-[#888]">&quot;{selectedReview.comment}&quot;</p>
                           </div>
                         </div>
-                      </div>
+
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center px-1">
+                            <label className="text-[10px] font-black text-[#444] uppercase tracking-widest">Public Response</label>
+                            <Brain size={12} className="text-[#ff1744] animate-pulse" />
+                          </div>
+                          <textarea
+                            value={response}
+                            onChange={(e) => setResponse(e.target.value)}
+                            placeholder="Address concerns or express gratitude..."
+                            className="w-full h-40 px-6 py-5 rounded-[2rem] bg-white/5 border border-white/10 focus:border-[#ff1744] focus:outline-none transition-all text-sm leading-relaxed"
+                          />
+                        </div>
+
+                        <div className="flex gap-3">
+                          <button
+                            onClick={handleResponse}
+                            disabled={!response.trim() || isSubmitting}
+                            className="flex-1 btn-premium py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 disabled:opacity-50"
+                          >
+                            {isSubmitting ? <RefreshCw className="animate-spin" size={14} /> : <Send size={14} />}
+                            Broadcast Reply
+                          </button>
+                        </div>
+
+                        <div className="pt-6 border-t border-white/5">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                              <div className="text-[8px] font-black text-[#444] uppercase tracking-widest mb-1">Sentiment</div>
+                              <div className={`text-[10px] font-black uppercase ${selectedReview.sentiment_label === 'Positive' ? 'text-green-500' : 'text-red-500'}`}>{selectedReview.sentiment_label || 'Neutral'}</div>
+                            </div>
+                            <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                              <div className="text-[8px] font-black text-[#444] uppercase tracking-widest mb-1">Category</div>
+                              <div className="text-[10px] font-black uppercase text-white">{selectedReview.service.split(' ')[0]}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
                     ) : (
-                      <div className="glass-card rounded-2xl p-6 text-center">
-                        <MessageSquare size={48} className="mx-auto text-[#888] mb-4" />
-                        <h3 className="font-medium mb-2">Select a Review</h3>
-                        <p className="text-sm text-[#888]">Click on a review to respond or manage</p>
+                      <div className="glass-card rounded-[2.5rem] p-12 text-center border border-dashed border-white/10">
+                        <Activity size={48} className="mx-auto text-[#222] mb-4" />
+                        <h3 className="font-bold mb-2">Shadow Control</h3>
+                        <p className="text-xs text-[#444] uppercase font-black tracking-widest">Select a pulse from the feed</p>
                       </div>
                     )}
                   </div>
                 </div>
               </motion.div>
             ) : (
-              <motion.div key="analytics" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
-                <div className="grid lg:grid-cols-3 gap-6">
-                  {/* AI Assistant Card */}
-                  <div className="lg:col-span-1 space-y-6">
-                    <div className="glass-card rounded-2xl p-6 border border-[#ff1744]/20 relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-[#ff1744]/10 rounded-full blur-3xl" />
-                      <div className="flex items-center gap-3 mb-6 relative">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#ff1744] to-[#d4af37] flex items-center justify-center shadow-lg shadow-[#ff1744]/20">
-                          <Brain className="text-white" size={24} />
+              <motion.div key="analytics" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
+                <div className="grid lg:grid-cols-12 gap-8">
+                  {/* Left Column: AI Interface */}
+                  <div className="lg:col-span-4 space-y-8">
+                    <div className="glass-card rounded-[2.5rem] p-8 border border-[#ff1744]/20 bg-gradient-to-br from-[#ff1744]/5 to-transparent relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-[#ff1744]/10 rounded-full blur-[80px]" />
+                      <div className="flex items-center gap-4 mb-8">
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#ff1744] to-[#d4af37] flex items-center justify-center shadow-2xl shadow-[#ff1744]/20 ring-4 ring-white/5">
+                          <Brain className="text-white" size={28} />
                         </div>
                         <div>
-                          <h3 className="font-bold">Shashti Review AI</h3>
-                          <p className="text-xs text-[#888]">Ask anything about your feedback</p>
+                          <h3 className="text-xl font-black tracking-tighter">Review Matrix AI</h3>
+                          <p className="text-[10px] font-black text-[#ff1744] uppercase tracking-widest">Sentiment Query Engine</p>
                         </div>
                       </div>
 
-                      <div className="space-y-4 relative">
-                        <div className="p-4 rounded-xl bg-white/5 border border-white/10 min-h-[100px] text-sm text-[#ccc] italic">
+                      <div className="space-y-6">
+                        <div className="p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 min-h-[160px] text-sm leading-relaxed text-[#ccc] italic group-hover:bg-white/[0.05] transition-all">
                           {isAiLoading ? (
-                            <div className="flex items-center gap-2">
-                              <Loader2 className="animate-spin" size={16} />
-                              <span>Analyzing sentiment patterns...</span>
+                            <div className="flex flex-col items-center justify-center gap-4 py-8">
+                              <RefreshCw className="animate-spin text-[#ff1744]" size={32} />
+                              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#444]">De-fragmenting feedback...</span>
                             </div>
                           ) : aiAnswer ? (
                             aiAnswer
                           ) : (
-                            "Try: 'Why did my rating drop recently?' or 'What are customers saying about the price?'"
+                            <div className="space-y-4 opacity-40">
+                              <p>Operational Queries suggested:</p>
+                              <div className="space-y-2">
+                                {["Why did my performance drop in August?", "Is pricing a common rejection theme?", "Which service has the highest NPS?"].map((q, i) => (
+                                  <div key={i} className="text-xs py-1 px-3 bg-white/5 rounded-lg border border-white/5">{q}</div>
+                                ))}
+                              </div>
+                            </div>
                           )}
                         </div>
 
-                        <div className="flex gap-2">
+                        <div className="flex gap-3">
                           <input
                             type="text"
                             value={aiQuery}
                             onChange={(e) => setAiQuery(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && handleAiQuery()}
-                            placeholder="Type your question..."
-                            className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-[#ff1744] focus:outline-none text-sm"
+                            placeholder="Query the Matrix..."
+                            className="flex-1 px-6 py-4 rounded-2xl bg-white/5 border border-white/10 focus:border-[#ff1744] focus:outline-none text-sm transition-all shadow-inner"
                           />
                           <button
                             onClick={handleAiQuery}
-                            className="p-3 rounded-xl bg-[#ff1744] text-white hover:bg-[#ff1744]/80 transition-all"
+                            className="p-4 rounded-2xl bg-[#ff1744] text-white hover:scale-110 active:scale-95 transition-all shadow-xl shadow-[#ff1744]/20"
                           >
-                            <Send size={18} />
+                            <Zap size={20} fill="currentColor" />
                           </button>
                         </div>
                       </div>
                     </div>
 
-                    <div className="glass-card rounded-2xl p-6 space-y-4">
-                      <h3 className="font-bold flex items-center gap-2">
-                        <Download size={18} className="text-[#ff1744]" />
-                        Reports & Downloads
+                    <div className="glass-card rounded-[2.5rem] p-8 space-y-4">
+                      <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#444] flex items-center gap-2 mb-4">
+                        <Download size={14} /> Data Exports
                       </h3>
-                      <button
-                        onClick={() => downloadReport("pdf")}
-                        className="w-full p-4 rounded-xl bg-white/5 border border-white/10 hover:border-[#ff1744]/30 flex items-center justify-between group transition-all"
-                      >
-                        <div className="flex items-center gap-3">
-                          <FileText size={20} className="text-red-400" />
-                          <div className="text-left">
-                            <div className="text-sm font-medium">Monthly Trends PDF</div>
-                            <div className="text-[10px] text-[#666]">Detailed sentiment analysis</div>
+                      <div className="grid grid-cols-1 gap-3">
+                        <button onClick={() => downloadReport("pdf")} className="p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-red-500/20 flex items-center justify-between group transition-all">
+                          <div className="flex items-center gap-4 text-red-500">
+                            <FileText size={20} />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-[#888] group-hover:text-white">Reputation_Report.pdf</span>
                           </div>
-                        </div>
-                        <Download size={16} className="text-[#888] group-hover:text-white" />
-                      </button>
-                      <button
-                        onClick={() => downloadReport("excel")}
-                        className="w-full p-4 rounded-xl bg-white/5 border border-white/10 hover:border-green-500/30 flex items-center justify-between group transition-all"
-                      >
-                        <div className="flex items-center gap-3">
-                          <BarChart3 size={20} className="text-green-400" />
-                          <div className="text-left">
-                            <div className="text-sm font-medium">Full Raw Data (Excel)</div>
-                            <div className="text-[10px] text-[#666]">All comments & AI scores</div>
+                          <ExternalLink size={14} className="text-[#222] group-hover:text-white" />
+                        </button>
+                        <button onClick={() => downloadReport("excel")} className="p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-green-500/20 flex items-center justify-between group transition-all">
+                          <div className="flex items-center gap-4 text-green-500">
+                            <BarChart3 size={20} />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-[#888] group-hover:text-white">Raw_Data_Lake.xlsx</span>
                           </div>
-                        </div>
-                        <Download size={16} className="text-[#888] group-hover:text-white" />
-                      </button>
+                          <ExternalLink size={14} className="text-[#222] group-hover:text-white" />
+                        </button>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Charts & Trends Card */}
-                  <div className="lg:col-span-2 space-y-6">
-                    <div className="glass-card rounded-2xl p-6 h-full">
-                      <div className="flex items-center justify-between mb-8">
-                        <h3 className="text-xl font-bold flex items-center gap-2">
-                          <BarChart3 size={24} className="text-[#d4af37]" />
-                          Sentiment Analysis
-                        </h3>
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-1.5">
-                            <div className="w-3 h-3 rounded-full bg-green-500" />
-                            <span className="text-xs text-[#888]">Positive</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                            <span className="text-xs text-[#888]">Neutral</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <div className="w-3 h-3 rounded-full bg-red-500" />
-                            <span className="text-xs text-[#888]">Negative</span>
-                          </div>
+                  {/* Right Column: Visualization */}
+                  <div className="lg:col-span-8 space-y-8">
+                    <div className="glass-card rounded-[2.5rem] p-10 relative overflow-hidden h-full">
+                      <div className="flex items-center justify-between mb-12">
+                        <div>
+                          <h3 className="text-2xl font-black tracking-tighter flex items-center gap-3">
+                            <Target className="text-[#d4af37]" />
+                            Sentiment Vector
+                          </h3>
+                          <p className="text-[10px] font-black text-[#444] uppercase tracking-widest mt-1">Algorithmic Distribution</p>
+                        </div>
+                        <div className="flex gap-6">
+                          {['Positive', 'Neutral', 'Negative'].map((s) => (
+                            <div key={s} className="flex items-center gap-2">
+                              <div className={`w-2 h-2 rounded-full ${s === 'Positive' ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : s === 'Neutral' ? 'bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.5)]' : 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]'}`} />
+                              <span className="text-[10px] font-black uppercase tracking-widest text-[#444]">{s}</span>
+                            </div>
+                          ))}
                         </div>
                       </div>
 
-                      <div className="grid sm:grid-cols-3 gap-6 mb-8">
-                        <div className="p-6 rounded-2xl bg-green-500/5 border border-green-500/10 text-center">
-                          <TrendingUp className="mx-auto text-green-500 mb-3" size={32} />
-                          <div className="text-3xl font-bold text-green-500">
-                            {Math.round((reviews.filter(r => r.sentiment_label === 'Positive').length / (reviews.length || 1)) * 100)}%
+                      <div className="grid sm:grid-cols-3 gap-8 mb-12">
+                        {[
+                          { label: "Optimal Flow", value: Math.round((reviews.filter(r => r.sentiment_label === 'Positive').length / (reviews.length || 1)) * 100), color: "text-green-500", bg: "bg-green-500/5", icon: TrendingUp },
+                          { label: "Stability", value: Math.round((reviews.filter(r => r.sentiment_label === 'Neutral').length / (reviews.length || 1)) * 100), color: "text-yellow-500", bg: "bg-yellow-500/5", icon: Activity },
+                          { label: "Risk Leakage", value: Math.round((reviews.filter(r => r.sentiment_label === 'Negative').length / (reviews.length || 1)) * 100), color: "text-red-500", bg: "bg-red-500/5", icon: TrendingDown },
+                        ].map((stat, i) => (
+                          <div key={i} className={`p-8 rounded-[2.5rem] ${stat.bg} border border-white/5 relative group`}>
+                            <stat.icon className={`absolute top-6 right-6 ${stat.color} opacity-20`} size={48} />
+                            <div className={`text-5xl font-black tracking-tighter ${stat.color} mb-2`}>{stat.value}%</div>
+                            <div className="text-[10px] font-black uppercase tracking-widest text-[#444]">{stat.label}</div>
                           </div>
-                          <div className="text-sm text-[#888]">Positive Experience</div>
-                        </div>
-                        <div className="p-6 rounded-2xl bg-yellow-500/5 border border-yellow-500/10 text-center">
-                          <Minus className="mx-auto text-yellow-500 mb-3" size={32} />
-                          <div className="text-3xl font-bold text-yellow-500">
-                            {Math.round((reviews.filter(r => r.sentiment_label === 'Neutral').length / (reviews.length || 1)) * 100)}%
-                          </div>
-                          <div className="text-sm text-[#888]">Neutral Sentiment</div>
-                        </div>
-                        <div className="p-6 rounded-2xl bg-red-500/5 border border-red-500/10 text-center">
-                          <TrendingDown className="mx-auto text-red-500 mb-3" size={32} />
-                          <div className="text-3xl font-bold text-red-500">
-                            {Math.round((reviews.filter(r => r.sentiment_label === 'Negative').length / (reviews.length || 1)) * 100)}%
-                          </div>
-                          <div className="text-sm text-[#888]">Room for Improvement</div>
-                        </div>
+                        ))}
                       </div>
 
-                      <div className="space-y-6">
-                        <h4 className="font-bold flex items-center gap-2">
-                          <Sparkles size={18} className="text-[#ff1744]" />
-                          AI-Detected Key Themes
-                        </h4>
-                        <div className="flex flex-wrap gap-3">
-                          {["Quality", "Punctuality", "Pricing", "Staff Behavior", "Cleanliness", "Communication"].map((theme) => {
-                            const count = reviews.filter(r => r.ai_metadata?.themes?.includes(theme.toLowerCase())).length;
+                      <div className="space-y-8">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-[#444]">Keyword Density Matrix</h4>
+                          <Sparkles size={12} className="text-[#d4af37]" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          {["Quality", "Punctuality", "Staff", "Vibe", "Value", "Wash"].map((theme) => {
+                            const count = reviews.filter(r => r.ai_metadata?.themes?.includes(theme.toLowerCase()) || r.comment.toLowerCase().includes(theme.toLowerCase())).length;
                             const percentage = Math.round((count / (reviews.length || 1)) * 100);
                             return (
-                              <div key={theme} className="flex-1 min-w-[150px] p-4 rounded-xl bg-white/5 border border-white/10">
-                                <div className="flex items-center justify-between mb-2">
-                                  <span className="text-sm font-medium">{theme}</span>
-                                  <span className="text-xs text-[#888]">{count} mentions</span>
+                              <div key={theme} className="p-6 rounded-3xl bg-white/[0.02] border border-white/5 hover:bg-white/10 transition-all group">
+                                <div className="flex items-center justify-between mb-4">
+                                  <span className="text-xs font-black uppercase tracking-widest text-[#888] group-hover:text-white">{theme}</span>
+                                  <span className="text-[10px] font-black uppercase text-[#444]">{count} Hits</span>
                                 </div>
-                                <div className="h-2 rounded-full bg-white/10">
-                                  <div
-                                    className="h-full rounded-full bg-gradient-to-r from-[#ff1744] to-[#d4af37]"
-                                    style={{ width: `${percentage}%` }}
-                                  />
+                                <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                                  <motion.div initial={{ width: 0 }} animate={{ width: `${percentage}%` }} className="h-full bg-gradient-to-r from-[#ff1744] to-[#d4af37] shadow-[0_0_15px_rgba(255,23,68,0.3)]" />
                                 </div>
                               </div>
                             );

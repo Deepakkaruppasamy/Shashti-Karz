@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types";
@@ -21,6 +22,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -70,9 +72,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+
+      if (event === "PASSWORD_RECOVERY") {
+        router.push("/reset-password");
+      }
+
       if (session?.user) {
         await fetchProfile(session.user.id, session.user.email, session.user.user_metadata?.full_name);
       } else {
@@ -81,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [router]);
 
   const signIn = async (email: string, password: string) => {
     const normalizedEmail = email.trim().toLowerCase();
