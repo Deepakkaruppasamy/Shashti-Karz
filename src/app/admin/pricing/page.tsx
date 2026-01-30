@@ -1,5 +1,26 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
-import { Sparkles, RefreshCw, Layers, Zap, Calculator, AlertTriangle } from "lucide-react";
+import {
+  Sparkles,
+  RefreshCw,
+  Layers,
+  Zap,
+  Calculator,
+  AlertTriangle,
+  Calendar,
+  Clock,
+  Cloud,
+  TrendingUp,
+  Plus,
+  Power,
+  Trash2
+} from "lucide-react";
+import { AdminSidebar } from "@/components/AdminSidebar";
+import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+import type { PricingRule } from "@/lib/types";
 
 export default function PricingRulesPage() {
   const [rules, setRules] = useState<PricingRule[]>([]);

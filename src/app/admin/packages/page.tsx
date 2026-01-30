@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Package, Plus, X, Trash2, Star, Power, Edit3 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
+import { motion, AnimatePresence } from "framer-motion";
+import { Package, Plus, X, Trash2, Star, Power, Edit3, Sparkles, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import type { Service } from "@/lib/types";

@@ -1,5 +1,15 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
-import { Sparkles, Brain, Zap, Info, ShieldAlert, CheckCircle, Smartphone } from "lucide-react";
+import {
+  Sparkles, Brain, Zap, Info, ShieldAlert, CheckCircle, Smartphone,
+  Calendar, ChevronLeft, ChevronRight, RefreshCw, Plus
+} from "lucide-react";
+import { AdminSidebar } from "@/components/AdminSidebar";
+import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+import type { AvailabilitySlot } from "@/lib/types";
 
 export default function SlotsPage() {
   const [slots, setSlots] = useState<AvailabilitySlot[]>([]);
