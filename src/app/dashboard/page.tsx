@@ -3,13 +3,13 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  User, Calendar, Settings, Bell, LogOut, Car, Clock, 
-  CheckCircle2, XCircle, AlertCircle, ChevronRight, Edit3, 
+import {
+  User, Calendar, Settings, Bell, LogOut, Car, Clock,
+  CheckCircle2, XCircle, AlertCircle, ChevronRight, Edit3,
   Save, Phone, Mail, MapPin, Shield, Sparkles, History,
   CreditCard, Gift, Star, TrendingUp, Award, Crown,
   Copy, Share2, Users, Zap, Eye, Package, Send, MessageCircle,
-  Download, FileText, BarChart, Brain
+  Download, FileText, BarChart, Brain, RefreshCw
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { Navbar } from "@/components/Navbar";
@@ -109,6 +109,9 @@ const TIER_INFO = {
 };
 
 import { ReviewModal } from "@/components/ReviewModal";
+import { RescheduleModal } from "@/components/RescheduleModal";
+import { AchievementsDisplay } from "@/components/gamification/AchievementsDisplay";
+import { Leaderboard } from "@/components/gamification/Leaderboard";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -122,15 +125,16 @@ export default function DashboardPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [referralCode, setReferralCode] = useState("");
   const [selectedBookingForReview, setSelectedBookingForReview] = useState<Booking | null>(null);
+  const [selectedBookingForReschedule, setSelectedBookingForReschedule] = useState<Booking | null>(null);
   const [reviewedBookingIds, setReviewedBookingIds] = useState<Set<string>>(new Set());
 
   const refreshBookings = async () => {
     if (!user) return;
-    
+
     try {
       const response = await fetch(`/api/bookings?user_id=${user.id}`);
       if (!response.ok) throw new Error("Failed to fetch bookings");
-      
+
       const data = await response.json();
       setBookings(Array.isArray(data) ? data : []);
 
@@ -138,7 +142,7 @@ export default function DashboardPage() {
       const reviewsRes = await fetch(`/api/reviews?user_id=${user.id}`);
       if (reviewsRes.ok) {
         const reviews = await reviewsRes.json();
-        const ratedIds = new Set(reviews.map((r: any) => r.booking_id));
+        const ratedIds = new Set<string>(reviews.map((r: any) => r.booking_id));
         setReviewedBookingIds(ratedIds);
       }
 
@@ -158,7 +162,7 @@ export default function DashboardPage() {
 
   const loadLoyaltyData = async () => {
     if (!user) return;
-    
+
     try {
       const response = await fetch(`/api/loyalty?user_id=${user.id}`);
       if (response.ok) {
@@ -169,7 +173,7 @@ export default function DashboardPage() {
       console.error("Error fetching loyalty data:", error);
     }
   };
-  
+
   const [profileForm, setProfileForm] = useState<ProfileData>({
     id: "",
     email: "",
@@ -227,7 +231,7 @@ export default function DashboardPage() {
 
   const handleSaveProfile = async () => {
     if (!user) return;
-    
+
     setIsSaving(true);
     try {
       const { error } = await supabase
@@ -244,7 +248,7 @@ export default function DashboardPage() {
         .eq("id", user.id);
 
       if (error) throw error;
-      
+
       await refreshProfile();
       toast.success("Profile updated successfully!");
       setIsEditing(false);
@@ -258,7 +262,7 @@ export default function DashboardPage() {
 
   const handleApplyReferral = async () => {
     if (!referralCode.trim() || !user) return;
-    
+
     try {
       const response = await fetch("/api/loyalty", {
         method: "PUT",
@@ -267,7 +271,7 @@ export default function DashboardPage() {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         toast.error(data.error || "Invalid referral code");
         return;
@@ -278,6 +282,25 @@ export default function DashboardPage() {
       setReferralCode("");
     } catch (error) {
       toast.error("Failed to apply referral");
+    }
+  };
+
+  const handleCancelBooking = async (bookingId: string) => {
+    if (!confirm("Are you sure you want to cancel this booking?")) return;
+
+    try {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "cancelled" }),
+      });
+
+      if (!response.ok) throw new Error("Failed to cancel booking");
+
+      toast.success("Booking cancelled successfully");
+      refreshBookings();
+    } catch (error) {
+      toast.error("Failed to cancel booking. Please try again.");
     }
   };
 
@@ -392,7 +415,7 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-[#0a0a0a]">
       <Navbar />
-      
+
       <div className="pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
@@ -407,7 +430,7 @@ export default function DashboardPage() {
                     {displayName.charAt(0).toUpperCase()}
                   </div>
                   {loyaltyData && (
-                    <div 
+                    <div
                       className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full flex items-center justify-center border-4 border-[#111]"
                       style={{ backgroundColor: tierInfo.color }}
                     >
@@ -415,12 +438,12 @@ export default function DashboardPage() {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h1 className="text-2xl sm:text-3xl font-bold">{displayName}</h1>
                     {loyaltyData && (
-                      <span 
+                      <span
                         className="px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 text-[#0a0a0a]"
                         style={{ backgroundColor: tierInfo.color }}
                       >
@@ -468,18 +491,16 @@ export default function DashboardPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                  activeTab === tab.id
-                    ? "bg-gradient-to-r from-[#ff1744] to-[#ff4569] text-white"
-                    : "bg-white/5 text-[#888] hover:bg-white/10 hover:text-white"
-                }`}
+                className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${activeTab === tab.id
+                  ? "bg-gradient-to-r from-[#ff1744] to-[#ff4569] text-white"
+                  : "bg-white/5 text-[#888] hover:bg-white/10 hover:text-white"
+                  }`}
               >
                 <tab.icon size={18} />
                 {tab.label}
                 {tab.badge !== undefined && tab.badge > 0 && (
-                  <span className={`px-2 py-0.5 rounded-full text-xs ${
-                    activeTab === tab.id ? "bg-white/20" : "bg-[#ff1744]/20 text-[#ff1744]"
-                  }`}>
+                  <span className={`px-2 py-0.5 rounded-full text-xs ${activeTab === tab.id ? "bg-white/20" : "bg-[#ff1744]/20 text-[#ff1744]"
+                    }`}>
                     {tab.badge}
                   </span>
                 )}
@@ -496,20 +517,20 @@ export default function DashboardPage() {
                 exit={{ opacity: 0, y: -20 }}
                 className="space-y-6"
               >
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-semibold flex items-center gap-2">
-                      <BarChart size={20} className="text-[#ff1744]" />
-                      Account Stats
-                    </h2>
-                    <button
-                      onClick={downloadBookingsExcel}
-                      className="text-sm text-[#ff1744] hover:underline flex items-center gap-1"
-                    >
-                      <Download size={16} />
-                      Export Data
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold flex items-center gap-2">
+                    <BarChart size={20} className="text-[#ff1744]" />
+                    Account Stats
+                  </h2>
+                  <button
+                    onClick={downloadBookingsExcel}
+                    className="text-sm text-[#ff1744] hover:underline flex items-center gap-1"
+                  >
+                    <Download size={16} />
+                    Export Data
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
                   {[
                     { label: "Total Bookings", value: stats.totalBookings, icon: Calendar, color: "from-[#ff1744] to-[#ff4569]" },
@@ -582,36 +603,35 @@ export default function DashboardPage() {
                         </div>
                       );
                     })}
-                    </div>
-                  )}
+                  </div>
+                )}
 
-                  <div className="glass-card rounded-2xl p-6 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#ff1744]/10 rounded-full blur-3xl" />
-                    <div className="flex items-center gap-3 mb-6 relative">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ff1744]/20 to-[#d4af37]/20 flex items-center justify-center">
-                        <Brain size={20} className="text-[#ff1744]" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">AI Next-Step Suggestions</h3>
-                        <p className="text-xs text-[#888]">Personalized for your {bookings[0]?.car_model || "vehicle"}</p>
-                      </div>
+                <div className="glass-card rounded-2xl p-6 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#ff1744]/10 rounded-full blur-3xl" />
+                  <div className="flex items-center gap-3 mb-6 relative">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ff1744]/20 to-[#d4af37]/20 flex items-center justify-center">
+                      <Brain size={20} className="text-[#ff1744]" />
                     </div>
-                    <div className="grid sm:grid-cols-2 gap-4 relative">
-                      {[
-                        { title: "Recommended Service", desc: "Based on your last wash, a Ceramic Pro coating would protect your paint for 5+ years.", icon: Sparkles, color: "#d4af37" },
-                        { title: "Loyalty Boost", desc: "You're only 2 bookings away from Gold tier! Book an interior detail to get there faster.", icon: TrendingUp, color: "#ff1744" }
-                      ].map((item, i) => (
-                        <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-[#ff1744]/30 transition-colors cursor-pointer group">
-                          <item.icon size={18} style={{ color: item.color }} className="mb-2" />
-                          <h4 className="text-sm font-medium mb-1 group-hover:text-white transition-colors">{item.title}</h4>
-                          <p className="text-xs text-[#888] line-clamp-2">{item.desc}</p>
-                        </div>
-                      ))}
+                    <div>
+                      <h3 className="font-semibold">AI Next-Step Suggestions</h3>
+                      <p className="text-xs text-[#888]">Personalized for your {bookings[0]?.car_model || "vehicle"}</p>
                     </div>
                   </div>
+                  <div className="grid sm:grid-cols-2 gap-4 relative">
+                    {[
+                      { title: "Recommended Service", desc: "Based on your last wash, a Ceramic Pro coating would protect your paint for 5+ years.", icon: Sparkles, color: "#d4af37" },
+                      { title: "Loyalty Boost", desc: "You're only 2 bookings away from Gold tier! Book an interior detail to get there faster.", icon: TrendingUp, color: "#ff1744" }
+                    ].map((item, i) => (
+                      <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-[#ff1744]/30 transition-colors cursor-pointer group">
+                        <item.icon size={18} style={{ color: item.color }} className="mb-2" />
+                        <h4 className="text-sm font-medium mb-1 group-hover:text-white transition-colors">{item.title}</h4>
+                        <p className="text-xs text-[#888] line-clamp-2">{item.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-                  {loyaltyData && (
-
+                {loyaltyData && (
                   <div className="glass-card rounded-2xl p-6">
                     <div className="flex items-center justify-between mb-6">
                       <h2 className="text-xl font-semibold flex items-center gap-2">
@@ -647,6 +667,11 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 )}
+
+                <div className="grid lg:grid-cols-2 gap-6">
+                  <AchievementsDisplay userId={user.id} />
+                  <Leaderboard />
+                </div>
               </motion.div>
             )}
 
@@ -701,23 +726,23 @@ export default function DashboardPage() {
                                 <div className="w-16 h-16 rounded-xl bg-purple-500/20 flex items-center justify-center">
                                   <Car size={32} className="text-purple-500" />
                                 </div>
-                                  <div>
-                                    <h3 className="text-lg font-semibold">{booking.service?.name || booking.service_id}</h3>
-                                    <p className="text-sm text-[#888]">{booking.car_model} • {booking.booking_id}</p>
-                                    <div className="flex flex-wrap gap-3 mt-2">
-                                      <p className="text-xs text-[#666]">
-                                        Booked for {booking.date} at {booking.time}
-                                      </p>
-                                      {booking.worker_visibility_approved && booking.worker && (
-                                        <div className="flex items-center gap-2 px-2 py-1 rounded bg-white/5 border border-white/5">
-                                          <div className="w-4 h-4 rounded-full bg-gradient-to-br from-[#ff1744] to-[#d4af37] flex items-center justify-center text-[8px] text-white">
-                                            {booking.worker.name.charAt(0)}
-                                          </div>
-                                          <span className="text-[10px] text-[#aaa]">Assigned: <span className="text-white">{booking.worker.name}</span> ({booking.worker.role})</span>
+                                <div>
+                                  <h3 className="text-lg font-semibold">{booking.service?.name || booking.service_id}</h3>
+                                  <p className="text-sm text-[#888]">{booking.car_model} • {booking.booking_id}</p>
+                                  <div className="flex flex-wrap gap-3 mt-2">
+                                    <p className="text-xs text-[#666]">
+                                      Booked for {booking.date} at {booking.time}
+                                    </p>
+                                    {booking.worker_visibility_approved && booking.worker && (
+                                      <div className="flex items-center gap-2 px-2 py-1 rounded bg-white/5 border border-white/5">
+                                        <div className="w-4 h-4 rounded-full bg-gradient-to-br from-[#ff1744] to-[#d4af37] flex items-center justify-center text-[8px] text-white">
+                                          {booking.worker.name.charAt(0)}
                                         </div>
-                                      )}
-                                    </div>
+                                        <span className="text-[10px] text-[#aaa]">Assigned: <span className="text-white">{booking.worker.name}</span> ({booking.worker.role})</span>
+                                      </div>
+                                    )}
                                   </div>
+                                </div>
 
                               </div>
                               <div className="text-right">
@@ -752,24 +777,22 @@ export default function DashboardPage() {
                                 return (
                                   <div
                                     key={stage.id}
-                                    className={`p-2 rounded-lg text-center ${
-                                      stageStatus === "completed"
-                                        ? "bg-green-500/20"
-                                        : stageStatus === "in_progress"
+                                    className={`p-2 rounded-lg text-center ${stageStatus === "completed"
+                                      ? "bg-green-500/20"
+                                      : stageStatus === "in_progress"
                                         ? "bg-purple-500/20 animate-pulse"
                                         : "bg-white/5"
-                                    }`}
+                                      }`}
                                     title={stage.name}
                                   >
                                     <StageIcon
                                       size={16}
-                                      className={`mx-auto ${
-                                        stageStatus === "completed"
-                                          ? "text-green-500"
-                                          : stageStatus === "in_progress"
+                                      className={`mx-auto ${stageStatus === "completed"
+                                        ? "text-green-500"
+                                        : stageStatus === "in_progress"
                                           ? "text-purple-500"
                                           : "text-[#666]"
-                                      }`}
+                                        }`}
                                     />
                                     <span className="text-[8px] text-[#888] block mt-1 truncate">{stage.name.split(' ')[0]}</span>
                                   </div>
@@ -797,7 +820,7 @@ export default function DashboardPage() {
                   <>
                     <div className="glass-card rounded-2xl p-6">
                       <div className="flex items-center gap-4 mb-6">
-                        <div 
+                        <div
                           className="w-20 h-20 rounded-2xl flex items-center justify-center"
                           style={{ backgroundColor: `${tierInfo.color}30` }}
                         >
@@ -838,7 +861,7 @@ export default function DashboardPage() {
                           <div className="h-3 rounded-full bg-white/10">
                             <div
                               className="h-full rounded-full"
-                              style={{ 
+                              style={{
                                 width: `${Math.min(100, (loyaltyData.total_spent / (loyaltyData.total_spent + loyaltyData.pointsToNextTier)) * 100)}%`,
                                 backgroundColor: tierInfo.color
                               }}
@@ -869,7 +892,7 @@ export default function DashboardPage() {
                         Refer & Earn
                       </h3>
                       <p className="text-[#888] mb-4">Share your referral code and earn 200 points for each friend who books!</p>
-                      
+
                       <div className="flex gap-3 mb-6">
                         <div className="flex-1 p-4 rounded-xl bg-white/5 font-mono text-lg text-center">
                           {loyaltyData.referral_code}
@@ -909,43 +932,68 @@ export default function DashboardPage() {
                     </div>
 
                     {loyaltyData.transactions.length > 0 && (
-                      <div className="glass-card rounded-2xl p-6">
-                        <h3 className="font-semibold mb-4 flex items-center gap-2">
-                          <History size={18} className="text-[#ff1744]" />
-                          Points History
+                      <div className="glass-card rounded-[2rem] p-8 border-white/10 overflow-hidden relative group">
+                        <div className="absolute top-0 right-0 p-8 -mr-8 -mt-8 bg-[#ff1744]/5 blur-3xl rounded-full" />
+
+                        <h3 className="text-xl font-black mb-6 flex items-center gap-3 text-white italic uppercase tracking-tight">
+                          <div className="w-10 h-10 rounded-xl bg-[#ff1744]/20 flex items-center justify-center">
+                            <History size={20} className="text-[#ff1744]" />
+                          </div>
+                          Points Activity
                         </h3>
-                        <div className="space-y-3">
-                          {loyaltyData.transactions.map((transaction) => (
-                            <div key={transaction.id} className="flex items-center justify-between p-3 rounded-xl bg-white/5">
-                              <div className="flex items-center gap-3">
-                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                                  transaction.type === "earned" ? "bg-green-500/20" :
-                                  transaction.type === "redeemed" ? "bg-red-500/20" :
-                                  transaction.type === "referral" ? "bg-blue-500/20" :
-                                  "bg-[#d4af37]/20"
-                                }`}>
-                                  {transaction.type === "earned" ? <TrendingUp size={16} className="text-green-500" /> :
-                                   transaction.type === "redeemed" ? <CreditCard size={16} className="text-red-500" /> :
-                                   transaction.type === "referral" ? <Users size={16} className="text-blue-500" /> :
-                                   <Gift size={16} className="text-[#d4af37]" />}
+
+                        <div className="space-y-4">
+                          {loyaltyData.transactions.map((transaction, idx) => (
+                            <motion.div
+                              key={transaction.id}
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: idx * 0.05 }}
+                              className="group/item flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-[#ff1744]/30 hover:bg-white/10 transition-all duration-300"
+                            >
+                              <div className="flex items-center gap-4">
+                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg transition-transform group-hover/item:scale-110 ${transaction.type === "earned" ? "bg-green-500/10 text-green-500" :
+                                    transaction.type === "redeemed" ? "bg-red-500/10 text-red-500" :
+                                      transaction.type === "referral" ? "bg-blue-500/10 text-blue-500" :
+                                        "bg-[#d4af37]/10 text-[#d4af37]"
+                                  }`}>
+                                  {transaction.type === "earned" ? <TrendingUp size={20} /> :
+                                    transaction.type === "redeemed" ? <CreditCard size={20} /> :
+                                      transaction.type === "referral" ? <Users size={20} /> :
+                                        <Gift size={20} />}
                                 </div>
                                 <div>
-                                  <p className="text-sm font-medium">{transaction.description}</p>
-                                  <p className="text-xs text-[#888]">
-                                    {new Date(transaction.created_at).toLocaleDateString()}
+                                  <p className="text-sm font-black text-white group-hover/item:text-[#ff1744] transition-colors">
+                                    {transaction.description}
+                                  </p>
+                                  <p className="text-[10px] text-[#666] font-bold uppercase tracking-widest mt-1 italic">
+                                    {new Date(transaction.created_at).toLocaleDateString(undefined, {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      year: 'numeric'
+                                    })}
                                   </p>
                                 </div>
                               </div>
-                              <span className={`font-bold ${
-                                transaction.points > 0 ? "text-green-500" : "text-red-500"
-                              }`}>
-                                {transaction.points > 0 ? "+" : ""}{transaction.points}
-                              </span>
-                            </div>
+                              <div className="text-right">
+                                <span className={`text-lg font-black tracking-tighter ${transaction.points > 0 ? "text-green-500" : "text-red-500"
+                                  }`}>
+                                  {transaction.points > 0 ? "+" : ""}{transaction.points}
+                                </span>
+                                <div className="text-[10px] text-[#555] font-black uppercase tracking-tighter">
+                                  Points
+                                </div>
+                              </div>
+                            </motion.div>
                           ))}
                         </div>
                       </div>
                     )}
+
+                    <div className="grid lg:grid-cols-2 gap-6">
+                      <AchievementsDisplay userId={user.id} />
+                      <Leaderboard />
+                    </div>
                   </>
                 )}
               </motion.div>
@@ -1016,7 +1064,7 @@ export default function DashboardPage() {
                                 </div>
                               )}
                             </div>
-                            
+
                             <div className="flex-1">
                               <div className="flex items-start justify-between mb-2">
                                 <div>
@@ -1028,7 +1076,7 @@ export default function DashboardPage() {
                                   {booking.status.charAt(0).toUpperCase() + booking.status.slice(1).replace('_', ' ')}
                                 </span>
                               </div>
-                              
+
                               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
                                 <div className="flex items-center gap-2 text-[#888]">
                                   <Car size={16} className="text-[#ff1744]" />
@@ -1048,49 +1096,62 @@ export default function DashboardPage() {
                                 </div>
                               </div>
 
-{(booking.status === "approved" || booking.status === "in_progress") && (
+                              <div className="flex flex-wrap gap-2 mt-4">
+                                {(booking.status === "approved" || booking.status === "in_progress") && (
                                   <button
                                     onClick={() => setActiveTab("tracking")}
-                                    className="mt-3 px-4 py-2 rounded-lg bg-purple-500/10 text-purple-500 text-sm flex items-center gap-2 hover:bg-purple-500/20"
+                                    className="px-4 py-2 rounded-lg bg-purple-500/10 text-purple-500 text-sm flex items-center gap-2 hover:bg-purple-500/20"
                                   >
                                     <Eye size={16} />
-                                    Track Service
+                                    Track
                                   </button>
                                 )}
-                                
-                                  {booking.status === "completed" && !reviewedBookingIds.has(booking.id) && (
+
+                                {(booking.status === "pending" || booking.status === "approved") && (
+                                  <>
                                     <button
-                                      onClick={() => setSelectedBookingForReview(booking)}
-                                      className="mt-3 px-4 py-2 rounded-lg bg-yellow-500/10 text-yellow-500 text-sm flex items-center gap-2 hover:bg-yellow-500/20"
+                                      onClick={() => setSelectedBookingForReschedule(booking)}
+                                      className="px-4 py-2 rounded-lg bg-blue-500/10 text-blue-500 text-sm flex items-center gap-2 hover:bg-blue-500/20"
                                     >
-                                      <Star size={16} />
-                                      Rate Service
+                                      <RefreshCw size={16} />
+                                      Reschedule
                                     </button>
-                                  )}
+                                    <button
+                                      onClick={() => handleCancelBooking(booking.id)}
+                                      className="px-4 py-2 rounded-lg bg-red-500/10 text-red-500 text-sm flex items-center gap-2 hover:bg-red-500/20"
+                                    >
+                                      <XCircle size={16} />
+                                      Cancel
+                                    </button>
+                                  </>
+                                )}
 
-                                  {reviewedBookingIds.has(booking.id) && (
-                                    <span className="mt-3 px-3 py-1.5 rounded-lg bg-green-500/5 text-green-500/60 text-xs flex items-center gap-2 w-fit">
-                                      <CheckCircle2 size={12} />
-                                      Review Submitted
-                                    </span>
-                                  )}
-                                  
-                                  {booking.payment_status !== "paid" && booking.status !== "cancelled" && (
+                                {booking.status === "completed" && !reviewedBookingIds.has(booking.id) && (
+                                  <button
+                                    onClick={() => setSelectedBookingForReview(booking)}
+                                    className="px-4 py-2 rounded-lg bg-yellow-500/10 text-yellow-500 text-sm flex items-center gap-2 hover:bg-yellow-500/20"
+                                  >
+                                    <Star size={16} />
+                                    Rate
+                                  </button>
+                                )}
 
+                                {booking.payment_status !== "paid" && booking.status !== "cancelled" && (
                                   <PayNowButton bookingId={booking.id} />
                                 )}
-                                
+
                                 {booking.payment_status === "paid" && booking.invoice_url && (
                                   <a
                                     href={booking.invoice_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="mt-3 px-4 py-2 rounded-lg bg-green-500/10 text-green-500 text-sm flex items-center gap-2 hover:bg-green-500/20"
+                                    className="px-4 py-2 rounded-lg bg-green-500/10 text-green-500 text-sm flex items-center gap-2 hover:bg-green-500/20"
                                   >
                                     <Download size={16} />
-                                    Download Invoice
+                                    Invoice
                                   </a>
                                 )}
+                              </div>
                             </div>
                           </div>
                         </motion.div>
@@ -1170,7 +1231,7 @@ export default function DashboardPage() {
                       <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5">
                         <Mail size={18} className="text-[#888]" />
                         <span>{profileForm.email}</span>
-                        <Shield size={14} className="text-green-500 ml-auto" title="Verified" />
+                        <Shield size={14} className="text-green-500 ml-auto" />
                       </div>
                     </div>
 
@@ -1251,12 +1312,12 @@ export default function DashboardPage() {
                           onClick={async () => {
                             const newValue = !profileForm[item.key];
                             setProfileForm({ ...profileForm, [item.key]: newValue });
-                            
+
                             const { error } = await supabase
                               .from("profiles")
                               .update({ [item.key]: newValue, updated_at: new Date().toISOString() })
                               .eq("id", user.id);
-                            
+
                             if (error) {
                               toast.error("Failed to update setting");
                               setProfileForm({ ...profileForm, [item.key]: !newValue });
@@ -1264,14 +1325,12 @@ export default function DashboardPage() {
                               toast.success("Setting updated");
                             }
                           }}
-                          className={`relative w-14 h-8 rounded-full transition-colors ${
-                            profileForm[item.key] ? "bg-[#ff1744]" : "bg-white/20"
-                          }`}
+                          className={`relative w-14 h-8 rounded-full transition-colors ${profileForm[item.key] ? "bg-[#ff1744]" : "bg-white/20"
+                            }`}
                         >
                           <span
-                            className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-transform ${
-                              profileForm[item.key] ? "translate-x-7" : "translate-x-1"
-                            }`}
+                            className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-transform ${profileForm[item.key] ? "translate-x-7" : "translate-x-1"
+                              }`}
                           />
                         </button>
                       </div>
@@ -1282,16 +1341,23 @@ export default function DashboardPage() {
             )}
           </AnimatePresence>
         </div>
-        
+
         <ReviewModal
           booking={selectedBookingForReview}
           isOpen={!!selectedBookingForReview}
           onClose={() => setSelectedBookingForReview(null)}
           onSuccess={refreshBookings}
         />
+
+        <RescheduleModal
+          booking={selectedBookingForReschedule}
+          isOpen={!!selectedBookingForReschedule}
+          onClose={() => setSelectedBookingForReschedule(null)}
+          onSuccess={refreshBookings}
+        />
       </div>
 
       <Footer />
-    </main>
+    </main >
   );
 }

@@ -4,17 +4,17 @@ import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { 
-  Mail, 
-  Lock, 
-  User, 
-  Eye, 
-  EyeOff, 
-  ArrowRight, 
-  Shield, 
-  Check, 
-  Loader2, 
-  Star, 
+import {
+  Mail,
+  Lock,
+  User,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Shield,
+  Check,
+  Loader2,
+  Star,
   Sparkles,
   Zap,
   Globe,
@@ -32,7 +32,7 @@ import { useLanguage } from "@/lib/LanguageContext";
 
 const GlassShards = () => {
   const [mounted, setMounted] = useState(false);
-  
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -44,25 +44,25 @@ const GlassShards = () => {
       {[...Array(6)].map((_, i) => (
         <motion.div
           key={i}
-          initial={{ 
-            opacity: 0, 
+          initial={{
+            opacity: 0,
             rotate: Math.random() * 360,
             scale: 0.5,
             x: Math.random() * 100 - 50 + "%",
             y: Math.random() * 100 - 50 + "%"
           }}
-          animate={{ 
+          animate={{
             opacity: [0.1, 0.3, 0.1],
             rotate: [0, 180, 360],
             scale: [1, 1.2, 1],
             x: [
-              Math.random() * 100 - 50 + "%", 
-              Math.random() * 100 - 50 + "%", 
+              Math.random() * 100 - 50 + "%",
+              Math.random() * 100 - 50 + "%",
               Math.random() * 100 - 50 + "%"
             ],
             y: [
-              Math.random() * 100 - 50 + "%", 
-              Math.random() * 100 - 50 + "%", 
+              Math.random() * 100 - 50 + "%",
+              Math.random() * 100 - 50 + "%",
               Math.random() * 100 - 50 + "%"
             ],
           }}
@@ -73,8 +73,8 @@ const GlassShards = () => {
           }}
           className="absolute w-64 h-64 bg-white/5 backdrop-blur-[1px] border border-white/5 rounded-3xl"
           style={{
-            clipPath: i % 2 === 0 
-              ? "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)" 
+            clipPath: i % 2 === 0
+              ? "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)"
               : "polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%)"
           }}
         />
@@ -127,8 +127,8 @@ const CarAnimation = () => {
         <motion.div
           key={i}
           initial={{ x: "-20%", y: `${20 + i * 30}%`, opacity: 0, scale: 0.8 }}
-          animate={{ 
-            x: "120%", 
+          animate={{
+            x: "120%",
             opacity: [0, 0.2, 0.2, 0],
             scale: [0.8, 1, 1, 0.8]
           }}
@@ -142,7 +142,7 @@ const CarAnimation = () => {
         >
           <div className="relative">
             <Car size={120} className="text-purple-500/10 fill-purple-500/5" />
-            <motion.div 
+            <motion.div
               animate={{ opacity: [0.2, 0.5, 0.2] }}
               transition={{ duration: 2, repeat: Infinity }}
               className="absolute top-1/2 -right-4 w-12 h-4 bg-purple-500/20 blur-xl rounded-full"
@@ -183,8 +183,8 @@ const SuccessOverlay = ({ visible }: { visible: boolean }) => {
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, scale: 0 }}
-                  animate={{ 
-                    opacity: [0, 1, 0], 
+                  animate={{
+                    opacity: [0, 1, 0],
                     scale: [0, 1, 0.5],
                     x: Math.cos(i * 30 * Math.PI / 180) * 80,
                     y: Math.sin(i * 30 * Math.PI / 180) * 80,
@@ -203,15 +203,15 @@ const SuccessOverlay = ({ visible }: { visible: boolean }) => {
   );
 };
 
-const FloatingInput = ({ 
-  label, 
-  icon: Icon, 
-  type = "text", 
-  value, 
-  onChange, 
+const FloatingInput = ({
+  label,
+  icon: Icon,
+  type = "text",
+  value,
+  onChange,
   required = false,
   showPasswordToggle = false,
-  onPasswordToggle = () => {},
+  onPasswordToggle = () => { },
   isPasswordVisible = false,
   error = false,
   id
@@ -222,12 +222,12 @@ const FloatingInput = ({
   return (
     <div className="relative group w-full mb-6">
       <div className={`absolute -inset-[1px] bg-gradient-to-r from-purple-500/30 via-blue-500/30 to-purple-500/30 rounded-2xl blur-sm transition-opacity duration-500 ${isFocused ? 'opacity-100' : 'opacity-0'}`} />
-      
+
       <div className={`relative flex items-center bg-[#0a0a0a]/80 border backdrop-blur-md transition-all duration-300 rounded-2xl overflow-hidden h-[64px] ${isFocused ? 'border-purple-500/50 shadow-[0_0_20px_rgba(168,85,247,0.15)]' : 'border-zinc-800/80 hover:border-zinc-700/80'} ${error ? 'border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.1)]' : ''}`}>
         <div className={`pl-5 transition-colors duration-300 ${isFocused ? 'text-purple-400' : isFilled ? 'text-zinc-300' : 'text-zinc-500'}`}>
           <Icon size={20} className={isFocused ? "animate-pulse" : ""} />
         </div>
-        
+
         <div className="relative flex-1 h-full px-4">
           <motion.label
             htmlFor={id}
@@ -243,7 +243,7 @@ const FloatingInput = ({
           >
             {label}
           </motion.label>
-          
+
           <input
             id={id}
             type={type}
@@ -253,7 +253,10 @@ const FloatingInput = ({
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             className="w-full h-full bg-transparent pt-4 pb-1 text-sm text-zinc-100 focus:outline-none placeholder:opacity-0 transition-all"
-            autoComplete="off"
+            autoComplete={type === "password" ? "current-password" : "email"}
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck="false"
           />
         </div>
 
@@ -278,10 +281,10 @@ const FloatingInput = ({
           </button>
         )}
       </div>
-      
+
       {/* Dynamic Border Trail */}
       {isFocused && (
-        <motion.div 
+        <motion.div
           layoutId="border-trail"
           className="absolute bottom-0 left-[10%] right-[10%] h-[1px] bg-gradient-to-r from-transparent via-purple-500 to-transparent"
         />
@@ -303,7 +306,7 @@ const PasswordScanner = ({ password }: { password: string }) => {
 
   const colors = ["bg-zinc-800", "bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-emerald-500"];
   const glows = ["", "shadow-[0_0_10px_rgba(239,68,68,0.3)]", "shadow-[0_0_10px_rgba(249,115,22,0.3)]", "shadow-[0_0_10px_rgba(234,179,8,0.3)]", "shadow-[0_0_15px_rgba(16,185,129,0.4)]"];
-  
+
   return (
     <div className="mt-[-8px] mb-6 px-2">
       <div className="flex items-center justify-between mb-2">
@@ -311,7 +314,7 @@ const PasswordScanner = ({ password }: { password: string }) => {
           <Fingerprint size={12} className={password ? "text-purple-400 animate-pulse" : "text-zinc-600"} />
           <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-500">Security Matrix</span>
         </div>
-        <motion.span 
+        <motion.span
           key={strength}
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
@@ -323,9 +326,9 @@ const PasswordScanner = ({ password }: { password: string }) => {
       <div className="flex gap-1.5 h-1.5">
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="flex-1 relative overflow-hidden rounded-full bg-zinc-800/50">
-            <motion.div 
+            <motion.div
               initial={false}
-              animate={{ 
+              animate={{
                 x: i <= strength ? "0%" : "-100%",
               }}
               className={`absolute inset-0 ${colors[strength]} ${glows[strength]}`}
@@ -351,7 +354,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { t } = useLanguage();
   const { signIn, signUp, resetPassword, user, profile } = useAuth();
-  
+
   const [isLogin, setIsLogin] = useState(true);
   const [isRecovery, setIsRecovery] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -359,7 +362,7 @@ export default function LoginPage() {
   const [isError, setIsError] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -395,7 +398,7 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     setIsError(false);
-    
+
     try {
       if (isRecovery) {
         const { error } = await resetPassword(formData.email);
@@ -406,15 +409,15 @@ export default function LoginPage() {
       } else if (isLogin) {
         const { error } = await signIn(formData.email, formData.password);
         if (error) throw new Error(error);
-        
+
         // Send login notification (fire and forget)
         console.log("Sending login notification...");
         fetch("/api/auth/send-notification", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
-            type: "login", 
-            email: formData.email, 
+          body: JSON.stringify({
+            type: "login",
+            email: formData.email,
             name: profile?.full_name || formData.email.split('@')[0]
           }),
         }).then(res => res.json())
@@ -435,10 +438,10 @@ export default function LoginPage() {
         fetch("/api/auth/send-notification", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
-            type: "signup", 
-            email: formData.email, 
-            name: formData.name 
+          body: JSON.stringify({
+            type: "signup",
+            email: formData.email,
+            name: formData.name
           }),
         }).then(res => res.json())
           .then(data => {
@@ -480,10 +483,10 @@ export default function LoginPage() {
       <GlassShards />
       <CarAnimation />
       <SuccessOverlay visible={isSuccess} />
-      
+
       {/* HUD Elements */}
       <div className="fixed inset-0 pointer-events-none z-[1] hidden lg:block">
-        <motion.div 
+        <motion.div
           animate={{ opacity: [0.1, 0.3, 0.1] }}
           transition={{ duration: 4, repeat: Infinity }}
           className="absolute top-10 left-10 text-[10px] font-mono text-purple-500/40 space-y-1"
@@ -492,7 +495,7 @@ export default function LoginPage() {
           <p>{">"} AUTH_MODULE_LOADED: 100%</p>
           <p>{">"} ENCRYPTION_LEVEL: AES-256</p>
         </motion.div>
-        
+
         <div className="absolute bottom-10 right-10 flex gap-4">
           <div className="w-48 h-[1px] bg-gradient-to-r from-transparent to-zinc-800" />
           <div className="text-[10px] font-mono text-zinc-600">v4.2.0-PRODUCTION</div>
@@ -509,14 +512,14 @@ export default function LoginPage() {
           <motion.div
             key={isRecovery ? "recovery" : (isLogin ? "login" : "signup")}
             initial={{ opacity: 0, y: 40, scale: 0.9 }}
-            animate={{ 
-              opacity: 1, 
-              y: 0, 
+            animate={{
+              opacity: 1,
+              y: 0,
               scale: 1,
               x: isError ? [0, -10, 10, -10, 10, 0] : 0
             }}
             exit={{ opacity: 0, y: -40, scale: 0.9 }}
-            transition={{ 
+            transition={{
               duration: 0.6,
               type: "spring",
               stiffness: 200,
@@ -526,18 +529,18 @@ export default function LoginPage() {
             className="w-full"
           >
             <div className="backdrop-blur-3xl bg-zinc-900/40 border border-white/10 rounded-[40px] p-8 md:p-14 shadow-[0_30px_100px_rgba(0,0,0,0.6)] relative overflow-hidden group">
-              <motion.div 
-                style={{ 
+              <motion.div
+                style={{
                   left: useTransform(mouseX, [-300, 300], ["0%", "100%"]),
                   top: useTransform(mouseY, [-300, 300], ["0%", "100%"]),
                 }}
-                className="absolute -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-purple-500/10 rounded-full blur-[80px] pointer-events-none" 
+                className="absolute -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-purple-500/10 rounded-full blur-[80px] pointer-events-none"
               />
 
               <div className="relative z-10">
                 <div className="flex justify-between items-center mb-12">
                   <div className="flex items-center gap-3">
-                    <motion.div 
+                    <motion.div
                       whileHover={{ scale: 1.1, rotate: 5 }}
                       className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-lg shadow-purple-500/30"
                     >
@@ -551,8 +554,8 @@ export default function LoginPage() {
                       </div>
                     </div>
                   </div>
-                  
-                  <button 
+
+                  <button
                     onClick={toggleMode}
                     className="group flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all backdrop-blur-md active:scale-95"
                   >
@@ -568,10 +571,10 @@ export default function LoginPage() {
                     {isRecovery ? "Recovery." : (isLogin ? "Sign In." : "Sign Up.")}
                   </motion.h1>
                   <motion.p className="text-zinc-400 text-base leading-relaxed max-w-[320px]">
-                    {isRecovery 
+                    {isRecovery
                       ? "Enter your Nexus address to initiate the recovery protocol."
-                      : isLogin 
-                        ? "Welcome back. Access the world's most advanced car detailing suite." 
+                      : isLogin
+                        ? "Welcome back. Access the world's most advanced car detailing suite."
                         : "The next generation of Shashti Karz starts here."}
                   </motion.p>
                 </div>
@@ -637,8 +640,8 @@ export default function LoginPage() {
                         </div>
                         <span className="text-xs font-medium text-zinc-500 group-hover:text-zinc-300 transition-colors">Keep Session Active</span>
                       </label>
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={toggleRecovery}
                         className="text-xs font-bold text-zinc-500 hover:text-purple-400 transition-colors"
                       >
@@ -649,8 +652,8 @@ export default function LoginPage() {
 
                   {isRecovery && (
                     <div className="flex items-center justify-end px-2 pt-2 pb-6">
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={toggleMode}
                         className="text-xs font-bold text-zinc-500 hover:text-purple-400 transition-colors"
                       >
@@ -678,8 +681,8 @@ export default function LoginPage() {
                         ) : (
                           <>
                             <span>
-                              {isRecovery 
-                                ? "Initiate Recovery" 
+                              {isRecovery
+                                ? "Initiate Recovery"
                                 : isLogin ? "Authorize Access" : "Initialize Account"}
                             </span>
                             <motion.div
@@ -691,7 +694,7 @@ export default function LoginPage() {
                           </>
                         )}
                       </div>
-                      
+
                       <motion.div
                         className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full"
                         animate={{ x: ["100%", "-100%"] }}
@@ -705,7 +708,7 @@ export default function LoginPage() {
           </motion.div>
         </AnimatePresence>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
@@ -723,7 +726,7 @@ export default function LoginPage() {
       </motion.div>
 
       <div className="fixed top-8 right-8 z-50 flex items-center gap-3">
-        <motion.button 
+        <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           className="p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all backdrop-blur-xl"
