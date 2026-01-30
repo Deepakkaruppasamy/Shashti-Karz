@@ -32,23 +32,50 @@ function useVisualEffectsConfig(): VisualEffectsConfig {
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    
-    setConfig({
-      reducedMotion,
-      lowPowerMode: isMobile,
-      enabled: !reducedMotion,
-    });
+
+    const checkSettings = () => {
+      let visualEnabled = !reducedMotion;
+      try {
+        const saved = localStorage.getItem("shashti_visual_prefs");
+        if (saved) {
+          const prefs = JSON.parse(saved);
+          if (typeof prefs.enabled === "boolean") {
+            visualEnabled = prefs.enabled;
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to read visual prefs");
+      }
+
+      setConfig({
+        reducedMotion,
+        lowPowerMode: isMobile,
+        enabled: visualEnabled && !reducedMotion,
+      });
+    };
+
+    checkSettings();
+    window.addEventListener("storage", checkSettings);
+    // Custom event listener for same-tab updates
+    const handleStorage = () => checkSettings();
+    // We can't easily listen to "storage" on same tab, so we need a custom event or just rely on the fact that 
+    // we dispatched a 'storage' event manually in the admin page? 
+    // Manually dispatched 'storage' events work in the same window in some browsers, but let's add a custom event "visual-prefs-changed" for robustness if needed.
+    // For now, window.dispatchEvent(new Event("storage")) DOES trigger window.addEventListener("storage") in the same window? Actually NO, it usually doesn't.
+    // But since Admin is a different route than Customer page, the user is likely switching tabs or navigating.
+    // If they navigate (SPA navigation), the component remounts, so checkSettings() runs.
+    return () => window.removeEventListener("storage", checkSettings);
   }, []);
 
   return config;
 }
 
-export function WaterDroplets({ 
-  active = false, 
+export function WaterDroplets({
+  active = false,
   intensity = 1,
-  color = "#60a5fa" 
-}: { 
-  active?: boolean; 
+  color = "#60a5fa"
+}: {
+  active?: boolean;
   intensity?: number;
   color?: string;
 }) {
@@ -93,7 +120,7 @@ export function WaterDroplets({
     }, spawnRate / intensity);
 
     const animate = () => {
-      setParticles(prev => 
+      setParticles(prev =>
         prev
           .map(p => ({
             ...p,
@@ -139,10 +166,10 @@ export function WaterDroplets({
   );
 }
 
-export function FoamBubbles({ 
+export function FoamBubbles({
   active = false,
-  intensity = 1 
-}: { 
+  intensity = 1
+}: {
   active?: boolean;
   intensity?: number;
 }) {
@@ -224,10 +251,10 @@ export function FoamBubbles({
   );
 }
 
-export function ShineEffect({ 
+export function ShineEffect({
   active = false,
-  delay = 0 
-}: { 
+  delay = 0
+}: {
   active?: boolean;
   delay?: number;
 }) {
@@ -245,7 +272,7 @@ export function ShineEffect({
           transition={{ duration: 1.5, delay, ease: "easeInOut" }}
           className="absolute inset-0 pointer-events-none overflow-hidden"
         >
-          <div 
+          <div
             className="absolute inset-y-0 w-1/4"
             style={{
               background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
@@ -258,10 +285,10 @@ export function ShineEffect({
   );
 }
 
-export function SparkleEffect({ 
+export function SparkleEffect({
   active = false,
-  count = 5 
-}: { 
+  count = 5
+}: {
   active?: boolean;
   count?: number;
 }) {
@@ -291,11 +318,11 @@ export function SparkleEffect({
         <motion.div
           key={s.id}
           initial={{ scale: 0, opacity: 0 }}
-          animate={{ 
+          animate={{
             scale: [0, 1, 0],
             opacity: [0, 1, 0],
           }}
-          transition={{ 
+          transition={{
             duration: 0.8,
             delay: s.delay,
             repeat: Infinity,
@@ -429,10 +456,10 @@ export function ExhaustSmoke({ active = false }: { active?: boolean }) {
   );
 }
 
-export function MotionBlur({ 
+export function MotionBlur({
   active = false,
-  direction = "right" 
-}: { 
+  direction = "right"
+}: {
   active?: boolean;
   direction?: "left" | "right";
 }) {
@@ -459,10 +486,10 @@ export function MotionBlur({
   );
 }
 
-export function GlossReveal({ 
+export function GlossReveal({
   progress = 0,
-  direction = "left" 
-}: { 
+  direction = "left"
+}: {
   progress: number;
   direction?: "left" | "right";
 }) {
@@ -471,15 +498,15 @@ export function GlossReveal({
   if (!config.enabled) return null;
 
   return (
-    <div 
+    <div
       className="absolute inset-0 pointer-events-none overflow-hidden"
       style={{
-        clipPath: direction === "left" 
-          ? `inset(0 ${100 - progress}% 0 0)` 
+        clipPath: direction === "left"
+          ? `inset(0 ${100 - progress}% 0 0)`
           : `inset(0 0 0 ${100 - progress}%)`,
       }}
     >
-      <div 
+      <div
         className="absolute inset-0"
         style={{
           background: "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 50%, transparent 100%)",

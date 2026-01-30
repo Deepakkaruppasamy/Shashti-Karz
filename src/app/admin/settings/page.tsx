@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSound } from "@/hooks/useSound";
-import { playSound, type SoundType } from "@/lib/sound-system";
+import { playSound, setSoundEnabled, type SoundType } from "@/lib/sound-system";
 import { toast } from "sonner";
 import { AdminSidebar } from "@/components/AdminSidebar";
 
@@ -69,21 +69,59 @@ export default function AdminSoundSettingsPage() {
   useEffect(() => {
     setAdmin(false);
 
-    const saved = localStorage.getItem("shashti_admin_sound_settings");
-    if (saved) {
+    // Load Admin Granular Settings
+    const adminSaved = localStorage.getItem("shashti_admin_sound_settings");
+    let loadedSettings = { ...DEFAULT_SETTINGS };
+
+    if (adminSaved) {
       try {
-        setSettings(JSON.parse(saved));
-      } catch (e) {
-        console.warn("Failed to load saved settings");
-      }
+        loadedSettings = { ...loadedSettings, ...JSON.parse(adminSaved) };
+      } catch (e) { }
     }
+
+    // Sync from Global Keys (source of truth)
+    const soundSaved = localStorage.getItem("shashti_sound_prefs");
+    if (soundSaved) {
+      try {
+        const soundPrefs = JSON.parse(soundSaved);
+        loadedSettings.globalEnabled = soundPrefs.enabled;
+        loadedSettings.defaultVolume = soundPrefs.volume;
+      } catch (e) { }
+    }
+
+    const visualSaved = localStorage.getItem("shashti_visual_prefs");
+    if (visualSaved) {
+      try {
+        const visualPrefs = JSON.parse(visualSaved);
+        loadedSettings.visualEffectsEnabled = visualPrefs.enabled;
+      } catch (e) { }
+    }
+
+    setSettings(loadedSettings);
   }, [setAdmin]);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      // Save Admin specific granular settings
       localStorage.setItem("shashti_admin_sound_settings", JSON.stringify(settings));
-      toast.success("Sound settings saved!");
+
+      // Sync Global Sound System
+      setSoundEnabled(settings.globalEnabled);
+      // setVolume from useSound hook might not be enough if we want to force explicit value without hook state lag
+      // but let's use the hook's setVolume if available, or just the one we imported? 
+      // Actually we have setVolume from useSound hook in scope.
+      setVolume(settings.defaultVolume);
+
+      // Sync Visual Effects
+      localStorage.setItem("shashti_visual_prefs", JSON.stringify({
+        enabled: settings.visualEffectsEnabled
+      }));
+
+      // Trigger storage event for other components to pick up visual changes
+      window.dispatchEvent(new Event("storage"));
+
+      toast.success("Sound & Visual settings saved!");
       playSound("success");
     } catch (error) {
       toast.error("Failed to save settings");

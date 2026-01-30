@@ -25,10 +25,14 @@ import {
   Clock,
   TrendingUp,
   RefreshCw,
-  X
+  X,
+  Zap,
+  Target,
+  Radio
 } from "lucide-react";
 import { toast } from "sonner";
 import { AdminSidebar } from "@/components/AdminSidebar";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 type TabType = "send" | "history" | "rules" | "templates" | "analytics";
 
@@ -112,6 +116,7 @@ export default function AdminNotificationsPage() {
 
   const [broadcastHistory, setBroadcastHistory] = useState<BroadcastHistory[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [aiGenerating, setAiGenerating] = useState(false);
 
   const [analytics] = useState({
     total_sent: 1247,
@@ -123,6 +128,15 @@ export default function AdminNotificationsPage() {
       email: { sent: 856, delivered: 843, opened: 412 },
       whatsapp: { sent: 234, delivered: 231, opened: 198 },
     },
+  });
+
+  // Real-time subscription
+  useRealtimeSubscription<BroadcastHistory>({
+    table: "broadcast_history",
+    onInsert: (newItem) => {
+      setBroadcastHistory(prev => [newItem, ...prev]);
+      toast.success(`Broadcase Sent: ${newItem.title}`);
+    }
   });
 
   useEffect(() => {
@@ -141,6 +155,42 @@ export default function AdminNotificationsPage() {
       console.error("Failed to fetch history:", error);
     } finally {
       setHistoryLoading(false);
+    }
+  };
+
+  const generateAiMessage = async () => {
+    setAiGenerating(true);
+    try {
+      const res = await fetch("/api/ai/admin-command", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          command: "Generate a catchy, high-conversion notification message for a car detailing offer. Assume a 20% discount on Ceramic Coating this weekend.",
+          context: {
+            type: "marketing_copy",
+            target_audience: broadcastForm.targetAudience,
+            channels: broadcastForm.channels
+          }
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        // Parse response if possible or just use it. AI usually returns text.
+        // We'll assume typical format or just raw text.
+        // Let's split a simple response if it contains a title and body, otherwise just put it in message.
+        // For robustness, we'll put the whole text in message and a generic title, or try to parse.
+        // Simplest for now: 
+        setBroadcastForm(prev => ({
+          ...prev,
+          title: "Weekend Special: 20% Off Ceramic Coating!",
+          message: data.response.replace(/"/g, '')
+        }));
+        toast.success("AI Content Generated");
+      }
+    } catch (e) {
+      toast.error("AI Generation Failed");
+    } finally {
+      setAiGenerating(false);
     }
   };
 
@@ -201,13 +251,16 @@ export default function AdminNotificationsPage() {
       <AdminSidebar />
       <div className="flex-1 overflow-auto">
         <div className="p-4 lg:p-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
             <div>
-              <h1 className="text-3xl font-bold font-display flex items-center gap-3">
-                <Bell className="text-[#ff1744]" />
-                Notification Center
+              <h1 className="text-4xl font-black tracking-tighter flex items-center gap-3">
+                <Radio className="text-[#ff1744]" />
+                Command Center
               </h1>
-              <p className="text-[#888] mt-1">Manage notifications, rules, and marketing broadcasts</p>
+              <p className="text-[#888] mt-1 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                Live Broadcast Systems
+              </p>
             </div>
           </div>
 
@@ -251,14 +304,24 @@ export default function AdminNotificationsPage() {
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-bold text-[#888] uppercase tracking-widest mb-2">Message Content</label>
+                    <div className="relative">
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="block text-xs font-bold text-[#888] uppercase tracking-widest">Message Content</label>
+                        <button
+                          onClick={generateAiMessage}
+                          disabled={aiGenerating}
+                          className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-[#d4af37] hover:text-white transition-colors"
+                        >
+                          {aiGenerating ? <RefreshCw size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                          AI Generate
+                        </button>
+                      </div>
                       <textarea
                         value={broadcastForm.message}
                         onChange={(e) => setBroadcastForm(f => ({ ...f, message: e.target.value }))}
                         placeholder="Describe your offer or update..."
                         rows={4}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-[#666] focus:outline-none focus:border-[#ff1744] transition-colors resize-none"
+                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-[#666] focus:outline-none focus:border-[#ff1744] transition-colors resize-none font-medium"
                       />
                     </div>
 
