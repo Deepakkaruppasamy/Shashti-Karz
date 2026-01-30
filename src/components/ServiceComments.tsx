@@ -7,6 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/lib/auth-context';
 import { toast } from 'sonner';
+import Link from 'next/link';
 
 interface Comment {
     id: string;
@@ -431,9 +432,9 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
             ) : (
                 <div className="glass-card rounded-2xl p-6 border border-white/5 text-center">
                     <p className="text-[#888] mb-4">Sign in to join the conversation</p>
-                    <button className="px-6 py-2 rounded-lg bg-gradient-to-r from-[#ff1744] to-[#d4af37] text-white text-sm font-bold">
+                    <Link href="/login" className="inline-block px-6 py-2 rounded-lg bg-gradient-to-r from-[#ff1744] to-[#d4af37] text-white text-sm font-bold">
                         Sign In
-                    </button>
+                    </Link>
                 </div>
             )}
 

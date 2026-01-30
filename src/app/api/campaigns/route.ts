@@ -1,25 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 
 // POST /api/campaigns - Create campaign
 export async function POST(request: NextRequest) {
     try {
-        const supabase = await createClient();
+        const adminSession = request.cookies.get("admin_session");
+        const isAdmin = !!adminSession;
+
+        const supabase = isAdmin ? await createServiceClient() : await createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
-        if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        if (!user && !isAdmin) {
+            return NextResponse.json(
+                { error: "Unauthorized: Please log in to access this resource" },
+                { status: 401 }
+            );
         }
 
-        // Check admin role
-        const { data: profile } = await supabase
-            .from("profiles")
-            .select("role")
-            .eq("id", user.id)
-            .single();
+        // Check admin role if authenticated via Supabase session but no admin cookie
+        if (user && !isAdmin) {
+            const { data: profile } = await supabase
+                .from("profiles")
+                .select("role")
+                .eq("id", user.id)
+                .single();
 
-        if (profile?.role !== "admin") {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+            if (profile?.role !== "admin") {
+                return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+            }
         }
 
         const body = await request.json();
@@ -28,7 +36,7 @@ export async function POST(request: NextRequest) {
             .from("marketing_campaigns")
             .insert({
                 ...body,
-                created_by: user.id,
+                created_by: user?.id || null,
             })
             .select()
             .single();
@@ -57,11 +65,17 @@ export async function POST(request: NextRequest) {
 // GET /api/campaigns - Get campaigns
 export async function GET(request: NextRequest) {
     try {
-        const supabase = await createClient();
+        const adminSession = request.cookies.get("admin_session");
+        const isAdmin = !!adminSession;
+
+        const supabase = isAdmin ? await createServiceClient() : await createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
-        if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        if (!user && !isAdmin) {
+            return NextResponse.json(
+                { error: "Unauthorized: Please log in to access this resource" },
+                { status: 401 }
+            );
         }
 
         const { data, error } = await supabase

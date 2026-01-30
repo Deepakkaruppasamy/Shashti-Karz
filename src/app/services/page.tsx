@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,9 +13,74 @@ import { services, carTypes } from "@/lib/data";
 import { ShimmerCard } from "@/components/animations/AdvancedShimmer";
 import { MorphingCard } from "@/components/animations/MorphingCard";
 import { LiquidButton } from "@/components/animations/LiquidButton";
+import { ServiceComments } from "@/components/ServiceComments";
+import { useAuth } from "@/lib/auth-context";
+import { supabase } from "@/lib/supabase/client";
+import { toast } from "react-hot-toast";
 
 function ServiceCard({ service, index }: { service: typeof services[0]; index: number }) {
   const [expanded, setExpanded] = useState(false);
+  const [activeTab, setActiveTab] = useState<"details" | "comments">("details");
+  const { user } = useAuth();
+  const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+
+  useEffect(() => {
+    checkInitialStatus();
+  }, [user, service.id]);
+
+  const checkInitialStatus = async () => {
+    try {
+      // Fetch likes count
+      const { count } = await supabase
+        .from("service_likes")
+        .select("*", { count: "exact", head: true })
+        .eq("service_id", service.id);
+
+      setLikesCount(count || 0);
+
+      // Check if user liked
+      if (user) {
+        const { data } = await supabase
+          .from("service_likes")
+          .select("*")
+          .eq("service_id", service.id)
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        setIsLiked(!!data);
+      }
+    } catch (error) {
+      console.error("Error checking status:", error);
+    }
+  };
+
+  const handleLike = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) {
+      toast.error("Please login to like services");
+      return;
+    }
+
+    try {
+      if (isLiked) {
+        await supabase
+          .from("service_likes")
+          .delete()
+          .eq("service_id", service.id)
+          .eq("user_id", user.id);
+        setLikesCount(prev => Math.max(0, prev - 1));
+      } else {
+        await supabase
+          .from("service_likes")
+          .insert({ service_id: service.id, user_id: user.id });
+        setLikesCount(prev => prev + 1);
+      }
+      setIsLiked(!isLiked);
+    } catch (error) {
+      console.error("Error liking service:", error);
+    }
+  };
 
   return (
     <MorphingCard
@@ -49,9 +114,9 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
                 Premium
               </span>
             )}
-            <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/50 backdrop-blur px-3 py-1.5 rounded-full">
-              <Zap size={14} className="text-[#d4af37]" />
-              <span className="text-sm text-white font-medium">{service.aiRating}% AI Score</span>
+            <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/50 backdrop-blur px-3 py-1.5 rounded-full z-10 transition-transform hover:scale-110 active:scale-95 cursor-pointer" onClick={handleLike}>
+              <Star size={14} className={`${isLiked ? "text-red-500 fill-red-500" : "text-white"}`} />
+              <span className="text-sm text-white font-medium">{likesCount} Likes</span>
             </div>
             <div className="absolute bottom-4 left-4 right-4">
               <h3 className="text-2xl font-bold font-display">{service.name}</h3>
@@ -108,28 +173,53 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
                 exit={{ opacity: 0, height: 0 }}
                 className="mt-4 space-y-4"
               >
-                <div>
-                  <h4 className="text-sm font-semibold mb-2">What&apos;s Included:</h4>
-                  <ul className="space-y-2">
-                    {service.steps.map((step, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-[#888]">
-                        <Check size={16} className="text-[#ff1744] shrink-0 mt-0.5" />
-                        {step}
-                      </li>
-                    ))}
-                  </ul>
+                <div className="flex gap-4 border-b border-white/10 mb-4">
+                  <button
+                    onClick={() => setActiveTab("details")}
+                    className={`pb-2 text-sm font-medium transition-colors relative ${activeTab === "details" ? "text-white" : "text-[#888]"}`}
+                  >
+                    Details
+                    {activeTab === "details" && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#ff1744]" />}
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("comments")}
+                    className={`pb-2 text-sm font-medium transition-colors relative ${activeTab === "comments" ? "text-white" : "text-[#888]"}`}
+                  >
+                    Comments
+                    {activeTab === "comments" && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#ff1744]" />}
+                  </button>
                 </div>
-                <div>
-                  <h4 className="text-sm font-semibold mb-2">Benefits:</h4>
-                  <ul className="space-y-2">
-                    {service.benefits.map((benefit, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-[#888]">
-                        <Star size={14} className="text-[#d4af37] shrink-0 mt-0.5" />
-                        {benefit}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+
+                {activeTab === "details" ? (
+                  <>
+                    <div>
+                      <h4 className="text-sm font-semibold mb-2">What&apos;s Included:</h4>
+                      <ul className="space-y-2">
+                        {service.steps.map((step, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm text-[#888]">
+                            <Check size={16} className="text-[#ff1744] shrink-0 mt-0.5" />
+                            {step}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold mb-2">Benefits:</h4>
+                      <ul className="space-y-2">
+                        {service.benefits.map((benefit, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm text-[#888]">
+                            <Star size={14} className="text-[#d4af37] shrink-0 mt-0.5" />
+                            {benefit}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </>
+                ) : (
+                  <div className="py-2">
+                    <ServiceComments serviceId={service.id} serviceName={service.name} />
+                  </div>
+                )}
               </motion.div>
             )}
 
@@ -208,8 +298,8 @@ export default function ServicesPage() {
                 key={f.value}
                 onClick={() => setFilter(f.value as typeof filter)}
                 className={`px-6 py-3 rounded-full text-sm font-medium transition-all ${filter === f.value
-                    ? "btn-premium text-white"
-                    : "bg-white/5 text-[#888] hover:bg-white/10 hover:text-white"
+                  ? "btn-premium text-white"
+                  : "bg-white/5 text-[#888] hover:bg-white/10 hover:text-white"
                   }`}
               >
                 {f.label}

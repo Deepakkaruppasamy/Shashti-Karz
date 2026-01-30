@@ -5,9 +5,10 @@ import { sendAuthNotification } from "@/lib/auth-notifications";
 export async function POST(request: Request) {
   const supabase = await createClient();
   const { email, password } = await request.json();
+  const normalizedEmail = email.trim().toLowerCase();
 
   const { data, error } = await supabase.auth.signInWithPassword({
-    email,
+    email: normalizedEmail,
     password,
   });
 

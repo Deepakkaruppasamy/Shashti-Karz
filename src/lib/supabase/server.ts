@@ -12,45 +12,51 @@ export async function createClient() {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: any) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
+            cookiesToSet.forEach(({ name, value, options }: any) =>
               cookieStore.set(name, value, options)
             );
-            } catch {
-            }
-          },
+          } catch {
+          }
         },
-        auth: {
-          lock: undefined,
+      },
+      auth: {
+        lock: undefined,
+      },
+      cookieOptions: {
+        name: "shashti-karz-auth",
+      },
+    }
+  );
+}
+
+export async function createServiceClient() {
+  const cookieStore = await cookies();
+
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
         },
-      }
-    );
-  }
-  
-  export async function createServiceClient() {
-    const cookieStore = await cookies();
-  
-    return createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll();
-          },
-          setAll(cookiesToSet) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              );
-            } catch {
-            }
-          },
+        setAll(cookiesToSet: any) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }: any) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+          }
         },
-        auth: {
-          lock: undefined,
-        },
-      }
-    );
-  }
+      },
+      auth: {
+        lock: undefined,
+      },
+      cookieOptions: {
+        name: "shashti-karz-auth",
+      },
+    }
+  );
+}

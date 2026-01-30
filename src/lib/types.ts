@@ -60,7 +60,7 @@ export interface Booking {
   customer_phone: string;
   notes: string;
   price: number;
-  status: "pending" | "approved" | "completed" | "cancelled";
+  status: "pending" | "approved" | "in_progress" | "completed" | "cancelled";
   assigned_worker_id?: string | null;
   worker_visibility_approved?: boolean;
   payment_status?: "pending" | "paid" | "refunded";

@@ -2,15 +2,15 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Bell, 
-  X, 
-  Check, 
-  CheckCheck, 
-  Calendar, 
-  CreditCard, 
-  Wrench, 
-  Sparkles, 
+import {
+  Bell,
+  X,
+  Check,
+  CheckCheck,
+  Calendar,
+  CreditCard,
+  Wrench,
+  Sparkles,
   AlertCircle,
   Gift,
   ChevronRight,
@@ -56,14 +56,16 @@ export function NotificationBell() {
 
   const fetchNotifications = useCallback(async () => {
     if (!user) return;
-    
+
     setIsLoading(true);
     try {
       const res = await fetch("/api/notifications?limit=20");
       if (res.ok) {
         const data = await res.json();
-        setNotifications(data.notifications || []);
-        setUnreadCount(data.unreadCount || 0);
+        if (data && !data.error) {
+          setNotifications(data.notifications || []);
+          setUnreadCount(data.unreadCount || 0);
+        }
       }
     } catch (error) {
       console.error("Failed to fetch notifications:", error);
@@ -80,7 +82,7 @@ export function NotificationBell() {
     if (!user) return;
 
     const supabase = createClient();
-    
+
     const channel = supabase
       .channel('notifications')
       .on(
@@ -95,7 +97,7 @@ export function NotificationBell() {
           const newNotification = payload.new as Notification;
           setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
-          
+
           if (Notification.permission === "granted") {
             new window.Notification(newNotification.title, {
               body: newNotification.message,
@@ -118,9 +120,9 @@ export function NotificationBell() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "mark_read" }),
       });
-      
+
       if (res.ok) {
-        setNotifications(prev => 
+        setNotifications(prev =>
           prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
         );
         setUnreadCount(prev => Math.max(0, prev - 1));
@@ -137,7 +139,7 @@ export function NotificationBell() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "mark_all_read" }),
       });
-      
+
       if (res.ok) {
         setNotifications(prev => prev.map(n => ({ ...n, read: true })));
         setUnreadCount(0);
@@ -147,8 +149,8 @@ export function NotificationBell() {
     }
   };
 
-  const filteredNotifications = activeCategory === "all" 
-    ? notifications 
+  const filteredNotifications = activeCategory === "all"
+    ? notifications
     : notifications.filter(n => n.category === activeCategory);
 
   const formatTime = (dateString: string) => {
@@ -199,7 +201,7 @@ export function NotificationBell() {
               className="fixed inset-0 z-40"
               onClick={() => setIsOpen(false)}
             />
-            
+
             <motion.div
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -234,11 +236,10 @@ export function NotificationBell() {
                     <button
                       key={cat}
                       onClick={() => setActiveCategory(cat)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
-                        activeCategory === cat
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${activeCategory === cat
                           ? "bg-[#ff1744] text-white"
                           : "bg-white/5 text-[#888] hover:bg-white/10"
-                      }`}
+                        }`}
                     >
                       {cat === "all" ? "All" : cat.charAt(0).toUpperCase() + cat.slice(1)}
                     </button>
@@ -262,15 +263,14 @@ export function NotificationBell() {
                       const Icon = CATEGORY_ICONS[notification.category];
                       const colorClass = CATEGORY_COLORS[notification.category];
                       const priorityClass = PRIORITY_STYLES[notification.priority];
-                      
+
                       return (
                         <motion.div
                           key={notification.id}
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
-                          className={`p-4 hover:bg-white/5 transition-colors cursor-pointer border-l-2 ${priorityClass} ${
-                            !notification.read ? "bg-white/[0.02]" : ""
-                          }`}
+                          className={`p-4 hover:bg-white/5 transition-colors cursor-pointer border-l-2 ${priorityClass} ${!notification.read ? "bg-white/[0.02]" : ""
+                            }`}
                           onClick={() => {
                             if (!notification.read) markAsRead(notification.id);
                             if (notification.action_url) {
