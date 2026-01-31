@@ -445,3 +445,126 @@ export interface ServiceInventoryUsage {
   cost_at_time: number | null;
   created_at: string;
 }
+
+// Dinesh Voice Assistant Types
+export interface SupportRequest {
+  id: string;
+  user_id: string | null;
+  customer_name: string;
+  customer_email: string | null;
+  customer_phone: string | null;
+  category: "navigation" | "service_info" | "booking_help" | "technical" | "general" | "other";
+  subject: string;
+  message: string;
+  status: "pending" | "in_progress" | "resolved" | "closed";
+  priority: "low" | "medium" | "high" | "urgent";
+  admin_response: string | null;
+  admin_responder_id: string | null;
+  responded_at: string | null;
+  resolved_at: string | null;
+  conversation_history: ConversationMessage[];
+  metadata: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConversationMessage {
+  sender: "customer" | "admin" | "system";
+  message: string;
+  timestamp: string;
+}
+
+export interface CustomerFeedbackDinesh {
+  id: string;
+  user_id: string | null;
+  customer_name: string;
+  customer_email: string | null;
+  feedback_type: "feature_request" | "bug_report" | "compliment" | "complaint" | "suggestion" | "other";
+  category: "website" | "booking" | "service" | "payment" | "communication" | "voice_assistant" | "other" | null;
+  rating: number | null;
+  message: string;
+  satisfaction_score: number | null;
+  would_recommend: boolean;
+  status: "new" | "reviewed" | "acknowledged" | "implemented" | "closed";
+  admin_notes: string | null;
+  admin_reviewer_id: string | null;
+  reviewed_at: string | null;
+  tags: string[];
+  metadata: Record<string, any>;
+  created_at: string;
+}
+
+export interface DineshInteraction {
+  id: string;
+  session_id: string;
+  user_id: string | null;
+  interaction_type: "navigation" | "service_query" | "booking" | "support" | "feedback" | "general";
+  user_query: string;
+  assistant_response: string;
+  intent_detected: string | null;
+  confidence_score: number | null;
+  was_helpful: boolean | null;
+  duration_seconds: number | null;
+  metadata: Record<string, any>;
+  created_at: string;
+}
+
+export interface SupportRequestAttachment {
+  id: string;
+  support_request_id: string;
+  file_name: string;
+  file_url: string;
+  file_type: string | null;
+  file_size: number | null;
+  uploaded_by: string | null;
+  created_at: string;
+}
+
+export interface VoiceAssistantContext {
+  sessionId: string;
+  userId: string | null;
+  userName: string | null;
+  currentPage: string;
+  previousQueries: string[];
+  isListening: boolean;
+  isSpeaking: boolean;
+}
+
+export interface VoiceSettings {
+  voiceGender: "male" | "female"; // Dinesh or Deepika
+  voiceName: string; // Browser voice name
+  speechRate: number; // 0.5 to 2.0
+  pitch: number; // 0 to 2.0
+  language: "en-US" | "ta-IN" | "hi-IN"; // English, Tamil, Hindi
+  soundEffectsEnabled: boolean;
+}
+
+export interface Ad {
+  id: string;
+  title: string;
+  description?: string;
+  media_url?: string;
+  media_type: 'video' | 'image';
+  thumbnail_url?: string;
+  target_url?: string;
+  position: string;
+  status: 'active' | 'draft' | 'scheduled' | 'archived';
+  start_date?: string;
+  end_date?: string;
+  priority: number;
+  impressions: number;
+  clicks: number;
+  metadata?: any;
+  created_at: string;
+}
+
+export interface AdminPulseEvent {
+  id: string;
+  type: "interaction" | "support_request" | "feedback";
+  timestamp: Date;
+  user_name: string;
+  query?: string;
+  category?: string;
+  priority?: string;
+  status?: string;
+}
