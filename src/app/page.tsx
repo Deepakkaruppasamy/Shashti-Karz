@@ -8,6 +8,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { FloatingButtons } from "@/components/FloatingButtons";
 import { ShashtiAI } from "@/components/ShashtiAI";
+import { DineshVoiceAssistant } from "@/components/DineshVoiceAssistant";
 import { ExplodedCarSection, ServiceBeforeAfter } from "@/components/CarShowcase";
 import { PriceCalculator } from "@/components/PriceCalculator";
 import { ServiceTrackerDemo } from "@/components/LiveServiceTracker";
@@ -15,6 +16,9 @@ import { LoyaltyProgramDemo } from "@/components/LoyaltyProgram";
 import { ServiceComparison } from "@/components/ServiceComparison";
 import { VideoTestimonials } from "@/components/VideoTestimonials";
 import { CarWashShowcase } from "@/components/CarWashShowcase";
+import VideoPromoPlayer from "@/components/ads/VideoPromoPlayer";
+import InterstitialVideoPromo from "@/components/ads/InterstitialVideoPromo";
+import { Ad } from "@/lib/types";
 import { useState, useEffect, useRef } from "react";
 import type { Service, Review, Offer } from "@/lib/types";
 import { ScrollReveal, StaggerContainer, StaggerItem } from "@/components/animations/ScrollReveal";
@@ -38,19 +42,50 @@ const businessInfo = {
   whatsapp: '919876543210',
 };
 
+
 function HeroSection() {
   const { t } = useLanguage();
+  const [heroAd, setHeroAd] = useState<Ad | null>(null);
+
+  useEffect(() => {
+    fetch('/api/ads/delivery?position=home_hero')
+      .then(res => res.json())
+      .then(data => {
+        if (data.ad) {
+          setHeroAd(data.ad);
+          // Track impression
+          fetch('/api/ads/track', { method: 'POST', body: JSON.stringify({ adId: data.ad.id, eventType: 'impression' }) });
+        }
+      })
+      .catch(err => console.error("Ad fetch error", err));
+  }, []);
+
   const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"],
-  });
+  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end start"] });
 
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.9]);
-  const carX = useTransform(scrollYProgress, [0, 1], ["-20%", "120%"]);
   const rotate = useTransform(scrollYProgress, [0, 1], [0, 5]);
+  const carX = useTransform(scrollYProgress, [0, 1], ["-20%", "120%"]);
+
+  if (heroAd) {
+    return (
+      <section ref={containerRef} className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
+        <div className="absolute inset-0 z-0">
+          <VideoPromoPlayer
+            mediaUrl={heroAd.media_url || ""}
+            thumbnailUrl={heroAd.thumbnail_url}
+            title={heroAd.title}
+            description={heroAd.description}
+            targetUrl={heroAd.target_url}
+            position="hero"
+            ctaText="Check Deal"
+          />
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section ref={containerRef} className="relative min-h-[120vh] flex items-center justify-center overflow-hidden">
@@ -595,6 +630,8 @@ export default function HomePage() {
       <Footer />
       <FloatingButtons />
       <ShashtiAI />
+      <DineshVoiceAssistant />
+      <InterstitialVideoPromo position="popup" />
     </main>
   );
 }

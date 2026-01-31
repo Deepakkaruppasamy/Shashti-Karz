@@ -7,7 +7,8 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Calendar, Users, Package, Settings, LogOut, Bell,
   DollarSign, Play, Sparkles, Brain, Receipt, ImageIcon, Menu, X, Hammer,
-  MessageCircle, TrendingUp, Wrench, Send, Star, Box, Tag, Clock
+  MessageCircle, TrendingUp, Wrench, Send, Star, Box, Tag, Clock, Headphones,
+  Activity
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
@@ -42,9 +43,12 @@ const navItems: NavItem[] = [
   { id: "users", label: "Customers", icon: Users, href: "/admin?tab=users" },
   { id: "reviews", label: "Reviews", icon: Star, href: "/admin/reviews", badge: "New", badgeColor: "bg-yellow-500/20 text-yellow-500" },
   { id: "ltv", label: "Customer LTV", icon: TrendingUp, href: "/admin/ltv", badge: "New", badgeColor: "bg-green-500/20 text-green-500" },
+  { id: "dinesh-support", label: "Dinesh Support", icon: Headphones, href: "/admin/dinesh-support", badge: "Voice", badgeColor: "bg-purple-500/20 text-purple-500" },
+  { id: "pulse", label: "Admin Pulse", icon: Activity, href: "/admin/pulse", badge: "Live", badgeColor: "bg-red-500/20 text-red-500" },
 
   // Marketing & Communication
-  { id: "campaigns", label: "Marketing", icon: Send, href: "/admin/campaigns", badge: "New", badgeColor: "bg-blue-500/20 text-blue-500" },
+  { id: "campaigns", label: "Ad Campaigns", icon: Play, href: "/admin/ads", badge: "Video", badgeColor: "bg-blue-500/20 text-blue-500" },
+  { id: "marketing", label: "Marketing", icon: Send, href: "/admin/campaigns" },
   { id: "whatsapp", label: "WhatsApp", icon: MessageCircle, href: "/admin/whatsapp", badge: "New", badgeColor: "bg-green-500/20 text-green-500" },
   { id: "notifications", label: "Notifications", icon: Bell, href: "/admin/notifications", badge: "Send", badgeColor: "bg-orange-500/20 text-orange-500" },
 

@@ -46,14 +46,14 @@ const BUSINESS_KNOWLEDGE = {
   experience: "3+ years",
   carsDetailed: "500+",
   rating: "5.0",
-    certifications: ["IDA Certified", "Gtechniq Accredited"],
-    products: ["Gtechniq (UK)", "Gyeon (Korea)", "CarPro (Korea)", "Koch Chemie (Germany)"],
-    workers: [
-      { role: "Lead Detailer", skills: ["Ceramic Coating", "Paint Correction", "PPF"] },
-      { role: "Interior Specialist", skills: ["Deep Cleaning", "Leather Restoration", "Odor Removal"] },
-      { role: "Wash Technician", skills: ["Steam Wash", "Undercarriage Cleaning", "Engine Detailing"] }
-    ],
-    warranties: {
+  certifications: ["IDA Certified", "Gtechniq Accredited"],
+  products: ["Gtechniq (UK)", "Gyeon (Korea)", "CarPro (Korea)", "Koch Chemie (Germany)"],
+  workers: [
+    { role: "Lead Detailer", skills: ["Ceramic Coating", "Paint Correction", "PPF"] },
+    { role: "Interior Specialist", skills: ["Deep Cleaning", "Leather Restoration", "Odor Removal"] },
+    { role: "Wash Technician", skills: ["Steam Wash", "Undercarriage Cleaning", "Engine Detailing"] }
+  ],
+  warranties: {
 
     ceramicCoating: "5-year protection",
     ppf: "10-year warranty",
@@ -81,7 +81,7 @@ const INTENT_PATTERNS: Record<string, RegExp[]> = {
 
 export function classifyIntent(message: string): AIIntent {
   const intents: { name: string; score: number }[] = [];
-  
+
   for (const [intentName, patterns] of Object.entries(INTENT_PATTERNS)) {
     let score = 0;
     for (const pattern of patterns) {
@@ -93,12 +93,12 @@ export function classifyIntent(message: string): AIIntent {
       intents.push({ name: intentName, score });
     }
   }
-  
+
   intents.sort((a, b) => b.score - a.score);
-  
+
   const topIntent = intents[0] || { name: "general", score: 0 };
   const confidence = Math.min(topIntent.score / 3, 1);
-  
+
   return {
     name: topIntent.name,
     confidence,
@@ -140,7 +140,7 @@ ${offers.map(o => `- **${o.title}**: ${o.discount} - Code: ${o.code} (Valid: ${o
 `;
 
   let roleSpecificPrompt = "";
-  
+
   switch (role) {
     case "admin":
       roleSpecificPrompt = `
@@ -154,7 +154,7 @@ You're helping an admin manage the business.
 - Monitor booking pipeline
 - Detect anomalies or issues`;
       break;
-      
+
     case "customer":
       roleSpecificPrompt = `
 ## YOUR ROLE: CUSTOMER ASSISTANT
@@ -167,7 +167,7 @@ You're helping a logged-in customer: ${context?.userName || "Valued Customer"}
 - Personalized recommendations
 - Book new appointments`;
       break;
-      
+
     default:
       roleSpecificPrompt = `
 ## YOUR ROLE: GUEST ASSISTANT
@@ -191,7 +191,7 @@ You're helping a potential customer who hasn't logged in yet.
 
 export function generateAIInsights(analyticsData: any): AIInsight[] {
   const insights: AIInsight[] = [];
-  
+
   if (analyticsData.revenueChange !== undefined) {
     const trend = analyticsData.revenueChange > 0 ? "up" : analyticsData.revenueChange < 0 ? "down" : "stable";
     insights.push({
@@ -228,7 +228,7 @@ export function generateAIInsights(analyticsData: any): AIInsight[] {
       priority: "medium"
     });
   }
-  
+
   if (analyticsData.pendingBookings > 5) {
     insights.push({
       type: "alert",
@@ -240,7 +240,7 @@ export function generateAIInsights(analyticsData: any): AIInsight[] {
       actionUrl: "/admin?tab=bookings"
     });
   }
-  
+
   if (analyticsData.topService) {
     insights.push({
       type: "service",
@@ -251,17 +251,17 @@ export function generateAIInsights(analyticsData: any): AIInsight[] {
       priority: "low"
     });
   }
-  
+
   return insights;
 }
 
 export function detectAnomalies(bookings: any[], previousBookings: any[]): AIInsight[] {
   const anomalies: AIInsight[] = [];
-  
+
   const currentCount = bookings.length;
   const previousCount = previousBookings.length;
   const changePercent = previousCount > 0 ? ((currentCount - previousCount) / previousCount) * 100 : 0;
-  
+
   if (changePercent < -30) {
     anomalies.push({
       type: "alert",
@@ -273,10 +273,10 @@ export function detectAnomalies(bookings: any[], previousBookings: any[]): AIIns
       action: "Investigate and take action"
     });
   }
-  
+
   const cancellations = bookings.filter(b => b.status === "cancelled").length;
   const cancellationRate = currentCount > 0 ? (cancellations / currentCount) * 100 : 0;
-  
+
   if (cancellationRate > 15) {
     anomalies.push({
       type: "alert",
@@ -288,19 +288,19 @@ export function detectAnomalies(bookings: any[], previousBookings: any[]): AIIns
       action: "Review cancellation reasons"
     });
   }
-  
+
   return anomalies;
 }
 
 export function detectRiskPatterns(bookings: any[]): AIInsight[] {
   const risks: AIInsight[] = [];
-  
+
   // 1. Repeated Cancellations
   const customerCancellations: Record<string, number> = {};
   bookings.filter(b => b.status === "cancelled").forEach(b => {
     customerCancellations[b.customer_email] = (customerCancellations[b.customer_email] || 0) + 1;
   });
-  
+
   const repeatCancellers = Object.entries(customerCancellations).filter(([, count]) => count >= 2);
   if (repeatCancellers.length > 0) {
     risks.push({
@@ -311,7 +311,7 @@ export function detectRiskPatterns(bookings: any[]): AIInsight[] {
       action: "Review customer accounts"
     });
   }
-  
+
   // 2. Payment Failures
   const paymentFailures = bookings.filter(b => b.payment_status === "failed").length;
   if (paymentFailures > 3) {
@@ -323,14 +323,14 @@ export function detectRiskPatterns(bookings: any[]): AIInsight[] {
       action: "Check Stripe Logs"
     });
   }
-  
+
   // 3. Drop-offs (Pending for more than 24h)
   const now = new Date();
-  const dropOffs = bookings.filter(b => 
-    b.status === "pending" && 
+  const dropOffs = bookings.filter(b =>
+    b.status === "pending" &&
     (now.getTime() - new Date(b.created_at).getTime()) > (24 * 60 * 60 * 1000)
   ).length;
-  
+
   if (dropOffs > 5) {
     risks.push({
       type: "alert",
@@ -340,13 +340,13 @@ export function detectRiskPatterns(bookings: any[]): AIInsight[] {
       action: "Contact Customers"
     });
   }
-  
+
   return risks;
 }
 
 export function generateSmartDiscounts(analyticsData: any): AIInsight[] {
   const recommendations: AIInsight[] = [];
-  
+
   // 1. Loyalty-based discounts
   if (analyticsData.returningCustomers > 0) {
     recommendations.push({
@@ -357,7 +357,7 @@ export function generateSmartDiscounts(analyticsData: any): AIInsight[] {
       action: "Send Promo"
     });
   }
-  
+
   // 2. Low-performing service discount
   if (analyticsData.lowPerformingService) {
     recommendations.push({
@@ -368,7 +368,7 @@ export function generateSmartDiscounts(analyticsData: any): AIInsight[] {
       action: "Launch Offer"
     });
   }
-  
+
   // 3. Peak hour optimization
   if (analyticsData.slowestDay) {
     recommendations.push({
@@ -379,13 +379,13 @@ export function generateSmartDiscounts(analyticsData: any): AIInsight[] {
       action: "Create Rule"
     });
   }
-  
+
   return recommendations;
 }
 
 export async function processNaturalLanguageQuery(query: string, analyticsData: any): Promise<string> {
   const lowerQuery = query.toLowerCase();
-  
+
   if (lowerQuery.includes("revenue") && lowerQuery.includes("drop")) {
     return `Based on my analysis, revenue may have dropped due to fewer bookings or lower average order value.
 
@@ -394,7 +394,7 @@ export async function processNaturalLanguageQuery(query: string, analyticsData: 
 2. Focus on upselling premium services
 3. Consider targeted offers for regular customers`;
   }
-  
+
   return `Here's what I found:
 
 **Key Metrics:**
