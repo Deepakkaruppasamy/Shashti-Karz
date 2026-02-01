@@ -8,7 +8,6 @@ import { VoiceAssistantContext, VoiceSettings } from "@/lib/types";
 import { getDineshSoundManager } from "@/lib/dinesh-sounds";
 import { detectLanguage, languageResponses, matchesCategory } from "@/lib/dinesh-languages";
 import { getServiceRecommendations, generateRecommendationResponse, isProblemQuery } from "@/lib/dinesh-recommendations";
-import { getServiceRecommendations, generateRecommendationResponse, isProblemQuery } from "@/lib/dinesh-recommendations";
 import { toast } from "sonner";
 import { CustomerFeedbackForm } from "@/components/dinesh/CustomerFeedbackForm";
 import { SupportRequestForm } from "@/components/dinesh/SupportRequestForm";
@@ -265,12 +264,7 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
         // or generic responses.
 
         // For Hindi/Tamil specific unhandled queries, give a generic help response in that language
-        if (activeLang !== "en-US") {
-            return {
-                text: languageResponses[activeLang].defaultResponse,
-                lang: activeLang
-            };
-        }
+
 
         // ... existing English logic ...
 

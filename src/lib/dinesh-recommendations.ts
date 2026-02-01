@@ -390,7 +390,7 @@ export function generateRecommendationResponse(
         message += " புக்கிங் பக்கத்தை திறக்கவா?";
     }
     else if (lang === "hi-IN") {
-        message = `आपके प्रश्न के आधार पर, मैं हमारी **${serviceName}** सेवा की सिफारिश करता हूं for. ${reason}.`;
+        message = `आपके प्रश्न के आधार पर, मैं हमारी **${serviceName}** सेवा की सिफारिश करता हूं। ${reason}.`;
         if (recommendations.length > 1) {
             const otherServices = recommendations.slice(1, 3).map(r => {
                 const data = translations[r.id as keyof typeof translations];
