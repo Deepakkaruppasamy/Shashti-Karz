@@ -1,26 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
+
+// Helper to validate admin session
+async function validateAdmin() {
+    const cookieStore = await cookies();
+    const adminSession = cookieStore.get("admin_session");
+    return !!adminSession;
+}
 
 export async function GET(request: NextRequest) {
     try {
-        const supabase = await createClient();
-
-        // Check authentication
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
+        const isAdmin = await validateAdmin();
+        if (!isAdmin) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Verify admin role
-        const { data: profile } = await supabase
-            .from("profiles")
-            .select("role")
-            .eq("id", user.id)
-            .single();
-
-        if (profile?.role !== "admin") {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
+        // Use service client to bypass RLS since we validated admin_session
+        const supabase = await createServiceClient();
 
         // Fetch all ads
         const { data: ads, error } = await supabase
@@ -43,25 +40,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
     try {
-        const supabase = await createClient();
-
-        // Check authentication
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
+        const isAdmin = await validateAdmin();
+        if (!isAdmin) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Verify admin role
-        const { data: profile } = await supabase
-            .from("profiles")
-            .select("role")
-            .eq("id", user.id)
-            .single();
-
-        if (profile?.role !== "admin") {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
-
+        const supabase = await createServiceClient();
         const body = await request.json();
 
         // Validate required fields
@@ -105,26 +89,14 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
     try {
-        const supabase = await createClient();
-
-        // Check authentication
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
+        const isAdmin = await validateAdmin();
+        if (!isAdmin) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Verify admin role
-        const { data: profile } = await supabase
-            .from("profiles")
-            .select("role")
-            .eq("id", user.id)
-            .single();
-
-        if (profile?.role !== "admin") {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
-
+        const supabase = await createServiceClient();
         const body = await request.json();
+
         if (!body.id) {
             return NextResponse.json({ error: "Ad ID required" }, { status: 400 });
         }
@@ -163,25 +135,12 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
     try {
-        const supabase = await createClient();
-
-        // Check authentication
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
+        const isAdmin = await validateAdmin();
+        if (!isAdmin) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Verify admin role
-        const { data: profile } = await supabase
-            .from("profiles")
-            .select("role")
-            .eq("id", user.id)
-            .single();
-
-        if (profile?.role !== "admin") {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
-
+        const supabase = await createServiceClient();
         const { searchParams } = new URL(request.url);
         const id = searchParams.get("id");
 
