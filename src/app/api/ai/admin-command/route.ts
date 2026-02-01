@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     const { command } = await req.json();
     const supabase = await createClient();
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = `
       You are Shashti AI, an admin assistant for a car detailing platform.

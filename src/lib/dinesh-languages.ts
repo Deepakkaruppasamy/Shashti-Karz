@@ -17,7 +17,7 @@ export interface LanguageResponse {
 
 export const languageResponses: Record<"en-US" | "ta-IN" | "hi-IN", LanguageResponse> = {
     "en-US": {
-        greeting: "Hello! I'm Dinesh, your voice assistant for Shashti Karz. How can I help you today?",
+        greeting: "Hello! I'm Dinesh, your voice assistant for Shashti Karz. I can help you book services, check pricing, give feedback, or get support. How can I help you today?",
         bookingResponse: "Let me open the booking page for you. You can schedule your car detailing service there.",
         servicesResponse: "Here are all our car detailing services. We offer exterior wash, interior cleaning, ceramic coating, and more.",
         pricingResponse: "Our pricing depends on your car type and the service you choose. Let me show you our smart price calculator.",
@@ -28,7 +28,7 @@ export const languageResponses: Record<"en-US" | "ta-IN" | "hi-IN", LanguageResp
         home: "Taking you to the homepage now."
     },
     "ta-IN": {
-        greeting: "வணக்கம்! நான் திநேஷ், ஷஷ்டி கார்ஸ் குரல் உதவியாளர். இன்று நான் உங்களுக்கு எப்படி உதவ முடியும்?",
+        greeting: "வணக்கம்! நான் திநேஷ், ஷஷ்டி கார்ஸ் குரல் உதவியாளர். நான் சேவைகளை புக் செய்ய, விலையை சரிபார்க்க, கருத்து தெரிவிக்க அல்லது ஆதரவு பெற உதவ முடியும். இன்று நான் உங்களுக்கு எப்படி உதவ முடியும்?",
         bookingResponse: "புக்கிங் பக்கத்தை திறக்கிறேன். நீங்கள் கார் டீட்டெய்லிங் சேவையை அங்கு திட்டமிடலாம்.",
         servicesResponse: "எங்கள் அனைத்து கார் டீட்டெய்லிங் சேவைகள் இங்கே உள்ளன். வெளிப்புற சுத்தம், உள்துறை சுத்தம், செராமிக் கோட்டிங் மற்றும் பல.",
         pricingResponse: "உங்கள் கார் வகை மற்றும் சேவையை பொறுத்து விலை மாறுபடும். எங்கள் விலை கால்குலேட்டரை காட்டுகிறேன்.",
@@ -39,7 +39,7 @@ export const languageResponses: Record<"en-US" | "ta-IN" | "hi-IN", LanguageResp
         home: "இப்போது உங்களை முகப்புப் பக்கத்திற்கு அழைத்துச் செல்கிறேன்."
     },
     "hi-IN": {
-        greeting: "नमस्ते! मैं दिनेश हूं, शाश्ती कार्ज़ के लिए आपका वॉयस असिस्टेंट। आज मैं आपकी कैसे मदद कर सकता हूं?",
+        greeting: "नमस्ते! मैं दिनेश हूं, शाश्ती कार्ज़ के लिए आपका वॉयस असिस्टेंट। मैं सेवाओं को बुक करने, मूल्य निर्धारण की जांच करने, फीडबैक देने या सहायता प्राप्त करने में मदद कर सकता हूं। आज मैं आपकी कैसे मदद कर सकता हूं?",
         bookingResponse: "मैं आपके लिए बुकिंग पेज खोल रहा हूं। आप वहां अपनी कार डिटेलिंग सर्विस शेड्यूल कर सकते हैं।",
         servicesResponse: "यहां हमारी सभी कार डिटेलिंग सेवाएं हैं। हम बाहरी धुलाई, आंतरिक सफाई, सिरेमिक कोटिंग और बहुत कुछ प्रदान करते हैं।",
         pricingResponse: "हमारी कीमतें आपकी कार के प्रकार और सेवा पर निर्भर करती हैं। मैं आपको हमारा स्मार्ट प्राइस कैलकुलेटर दिखाता हूं।",

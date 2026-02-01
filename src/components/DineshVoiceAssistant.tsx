@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Mic, MicOff, X, Send, Volume2, VolumeX, MessageCircle, HeadphonesIcon, Settings, Languages, User, Sliders, ArrowLeft } from "lucide-react";
+import { Mic, MicOff, X, Send, Volume2, VolumeX, MessageCircle, HeadphonesIcon, Settings, Languages, User, Sliders, ArrowLeft, Calendar, DollarSign } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { VoiceAssistantContext, VoiceSettings } from "@/lib/types";
@@ -29,6 +29,7 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
     const [textInput, setTextInput] = useState("");
     const [showSettings, setShowSettings] = useState(false);
     const [activeView, setActiveView] = useState<"chat" | "feedback" | "support">("chat");
+    const [isProcessing, setIsProcessing] = useState(false);
     const [settings, setSettings] = useState<VoiceSettings>({
         voiceGender: "male",
         voiceName: "",
@@ -552,9 +553,13 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
 
         // ========== DEFAULT RESPONSES ==========
 
-        // If query seems like a question
-        if (lowerQuery.includes("?") || lowerQuery.includes("what") || lowerQuery.includes("how") || lowerQuery.includes("when") || lowerQuery.includes("where") || lowerQuery.includes("why")) {
-            return { text: "I'd love to help answer your question! Could you please be more specific? You can ask me about our services, pricing, location, hours, booking process, or anything else about Shashti Karz.", lang: "en-US" };
+        // If query seems like a question, try AI first before generic response
+        if (lowerQuery.includes("?") || lowerQuery.includes("what") || lowerQuery.includes("how") || lowerQuery.includes("when") || lowerQuery.includes("where") || lowerQuery.includes("why") || lowerQuery.includes("can you") || lowerQuery.includes("tell me")) {
+            // Use AI to answer the question
+            const aiResponse = await callAI(query, activeLang);
+            if (aiResponse) {
+                return { text: aiResponse, lang: activeLang };
+            }
         }
 
         // Generic greeting
@@ -562,8 +567,38 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             return { text: "Hello! How can I assist you today? You can ask me about our services, book an appointment, track your order, check pricing, or get support.", lang: "en-US" };
         }
 
-        // Default response
+        // For any other unmatched query, try AI fallback
+        const aiResponse = await callAI(query, activeLang);
+        if (aiResponse) {
+            return { text: aiResponse, lang: activeLang };
+        }
+
+        // Final fallback if AI fails
         return { text: languageResponses[activeLang].defaultResponse || languageResponses["en-US"].defaultResponse, lang: activeLang };
+    };
+
+    const callAI = async (query: string, language: string): Promise<string | null> => {
+        try {
+            setIsProcessing(true);
+            const response = await fetch("/api/dinesh/ai-chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query, language })
+            });
+
+            if (!response.ok) {
+                console.error("AI API error:", response.status);
+                return null;
+            }
+
+            const data = await response.json();
+            return data.response || null;
+        } catch (error) {
+            console.error("Error calling AI:", error);
+            return null;
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     const logInteraction = async (query: string, reply: string) => {
@@ -781,7 +816,63 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
                                         </div>
                                     </div>
                                 )}
+
+                                {/* AI Processing Indicator */}
+                                {isProcessing && (
+                                    <div className="flex justify-start">
+                                        <div className="max-w-[80%] rounded-2xl p-3 bg-slate-800/80 text-white border border-purple-500/30">
+                                            <p className="text-sm flex items-center gap-2">
+                                                <span className="animate-pulse">🤔</span>
+                                                Dinesh is thinking
+                                                <span className="flex gap-1">
+                                                    <span className="w-1 h-1 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></span>
+                                                    <span className="w-1 h-1 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></span>
+                                                    <span className="w-1 h-1 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></span>
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
+
+                                {/* Suggestion Chips - Show after greeting */}
+                                {conversation.length <= 2 && !isListening && (
+                                    <div className="mt-4 space-y-2">
+                                        <p className="text-xs text-slate-400 text-center">Quick actions:</p>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <button
+                                                onClick={() => handleUserQuery("I want to give feedback")}
+                                                className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-white text-xs transition-all"
+                                            >
+                                                <MessageCircle size={14} />
+                                                Give Feedback
+                                            </button>
+                                            <button
+                                                onClick={() => handleUserQuery("I need support")}
+                                                className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-white text-xs transition-all"
+                                            >
+                                                <HeadphonesIcon size={14} />
+                                                Get Support
+                                            </button>
+                                            <button
+                                                onClick={() => handleUserQuery("Book a service")}
+                                                className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-green-500/10 hover:bg-green-500/20 border border-green-500/30 text-white text-xs transition-all"
+                                            >
+                                                <Calendar size={14} />
+                                                Book Service
+                                            </button>
+                                            <button
+                                                onClick={() => handleUserQuery("Show me pricing")}
+                                                className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/30 text-white text-xs transition-all"
+                                            >
+                                                <DollarSign size={14} />
+                                                View Pricing
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </>
+
                         ) : activeView === "feedback" ? (
                             <div className="animate-in slide-in-from-right duration-300">
                                 <CustomerFeedbackForm
