@@ -51,18 +51,22 @@ export default function AdsAdminPage() {
     const handleFileUpload = async (file: File): Promise<string | null> => {
         try {
             setUploading(true);
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-            const filePath = `uploads/${fileName}`;
 
-            const { error: uploadError } = await supabase.storage
-                .from('ad-assets')
-                .upload(filePath, file);
+            const formData = new FormData();
+            formData.append('file', file);
 
-            if (uploadError) throw uploadError;
+            const res = await fetch('/api/admin/upload', {
+                method: 'POST',
+                body: formData,
+            });
 
-            const { data } = supabase.storage.from('ad-assets').getPublicUrl(filePath);
-            return data.publicUrl;
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || "Upload failed");
+            }
+
+            return data.url;
         } catch (error) {
             console.error("Upload failed", error);
             toast.error("File upload failed");
