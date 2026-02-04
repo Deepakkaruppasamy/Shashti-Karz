@@ -148,10 +148,10 @@ function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1 }}
         >
-          <h1 className="text-5xl sm:text-6xl lg:text-8xl font-bold font-display mb-6">
+          <h1 className="text-4xl sm:text-6xl lg:text-8xl font-bold font-display mb-6 leading-[1.1] text-balance">
             <span className="text-white">{t('hero_title_1')} </span>
             <NeonText color="#ff1744" className="font-display">{t('hero_title_2')}</NeonText>
-            <br />
+            <br className="hidden sm:block" />
             <span className="text-white">{t('hero_title_3')} </span>
             <NeonText color="#d4af37" className="font-display">{t('hero_title_4')}</NeonText>
           </h1>
@@ -290,7 +290,7 @@ function ServiceIntroSection() {
         </ScrollReveal>
 
         <ScrollReveal variant="fadeUp" delay={0.1}>
-          <h2 className="text-4xl sm:text-5xl lg:text-7xl font-bold font-display mb-6">
+          <h2 className="text-3xl sm:text-5xl lg:text-7xl font-bold font-display mb-6 leading-tight text-balance">
             <span className="text-white">{t('explore_services')}</span>
             <br />
             <span className="bg-gradient-to-r from-[#ff1744] via-[#ff4081] to-[#d4af37] bg-clip-text text-transparent">
@@ -369,6 +369,7 @@ function WhyUsSection() {
                 alt="Premium car detailing"
                 width={600}
                 height={700}
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover rounded-2xl"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
@@ -590,7 +591,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#0a0a0a]">
       <ScrollProgress />
       <Navbar />
 
@@ -632,6 +633,6 @@ export default function HomePage() {
       <ShashtiAI />
       <DineshVoiceAssistant />
       <InterstitialVideoPromo position="popup" />
-    </main>
+    </div>
   );
 }

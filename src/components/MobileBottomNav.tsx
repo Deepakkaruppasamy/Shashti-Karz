@@ -1,65 +1,80 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
-import { LayoutDashboard, Calendar, Users, Settings, Package } from "lucide-react";
+import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Home, Car, Calendar, User, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
-interface NavItem {
-    id: string;
-    label: string;
-    icon: any;
-    href: string;
-}
-
-const mobileNavItems: NavItem[] = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/admin" },
-    { id: "bookings", label: "Bookings", icon: Calendar, href: "/admin?tab=bookings" },
-    { id: "inventory", label: "Inventory", icon: Package, href: "/admin/inventory" },
-    { id: "users", label: "Users", icon: Users, href: "/admin?tab=users" },
-    { id: "settings", label: "Settings", icon: Settings, href: "/admin/settings" },
+const navItems = [
+    { label: "Home", icon: Home, href: "/" },
+    { label: "Services", icon: Car, href: "/services" },
+    { label: "Book", icon: Calendar, href: "/booking", isPrimary: true },
+    { label: "Support", icon: MessageCircle, href: "/contact" },
+    { label: "Profile", icon: User, href: "/dashboard" },
 ];
 
 export function MobileBottomNav() {
-    const router = useRouter();
     const pathname = usePathname();
 
-    const isActive = (href: string) => {
-        if (href === "/admin") return pathname === "/admin";
-        return pathname.startsWith(href) || href.includes(pathname);
-    };
-
     return (
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0d0d0d]/95 backdrop-blur-xl border-t border-white/10 safe-area-bottom">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0a0a0a]/80 backdrop-blur-xl border-t border-white/5 pb-safe-area-inset-bottom">
             <div className="flex items-center justify-around h-16 px-2">
-                {mobileNavItems.map((item) => {
-                    const active = isActive(item.href);
+                {navItems.map((item) => {
+                    const isActive = pathname === item.href;
+                    const Icon = item.icon;
+
+                    if (item.isPrimary) {
+                        return (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className="relative -top-5 flex flex-col items-center"
+                            >
+                                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff1744] to-[#d4af37] flex items-center justify-center shadow-lg shadow-[#ff1744]/40 border-4 border-[#0a0a0a]">
+                                    <Icon className="text-white" size={24} />
+                                </div>
+                                <span className={cn(
+                                    "text-[10px] mt-1 font-medium transition-colors",
+                                    isActive ? "text-[#ff1744]" : "text-[#888]"
+                                )}>
+                                    {item.label}
+                                </span>
+                            </Link>
+                        );
+                    }
+
                     return (
-                        <button
-                            key={item.id}
-                            onClick={() => router.push(item.href)}
-                            className="flex flex-col items-center justify-center flex-1 h-full relative"
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            className="flex flex-col items-center justify-center w-full h-full relative"
                         >
-                            {active && (
+                            <Icon
+                                className={cn(
+                                    "transition-colors duration-300",
+                                    isActive ? "text-[#ff1744]" : "text-[#888]"
+                                )}
+                                size={22}
+                            />
+                            <span className={cn(
+                                "text-[10px] mt-1 font-medium transition-colors duration-300",
+                                isActive ? "text-[#ff1744]" : "text-[#888]"
+                            )}>
+                                {item.label}
+                            </span>
+                            {isActive && (
                                 <motion.div
-                                    layoutId="mobile-nav-indicator"
-                                    className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-gradient-to-r from-[#ff1744] to-[#d4af37] rounded-full"
-                                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                                    layoutId="activeTab"
+                                    className="absolute -top-[1px] w-8 h-[2px] bg-[#ff1744]"
+                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
                                 />
                             )}
-                            <div
-                                className={`flex flex-col items-center gap-1 transition-all ${active ? "text-white scale-110" : "text-[#888] scale-100"
-                                    }`}
-                            >
-                                <item.icon
-                                    size={20}
-                                    className={active ? "text-[#ff1744]" : ""}
-                                />
-                                <span className="text-[10px] font-medium">{item.label}</span>
-                            </div>
-                        </button>
+                        </Link>
                     );
                 })}
             </div>
-        </nav>
+        </div>
     );
 }

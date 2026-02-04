@@ -370,39 +370,41 @@ function BookingForm() {
     <div className="grid lg:grid-cols-3 gap-8">
       <div className="lg:col-span-2">
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 overflow-x-auto pb-4 scrollbar-hide -mx-2 px-2 sm:mx-0 sm:px-0">
             {stepTitles.map((title, i) => {
               const StepIcon = stepIcons[i];
               const isActive = step === i + 1;
               const isCompleted = step > i + 1;
 
               return (
-                <motion.div
-                  key={i}
-                  className="flex items-center gap-2"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                >
+                <div key={i} className="flex items-center shrink-0">
                   <motion.div
-                    whileHover={isCompleted ? { scale: 1.1 } : {}}
-                    onClick={() => isCompleted && setStep(i + 1)}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold cursor-pointer transition-all ${isActive
+                    key={i}
+                    className="flex items-center gap-2"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <motion.div
+                      whileHover={isCompleted ? { scale: 1.1 } : {}}
+                      onClick={() => isCompleted && setStep(i + 1)}
+                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-semibold cursor-pointer transition-all ${isActive
                         ? "bg-gradient-to-r from-[#ff1744] to-[#d4af37] text-white shadow-lg shadow-[#ff1744]/30"
                         : isCompleted
                           ? "bg-green-500 text-white"
                           : "bg-white/5 text-[#666]"
-                      }`}
-                  >
-                    {isCompleted ? <CheckCircle size={18} /> : <StepIcon size={18} />}
+                        }`}
+                    >
+                      {isCompleted ? <CheckCircle size={18} /> : <StepIcon size={18} />}
+                    </motion.div>
+                    <span className={`text-xs sm:text-sm hidden md:block ${isActive ? "text-white" : "text-[#666]"}`}>
+                      {title}
+                    </span>
+                    {i < 3 && (
+                      <div className={`w-4 sm:w-8 lg:w-16 h-0.5 mx-2 ${step > i + 1 ? "bg-green-500" : "bg-white/10"}`} />
+                    )}
                   </motion.div>
-                  <span className={`text-sm hidden sm:block ${isActive ? "text-white" : "text-[#666]"}`}>
-                    {title}
-                  </span>
-                  {i < 3 && (
-                    <div className={`w-8 lg:w-16 h-0.5 hidden sm:block ${step > i + 1 ? "bg-green-500" : "bg-white/10"}`} />
-                  )}
-                </motion.div>
+                </div>
               );
             })}
           </div>
@@ -435,8 +437,8 @@ function BookingForm() {
                         transition={{ delay: i * 0.05 }}
                         onClick={() => setFormData({ ...formData, carType: car.id })}
                         className={`p-4 rounded-xl text-left transition-all ${formData.carType === car.id
-                            ? "bg-[#ff1744]/20 border-2 border-[#ff1744] shadow-lg shadow-[#ff1744]/20"
-                            : "bg-white/5 border-2 border-transparent hover:bg-white/10"
+                          ? "bg-[#ff1744]/20 border-2 border-[#ff1744] shadow-lg shadow-[#ff1744]/20"
+                          : "bg-white/5 border-2 border-transparent hover:bg-white/10"
                           }`}
                       >
                         <motion.div
@@ -459,7 +461,7 @@ function BookingForm() {
                     value={formData.carModel}
                     onChange={(e) => setFormData({ ...formData, carModel: e.target.value })}
                     placeholder="e.g., BMW 5 Series, Honda City"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-[#666] focus:outline-none focus:border-[#ff1744]/50 focus:ring-2 focus:ring-[#ff1744]/20 transition-all"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-base placeholder:text-[#666] focus:outline-none focus:border-[#ff1744]/50 focus:ring-2 focus:ring-[#ff1744]/20 transition-all"
                   />
                 </div>
 
@@ -509,8 +511,8 @@ function BookingForm() {
                         transition={{ delay: i * 0.05 }}
                         onClick={() => setFormData({ ...formData, service: service.id })}
                         className={`p-4 rounded-xl text-left transition-all flex gap-4 ${formData.service === service.id
-                            ? "bg-[#ff1744]/20 border-2 border-[#ff1744] shadow-lg shadow-[#ff1744]/20"
-                            : "bg-white/5 border-2 border-transparent hover:bg-white/10"
+                          ? "bg-[#ff1744]/20 border-2 border-[#ff1744] shadow-lg shadow-[#ff1744]/20"
+                          : "bg-white/5 border-2 border-transparent hover:bg-white/10"
                           }`}
                       >
                         <div className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0">
@@ -579,8 +581,8 @@ function BookingForm() {
                         transition={{ delay: i * 0.05 }}
                         onClick={() => setFormData({ ...formData, time: slot })}
                         className={`p-3 rounded-xl text-sm font-medium transition-all ${formData.time === slot
-                            ? "bg-[#ff1744] text-white shadow-lg shadow-[#ff1744]/30"
-                            : "bg-white/5 text-[#888] hover:bg-white/10 hover:text-white"
+                          ? "bg-[#ff1744] text-white shadow-lg shadow-[#ff1744]/30"
+                          : "bg-white/5 text-[#888] hover:bg-white/10 hover:text-white"
                           }`}
                       >
                         {slot}

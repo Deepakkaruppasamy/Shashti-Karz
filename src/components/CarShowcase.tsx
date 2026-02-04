@@ -90,14 +90,14 @@ export function ExplodedCarSection({ service, index }: ExplodedCarProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.5 }}
-              className="flex flex-wrap gap-3 mb-8"
+              className="flex flex-wrap gap-2 mb-8"
             >
-              {(service.features || []).slice(0, 4).map((feature, i) => (
+              {(service.benefits || []).slice(0, 4).map((benefit: string, i: number) => (
                 <span
                   key={i}
-                  className="px-3 py-1 bg-white/5 rounded-full text-sm text-[#aaa]"
+                  className="px-3 py-1 bg-white/5 rounded-full text-xs sm:text-sm text-[#aaa]"
                 >
-                  {feature}
+                  {benefit}
                 </span>
               ))}
             </motion.div>
@@ -129,7 +129,7 @@ export function ExplodedCarSection({ service, index }: ExplodedCarProps) {
             className={`relative ${!isEven ? "lg:order-1" : ""}`}
           >
             <div
-              className="relative aspect-[4/3] cursor-pointer"
+              className="relative aspect-square sm:aspect-[4/3] cursor-pointer"
               onMouseEnter={() => setIsExploded(true)}
               onMouseLeave={() => setIsExploded(false)}
               onTouchStart={() => setIsExploded(!isExploded)}
@@ -172,11 +172,10 @@ export function ExplodedCarSection({ service, index }: ExplodedCarProps) {
                     onMouseLeave={() => setHoveredPart(null)}
                   >
                     <div
-                      className={`w-full h-full rounded-lg transition-colors duration-300 flex items-center justify-center text-xs font-medium ${
-                        hoveredPart === part.id
-                          ? "bg-[#ff1744]/80 text-white"
-                          : "bg-white/10 text-white/70 border border-white/20"
-                      }`}
+                      className={`w-full h-full rounded-lg transition-colors duration-300 flex items-center justify-center text-xs font-medium ${hoveredPart === part.id
+                        ? "bg-[#ff1744]/80 text-white"
+                        : "bg-white/10 text-white/70 border border-white/20"
+                        }`}
                       style={{
                         boxShadow: hoveredPart === part.id
                           ? "0 0 30px rgba(255, 23, 68, 0.5)"
@@ -206,10 +205,10 @@ export function ExplodedCarSection({ service, index }: ExplodedCarProps) {
               </div>
 
               <motion.div
-                className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-white/5 backdrop-blur-md rounded-full text-sm text-[#888] border border-white/10"
+                className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-white/5 backdrop-blur-md rounded-full text-sm text-[#888] border border-white/10 whitespace-nowrap"
                 animate={{ opacity: isExploded ? 0 : 1 }}
               >
-                {isExploded ? "Release to reassemble" : "Hover to explode"}
+                {isExploded ? "Touch again to reassemble" : "Tap/Hover to explode"}
               </motion.div>
             </div>
           </motion.div>
@@ -329,7 +328,7 @@ export function ServiceBeforeAfter({ service, index }: ServiceBeforeAfterProps) 
         >
           <div
             ref={containerRef}
-            className="relative aspect-[16/9] max-w-5xl mx-auto rounded-3xl overflow-hidden cursor-ew-resize select-none shadow-2xl"
+            className="relative aspect-square sm:aspect-[16/9] max-w-5xl mx-auto rounded-3xl overflow-hidden cursor-ew-resize select-none shadow-2xl"
             onMouseDown={() => setIsDragging(true)}
             onMouseUp={() => setIsDragging(false)}
             onMouseLeave={() => setIsDragging(false)}

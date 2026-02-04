@@ -537,3 +537,63 @@ html {
   background: rgba(255, 23, 68, 0.3);
   color: #fff;
 }
+/* Safe Area Handlers */
+.pb-safe-area-inset-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pt-safe-area-inset-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Mobile-First Adjustments */
+@media (max-width: 640px) {
+  :root {
+    --radius: 0.5rem;
+  }
+  
+  .glass-card {
+    backdrop-filter: blur(12px);
+  }
+}
+
+/* App-like Touch Feedback */
+.active-overlay:active {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Horizontal Scroll for Mobile Cards */
+.mobile-overflow-x-scroll {
+  @apply flex overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4 px-4;
+}
+
+.mobile-snap-center {
+  @apply snap-center shrink-0;
+}
+
+/* Form Usability for Mobile */
+@media (max-width: 768px) {
+  input, textarea, select {
+    font-size: 16px !important; /* Prevents iOS auto-zoom */
+  }
+  
+  .mobile-touch-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+}
+
+/* Page Transition Helpers */
+.fade-enter {
+  opacity: 0;
+}
+.fade-enter-active {
+  opacity: 1;
+  transition: opacity 300ms ease-in;
+}
+.fade-exit {
+  opacity: 1;
+}
+.fade-exit-active {
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+}

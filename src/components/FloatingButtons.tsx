@@ -8,7 +8,7 @@ export function FloatingButtons() {
   const whatsappUrl = `https://wa.me/${businessInfo.whatsapp}?text=Hi, I'm interested in your car detailing services.`;
 
   return (
-    <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
+    <div className="hidden lg:flex fixed bottom-6 right-6 z-40 flex flex-col gap-3">
       <Link
         href="/virtual-tour"
         className="w-14 h-14 rounded-full bg-[#d4af37] hover:bg-[#b8860b] flex items-center justify-center shadow-lg shadow-[#d4af37]/30 transition-all hover:scale-110 group relative"

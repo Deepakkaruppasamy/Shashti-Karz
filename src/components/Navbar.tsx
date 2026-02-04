@@ -43,7 +43,7 @@ export function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 pt-safe-area-inset-top">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <Link href="/" className="flex items-center gap-3">
@@ -152,12 +152,15 @@ export function Navbar() {
             </Link>
           </div>
 
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden p-2 text-white"
-          >
-            {isOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
+          <div className="lg:hidden flex items-center gap-4">
+            <NotificationBell />
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2 text-white"
+            >
+              {isOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
+          </div>
         </div>
       </div>
 
