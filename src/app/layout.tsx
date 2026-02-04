@@ -14,8 +14,14 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "Shashti Karz",
+    startupImage: [
+      "/icons/icon-512x512.png",
+    ],
+  },
+  icons: {
+    apple: "/icons/icon-192x192.png",
   },
   formatDetection: {
     telephone: true,
