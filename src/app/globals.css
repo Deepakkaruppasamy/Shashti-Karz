@@ -1,4 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
 
 /* Local font fallbacks */
 @font-face {
@@ -17,10 +19,19 @@
   src: local('Playfair Display'), local('PlayfairDisplay-Regular'), Georgia, serif;
 }
 
-@import "tailwindcss";
-@import "tw-animate-css";
-
 @custom-variant dark (&:is(.dark *));
+
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+
+  /* Firefox */
+  &::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari and Opera */
+  }
+}
 
 @theme inline {
   --color-background: var(--background);
@@ -109,11 +120,18 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
     font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
   }
 }
@@ -158,8 +176,8 @@
 
 /* Override autofill and focus styles */
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
 input:-webkit-autofill:active,
 input:focus,
 input:active {
@@ -201,12 +219,10 @@ input:focus {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent);
   transition: left 0.5s;
 }
 
@@ -228,12 +244,10 @@ input:focus {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent);
   transition: left 0.5s;
 }
 
@@ -261,12 +275,10 @@ input:focus {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent);
   transition: left 0.5s;
 }
 
@@ -282,13 +294,13 @@ input:focus {
 .border-gradient {
   border: 2px solid transparent;
   background: linear-gradient(#111, #111) padding-box,
-              linear-gradient(135deg, #ff1744, #d4af37) border-box;
+    linear-gradient(135deg, #ff1744, #d4af37) border-box;
 }
 
 .hero-gradient {
   background: radial-gradient(ellipse at center top, rgba(255, 23, 68, 0.15) 0%, transparent 50%),
-              radial-gradient(ellipse at center bottom, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
-              #0a0a0a;
+    radial-gradient(ellipse at center bottom, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+    #0a0a0a;
 }
 
 .section-gradient {
@@ -311,18 +323,37 @@ input:focus {
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(255, 23, 68, 0.4); }
-  50% { box-shadow: 0 0 40px rgba(255, 23, 68, 0.6); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(255, 23, 68, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(255, 23, 68, 0.6);
+  }
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .animate-float {
@@ -367,6 +398,7 @@ nextjs-portal {
 
 /* Reduced Motion Accessibility */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -379,42 +411,87 @@ nextjs-portal {
 
 /* Car-themed animations */
 @keyframes car-drive {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100vw); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100vw);
+  }
 }
 
 @keyframes headlight-glow {
-  0%, 100% { 
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 
-                0 0 40px rgba(255, 255, 255, 0.3),
-                0 0 60px rgba(255, 23, 68, 0.2);
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5),
+      0 0 40px rgba(255, 255, 255, 0.3),
+      0 0 60px rgba(255, 23, 68, 0.2);
   }
-  50% { 
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.7), 
-                0 0 60px rgba(255, 255, 255, 0.5),
-                0 0 90px rgba(255, 23, 68, 0.4);
+
+  50% {
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.7),
+      0 0 60px rgba(255, 255, 255, 0.5),
+      0 0 90px rgba(255, 23, 68, 0.4);
   }
 }
 
 @keyframes engine-rev {
-  0%, 100% { transform: scale(1); }
-  25% { transform: scale(1.02); }
-  50% { transform: scale(1); }
-  75% { transform: scale(1.01); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  25% {
+    transform: scale(1.02);
+  }
+
+  50% {
+    transform: scale(1);
+  }
+
+  75% {
+    transform: scale(1.01);
+  }
 }
 
 @keyframes wheel-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes neon-flicker {
-  0%, 100% { opacity: 1; }
-  92% { opacity: 1; }
-  93% { opacity: 0.8; }
-  94% { opacity: 1; }
-  95% { opacity: 0.9; }
-  96% { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  92% {
+    opacity: 1;
+  }
+
+  93% {
+    opacity: 0.8;
+  }
+
+  94% {
+    opacity: 1;
+  }
+
+  95% {
+    opacity: 0.9;
+  }
+
+  96% {
+    opacity: 1;
+  }
 }
 
 .animate-car-drive {
@@ -474,21 +551,27 @@ nextjs-portal {
   content: '';
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.1) 2px,
-    rgba(0, 0, 0, 0.1) 4px
-  );
+  background: repeating-linear-gradient(0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.1) 2px,
+      rgba(0, 0, 0, 0.1) 4px);
   pointer-events: none;
 }
 
 /* Gradient text animations */
 @keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .animate-gradient-text {
@@ -503,14 +586,16 @@ nextjs-portal {
 
 .luxury-card:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 
+  box-shadow:
     0 20px 40px rgba(0, 0, 0, 0.4),
     0 0 40px rgba(255, 23, 68, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* Input focus animations */
-input:focus, textarea:focus, select:focus {
+input:focus,
+textarea:focus,
+select:focus {
   transition: all 0.3s ease;
 }
 
@@ -537,6 +622,7 @@ html {
   background: rgba(255, 23, 68, 0.3);
   color: #fff;
 }
+
 /* Safe Area Handlers */
 .pb-safe-area-inset-bottom {
   padding-bottom: env(safe-area-inset-bottom);
@@ -551,7 +637,7 @@ html {
   :root {
     --radius: 0.5rem;
   }
-  
+
   .glass-card {
     backdrop-filter: blur(12px);
   }
@@ -573,10 +659,14 @@ html {
 
 /* Form Usability for Mobile */
 @media (max-width: 768px) {
-  input, textarea, select {
-    font-size: 16px !important; /* Prevents iOS auto-zoom */
+
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+    /* Prevents iOS auto-zoom */
   }
-  
+
   .mobile-touch-target {
     @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
   }
@@ -586,13 +676,16 @@ html {
 .fade-enter {
   opacity: 0;
 }
+
 .fade-enter-active {
   opacity: 1;
   transition: opacity 300ms ease-in;
 }
+
 .fade-exit {
   opacity: 1;
 }
+
 .fade-exit-active {
   opacity: 0;
   transition: opacity 300ms ease-out;
