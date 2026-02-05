@@ -17,13 +17,13 @@ import {
   Save,
   RefreshCw,
   Zap,
-  Car
+  Car,
+  ChevronRight
 } from "lucide-react";
 import Link from "next/link";
 import { useSound } from "@/hooks/useSound";
 import { playSound, setSoundEnabled, type SoundType } from "@/lib/sound-system";
 import { toast } from "sonner";
-import { AdminSidebar } from "@/components/AdminSidebar";
 
 interface SoundSettings {
   globalEnabled: boolean;
@@ -48,17 +48,11 @@ const DEFAULT_SETTINGS: SoundSettings = {
 };
 
 const SOUND_TYPES: { type: SoundType; label: string; description: string }[] = [
-  { type: "engine_ignition", label: "Engine Ignition", description: "Plays on first interaction" },
-  { type: "engine_rev", label: "Engine Rev", description: "Booking confirmation" },
-  { type: "whoosh", label: "Whoosh", description: "Page transitions" },
-  { type: "click", label: "UI Click", description: "Button interactions" },
-  { type: "success", label: "Success", description: "Completed actions" },
-  { type: "notification", label: "Notification", description: "New notifications" },
-  { type: "water_spray", label: "Water Spray", description: "Car wash demo" },
-  { type: "foam_brush", label: "Foam Brush", description: "Car wash demo" },
-  { type: "polish_shine", label: "Polish Shine", description: "Service completion" },
-  { type: "air_hiss", label: "Air Hiss", description: "Tyre services" },
-  { type: "gear_shift", label: "Gear Shift", description: "Step transitions" },
+  { type: "engine_rev", label: "Engine Rev", description: "Booking success" },
+  { type: "whoosh", label: "Whoosh", description: "Transitions" },
+  { type: "click", label: "UI Click", description: "Interactions" },
+  { type: "success", label: "Success", description: "Completed" },
+  { type: "notification", label: "Alert", description: "New chimes" },
 ];
 
 export default function AdminSoundSettingsPage() {
@@ -68,60 +62,23 @@ export default function AdminSoundSettingsPage() {
 
   useEffect(() => {
     setAdmin(false);
-
-    // Load Admin Granular Settings
     const adminSaved = localStorage.getItem("shashti_admin_sound_settings");
     let loadedSettings = { ...DEFAULT_SETTINGS };
-
     if (adminSaved) {
-      try {
-        loadedSettings = { ...loadedSettings, ...JSON.parse(adminSaved) };
-      } catch (e) { }
+      try { loadedSettings = { ...loadedSettings, ...JSON.parse(adminSaved) }; } catch (e) { }
     }
-
-    // Sync from Global Keys (source of truth)
-    const soundSaved = localStorage.getItem("shashti_sound_prefs");
-    if (soundSaved) {
-      try {
-        const soundPrefs = JSON.parse(soundSaved);
-        loadedSettings.globalEnabled = soundPrefs.enabled;
-        loadedSettings.defaultVolume = soundPrefs.volume;
-      } catch (e) { }
-    }
-
-    const visualSaved = localStorage.getItem("shashti_visual_prefs");
-    if (visualSaved) {
-      try {
-        const visualPrefs = JSON.parse(visualSaved);
-        loadedSettings.visualEffectsEnabled = visualPrefs.enabled;
-      } catch (e) { }
-    }
-
     setSettings(loadedSettings);
   }, [setAdmin]);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // Save Admin specific granular settings
       localStorage.setItem("shashti_admin_sound_settings", JSON.stringify(settings));
-
-      // Sync Global Sound System
       setSoundEnabled(settings.globalEnabled);
-      // setVolume from useSound hook might not be enough if we want to force explicit value without hook state lag
-      // but let's use the hook's setVolume if available, or just the one we imported? 
-      // Actually we have setVolume from useSound hook in scope.
       setVolume(settings.defaultVolume);
-
-      // Sync Visual Effects
-      localStorage.setItem("shashti_visual_prefs", JSON.stringify({
-        enabled: settings.visualEffectsEnabled
-      }));
-
-      // Trigger storage event for other components to pick up visual changes
+      localStorage.setItem("shashti_visual_prefs", JSON.stringify({ enabled: settings.visualEffectsEnabled }));
       window.dispatchEvent(new Event("storage"));
-
-      toast.success("Sound & Visual settings saved!");
+      toast.success("Settings synchronized!");
       playSound("success");
     } catch (error) {
       toast.error("Failed to save settings");
@@ -130,283 +87,125 @@ export default function AdminSoundSettingsPage() {
     }
   };
 
-  const handleReset = () => {
-    setSettings(DEFAULT_SETTINGS);
-    toast.info("Settings reset to defaults");
-  };
-
-  const handlePlayPreview = (type: SoundType) => {
-    playSound(type);
-  };
-
-  const VolumeIcon = !enabled ? VolumeX : volume < 0.3 ? Volume1 : Volume2;
-
   return (
-    <div className="flex min-h-screen bg-[#0a0a0a]">
-      <AdminSidebar />
-      <div className="flex-1 overflow-auto">
-        <div className="p-4 lg:p-8">
-          <div className="flex items-center gap-4 mb-8">
-            <Link
-              href="/admin"
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-            >
+    <div className="flex min-h-screen bg-[#0a0a0a] text-white">
+      <div className="flex-1 overflow-auto pb-24 lg:pb-8">
+        <div className="p-4 lg:p-8 max-w-5xl mx-auto text-white">
+          <div className="flex items-center gap-6 mb-12">
+            <Link href="/admin" className="p-3 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 transition-all shrink-0">
               <ArrowLeft size={24} />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold font-display">Sound & Effects Settings</h1>
-              <p className="text-[#888]">Configure audio and visual effects for the website</p>
+              <h1 className="text-3xl lg:text-4xl font-black tracking-tighter">Sound & Visuals</h1>
+              <p className="text-[10px] font-black text-[#555] uppercase tracking-widest mt-1">Global UX Configuration</p>
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="glass-card rounded-2xl p-6"
-              >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-[#ff1744]/20 rounded-lg">
-                    <Volume2 size={20} className="text-[#ff1744]" />
-                  </div>
-                  <h2 className="text-xl font-semibold">Global Sound Controls</h2>
-                </div>
-
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <VolumeIcon size={24} className={enabled ? "text-[#ff1744]" : "text-[#666]"} />
-                      <div>
-                        <p className="font-medium">Sound Effects</p>
-                        <p className="text-sm text-[#888]">Enable/disable all sounds globally</p>
-                      </div>
+          <div className="grid lg:grid-cols-2 gap-8">
+            <div className="space-y-8">
+              {/* Primary Controls */}
+              <div className="glass-card rounded-[2.5rem] p-6 lg:p-10 border border-white/5 space-y-10">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${enabled ? "bg-[#ff1744] text-white" : "bg-white/5 text-[#222]"}`}>
+                      <Volume2 size={24} />
                     </div>
-                    <button
-                      onClick={toggleSound}
-                      className={`relative w-14 h-7 rounded-full transition-colors ${enabled ? "bg-[#ff1744]" : "bg-white/10"
-                        }`}
-                    >
-                      <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-transform ${enabled ? "left-8" : "left-1"
-                        }`} />
-                    </button>
-                  </div>
-
-                  <div className="p-4 bg-white/5 rounded-xl">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <p className="font-medium">Master Volume</p>
-                        <p className="text-sm text-[#888]">Default volume for all sounds</p>
-                      </div>
-                      <span className="text-lg font-mono text-[#ff1744]">{Math.round(volume * 100)}%</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={volume * 100}
-                      onChange={(e) => setVolume(parseInt(e.target.value) / 100)}
-                      className="w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer
-                      [&::-webkit-slider-thumb]:appearance-none
-                      [&::-webkit-slider-thumb]:w-5
-                      [&::-webkit-slider-thumb]:h-5
-                      [&::-webkit-slider-thumb]:bg-[#ff1744]
-                      [&::-webkit-slider-thumb]:rounded-full
-                      [&::-webkit-slider-thumb]:cursor-pointer"
-                    />
-                    <div className="flex justify-between text-xs text-[#666] mt-2">
-                      <span>Quiet</span>
-                      <span>Medium</span>
-                      <span>Loud</span>
+                    <div>
+                      <h2 className="font-black tracking-tighter">Global Audio</h2>
+                      <p className="text-[8px] font-black text-[#444] uppercase tracking-widest">Master Switch</p>
                     </div>
                   </div>
-
-                  <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <Eye size={24} className={settings.visualEffectsEnabled ? "text-[#d4af37]" : "text-[#666]"} />
-                      <div>
-                        <p className="font-medium">Visual Effects</p>
-                        <p className="text-sm text-[#888]">Particles, shine, water droplets</p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => setSettings(s => ({ ...s, visualEffectsEnabled: !s.visualEffectsEnabled }))}
-                      className={`relative w-14 h-7 rounded-full transition-colors ${settings.visualEffectsEnabled ? "bg-[#d4af37]" : "bg-white/10"
-                        }`}
-                    >
-                      <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-transform ${settings.visualEffectsEnabled ? "left-8" : "left-1"
-                        }`} />
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="glass-card rounded-2xl p-6"
-              >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-[#d4af37]/20 rounded-lg">
-                    <Settings size={20} className="text-[#d4af37]" />
-                  </div>
-                  <h2 className="text-xl font-semibold">Page-wise Sound Settings</h2>
+                  <button onClick={toggleSound} className={`w-14 h-7 rounded-full relative transition-all ${enabled ? "bg-[#ff1744]" : "bg-white/10"}`}>
+                    <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all ${enabled ? "left-8" : "left-1"}`} />
+                  </button>
                 </div>
 
                 <div className="space-y-4">
+                  <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest px-1">
+                    <span className="text-[#333]">Amplitude</span>
+                    <span className="text-white">{Math.round(volume * 100)}%</span>
+                  </div>
+                  <input type="range" min="0" max="100" value={volume * 100} onChange={(e) => setVolume(parseInt(e.target.value) / 100)} className="w-full h-1 bg-white/5 rounded-full appearance-none cursor-pointer accent-[#ff1744]" />
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${settings.visualEffectsEnabled ? "bg-[#d4af37] text-white" : "bg-white/5 text-[#222]"}`}>
+                      <Eye size={24} />
+                    </div>
+                    <div>
+                      <h2 className="font-black tracking-tighter">Motion Vectors</h2>
+                      <p className="text-[8px] font-black text-[#444] uppercase tracking-widest">Visual Feedback</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setSettings(s => ({ ...s, visualEffectsEnabled: !s.visualEffectsEnabled }))} className={`w-14 h-7 rounded-full relative transition-all ${settings.visualEffectsEnabled ? "bg-[#d4af37]" : "bg-white/10"}`}>
+                    <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all ${settings.visualEffectsEnabled ? "left-8" : "left-1"}`} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Granular Control */}
+              <div className="glass-card rounded-[2.5rem] p-6 lg:p-10 border border-white/5 space-y-6">
+                <h3 className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em]">Sector Control</h3>
+                <div className="space-y-4">
                   {[
-                    { key: "heroSounds", label: "Hero Section", desc: "Engine ignition, headlight effects", icon: Car },
-                    { key: "bookingSounds", label: "Booking Flow", desc: "Click, gear shift, success sounds", icon: Zap },
-                    { key: "notificationSounds", label: "Notifications", desc: "Alerts and notification chimes", icon: Bell },
-                    { key: "carWashSounds", label: "Car Wash Demo", desc: "Water, foam, polish effects", icon: Sparkles },
+                    { key: "heroSounds", label: "Engine Ignition", icon: Car },
+                    { key: "bookingSounds", label: "Gear Shifts", icon: Zap },
+                    { key: "notificationSounds", label: "Signal Alerts", icon: Bell },
+                    { key: "carWashSounds", label: "Acoustic Wash", icon: Sparkles },
                   ].map((item) => (
-                    <div key={item.key} className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                    <div key={item.key} className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5">
                       <div className="flex items-center gap-3">
-                        <item.icon size={20} className="text-[#888]" />
-                        <div>
-                          <p className="font-medium">{item.label}</p>
-                          <p className="text-sm text-[#666]">{item.desc}</p>
-                        </div>
+                        <div className="text-[#333]"><item.icon size={16} /></div>
+                        <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
                       </div>
-                      <button
-                        onClick={() => setSettings(s => ({ ...s, [item.key]: !s[item.key as keyof SoundSettings] }))}
-                        className={`relative w-12 h-6 rounded-full transition-colors ${settings[item.key as keyof SoundSettings] ? "bg-green-500" : "bg-white/10"
-                          }`}
-                      >
-                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${settings[item.key as keyof SoundSettings] ? "left-7" : "left-1"
-                          }`} />
+                      <button onClick={() => setSettings(s => ({ ...s, [item.key]: !s[item.key as keyof SoundSettings] }))} className={`w-10 h-5 rounded-full relative transition-all ${settings[item.key as keyof SoundSettings] ? "bg-green-500" : "bg-white/10"}`}>
+                        <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${settings[item.key as keyof SoundSettings] ? "left-6" : "left-1"}`} />
                       </button>
                     </div>
                   ))}
-
-                  <div className="flex items-center justify-between p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <VolumeX size={20} className="text-red-400" />
-                      <div>
-                        <p className="font-medium text-red-400">Admin Panel</p>
-                        <p className="text-sm text-[#666]">Business mode - sounds disabled</p>
-                      </div>
-                    </div>
-                    <span className="px-3 py-1 bg-red-500/20 rounded-full text-xs text-red-400">Always Off</span>
-                  </div>
                 </div>
-              </motion.div>
+              </div>
+            </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="glass-card rounded-2xl p-6"
-              >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-blue-500/20 rounded-lg">
-                    <Play size={20} className="text-blue-400" />
-                  </div>
-                  <h2 className="text-xl font-semibold">Sound Preview</h2>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="space-y-8">
+              {/* Sound Preview */}
+              <div className="glass-card rounded-[2.5rem] p-6 lg:p-10 border border-white/5 space-y-8">
+                <h3 className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em]">Acoustic Test</h3>
+                <div className="grid grid-cols-1 gap-3">
                   {SOUND_TYPES.map((sound) => (
-                    <button
-                      key={sound.type}
-                      onClick={() => handlePlayPreview(sound.type)}
-                      disabled={!enabled}
-                      className="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed group"
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        <Play size={14} className="text-[#888] group-hover:text-[#ff1744] transition-colors" />
-                        <span className="text-sm font-medium">{sound.label}</span>
+                    <button key={sound.type} onClick={() => playSound(sound.type)} disabled={!enabled} className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl text-left hover:border-[#ff1744]/30 transition-all flex items-center justify-between group disabled:opacity-20">
+                      <div>
+                        <div className="text-[10px] font-black uppercase tracking-widest mb-1">{sound.label}</div>
+                        <div className="text-[8px] font-black text-[#333] uppercase tracking-[0.2em]">{sound.description}</div>
                       </div>
-                      <p className="text-xs text-[#666]">{sound.description}</p>
+                      <div className="p-2 border border-white/5 rounded-lg group-hover:bg-[#ff1744] group-hover:border-transparent transition-all">
+                        <Play size={12} fill="currentColor" />
+                      </div>
                     </button>
                   ))}
                 </div>
+              </div>
 
-                {!enabled && (
-                  <p className="text-sm text-center text-[#888] mt-4">
-                    Enable sounds to preview them
-                  </p>
-                )}
-              </motion.div>
-            </div>
-
-            <div className="space-y-6">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="glass-card rounded-2xl p-6"
-              >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-purple-500/20 rounded-lg">
-                    <BarChart3 size={20} className="text-purple-400" />
-                  </div>
-                  <h2 className="text-lg font-semibold">Shashti AI Insights</h2>
+              {/* Shashti AI Metrics */}
+              <div className="glass-card rounded-[2.5rem] p-6 lg:p-10 border border-white/5 space-y-8 bg-gradient-to-br from-white/[0.02] to-transparent">
+                <div className="flex items-center gap-3">
+                  <Sparkles size={16} className="text-[#ff1744]" />
+                  <h3 className="text-[10px] font-black uppercase tracking-widest">Synapse Analysis</h3>
                 </div>
-
-                <div className="space-y-4">
-                  <div className="p-4 bg-gradient-to-br from-green-500/10 to-transparent border border-green-500/20 rounded-xl">
-                    <p className="text-2xl font-bold text-green-400">+6.4%</p>
-                    <p className="text-sm text-[#888]">Booking conversion with sounds</p>
+                <div className="space-y-6">
+                  <div className="p-5 rounded-3xl bg-green-500/5 border border-green-500/10">
+                    <div className="text-xl font-black text-green-500">+6.4%</div>
+                    <div className="text-[8px] font-black text-[#444] uppercase tracking-widest">Resonance Conversion</div>
                   </div>
-
-                  <div className="p-4 bg-gradient-to-br from-blue-500/10 to-transparent border border-blue-500/20 rounded-xl">
-                    <p className="text-2xl font-bold text-blue-400">23%</p>
-                    <p className="text-sm text-[#888]">Users enable sounds</p>
-                  </div>
-
-                  <div className="p-4 bg-gradient-to-br from-[#d4af37]/10 to-transparent border border-[#d4af37]/20 rounded-xl">
-                    <p className="text-2xl font-bold text-[#d4af37]">2.1x</p>
-                    <p className="text-sm text-[#888]">Longer session with effects</p>
-                  </div>
-
-                  <div className="p-3 bg-white/5 rounded-lg">
-                    <p className="text-xs text-[#888] italic">
-                      &quot;Users who interact with sound effects show 23% higher engagement and 6.4% more likely to complete bookings.&quot;
-                    </p>
-                    <p className="text-xs text-[#666] mt-1">— Shashti AI</p>
+                  <div className="p-5 rounded-3xl bg-blue-500/5 border border-blue-500/10">
+                    <div className="text-xl font-black text-blue-500">2.1x</div>
+                    <div className="text-[8px] font-black text-[#444] uppercase tracking-widest">Dwell Threshold</div>
                   </div>
                 </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="glass-card rounded-2xl p-6"
-              >
-                <h3 className="font-semibold mb-4">Quick Actions</h3>
-                <div className="space-y-3">
-                  <button
-                    onClick={handleSave}
-                    disabled={isSaving}
-                    className="w-full btn-premium py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-2"
-                  >
-                    {isSaving ? (
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <>
-                        <Save size={18} />
-                        Save Settings
-                      </>
-                    )}
-                  </button>
-                  <button
-                    onClick={handleReset}
-                    className="w-full py-3 rounded-xl border border-white/10 text-white font-medium flex items-center justify-center gap-2 hover:bg-white/5 transition-colors"
-                  >
-                    <RefreshCw size={18} />
-                    Reset to Defaults
-                  </button>
-                </div>
-              </motion.div>
-
-              <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
-                <p className="text-sm text-yellow-400 font-medium mb-1">Accessibility Note</p>
-                <p className="text-xs text-[#888]">
-                  Sounds are automatically disabled for users with &quot;Reduce Motion&quot; preference enabled in their system settings.
-                </p>
+                <button onClick={handleSave} disabled={isSaving} className="w-full btn-premium py-5 rounded-2xl text-white font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 shadow-xl shadow-[#ff1744]/20 transition-all hover:scale-[1.02]">
+                  {isSaving ? <RefreshCw className="animate-spin" size={20} /> : <><Save size={18} /> Authorize Settings</>}
+                </button>
               </div>
             </div>
           </div>

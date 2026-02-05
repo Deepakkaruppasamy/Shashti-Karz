@@ -16,9 +16,13 @@ import {
     Send,
     TrendingUp,
     Users,
-    MessageCircleMore
+    MessageCircleMore,
+    ChevronRight,
+    X,
+    MessageCircle
 } from "lucide-react";
-import { AdminSidebar } from "@/components/AdminSidebar";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 
 export default function DineshSupportPage() {
     const [activeTab, setActiveTab] = useState<"support" | "feedback">("support");
@@ -46,28 +50,20 @@ export default function DineshSupportPage() {
                 .select("*")
                 .order("created_at", { ascending: false });
 
-            if (filterStatus !== "all") {
-                query = query.eq("status", filterStatus);
-            }
+            if (filterStatus !== "all") query = query.eq("status", filterStatus);
 
             const { data, error } = await query;
-            if (!error && data) {
-                setSupportRequests(data as SupportRequest[]);
-            }
+            if (!error && data) setSupportRequests(data as SupportRequest[]);
         } else {
             let query = supabase
                 .from("customer_feedback_dinesh")
                 .select("*")
                 .order("created_at", { ascending: false });
 
-            if (filterStatus !== "all") {
-                query = query.eq("status", filterStatus);
-            }
+            if (filterStatus !== "all") query = query.eq("status", filterStatus);
 
             const { data, error } = await query;
-            if (!error && data) {
-                setFeedbackList(data as CustomerFeedbackDinesh[]);
-            }
+            if (!error && data) setFeedbackList(data as CustomerFeedbackDinesh[]);
         }
         setLoading(false);
     };
@@ -93,6 +89,7 @@ export default function DineshSupportPage() {
             .eq("id", selectedSupport.id);
 
         if (!error) {
+            toast.success("Response dispatched");
             setResponseText("");
             setSelectedSupport(null);
             loadData();
@@ -113,6 +110,7 @@ export default function DineshSupportPage() {
             .eq("id", selectedFeedback.id);
 
         if (!error) {
+            toast.success(`Feedback status: ${status}`);
             setAdminNotes("");
             setSelectedFeedback(null);
             loadData();
@@ -122,47 +120,16 @@ export default function DineshSupportPage() {
     const getStatusIcon = (status: string) => {
         switch (status) {
             case "pending":
-            case "new":
-                return <Clock className="text-yellow-500" size={20} />;
-            case "in_progress":
-            case "reviewed":
-                return <TrendingUp className="text-blue-500" size={20} />;
+            case "new": return <Clock className="text-yellow-500" size={16} />;
             case "resolved":
-            case "implemented":
-                return <CheckCircle className="text-green-500" size={20} />;
-            case "closed":
-                return <XCircle className="text-gray-500" size={20} />;
-            default:
-                return <AlertCircle className="text-gray-500" size={20} />;
+            case "implemented": return <CheckCircle className="text-green-500" size={16} />;
+            default: return <AlertCircle className="text-[#333]" size={16} />;
         }
-    };
-
-    const getPriorityColor = (priority: string) => {
-        switch (priority) {
-            case "urgent":
-                return "bg-red-500";
-            case "high":
-                return "bg-orange-500";
-            case "medium":
-                return "bg-yellow-500";
-            case "low":
-                return "bg-green-500";
-            default:
-                return "bg-gray-500";
-        }
-    };
-
-    const stats = {
-        totalSupport: supportRequests.length,
-        pendingSupport: supportRequests.filter(s => s.status === "pending").length,
-        totalFeedback: feedbackList.length,
-        newFeedback: feedbackList.filter(f => f.status === "new").length,
     };
 
     const filteredSupport = supportRequests.filter(req =>
         req.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        req.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        req.message.toLowerCase().includes(searchTerm.toLowerCase())
+        req.subject.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const filteredFeedback = feedbackList.filter(fb =>
@@ -171,319 +138,172 @@ export default function DineshSupportPage() {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950">
-            <AdminSidebar />
-
-            <div className="ml-64 p-8">
-                {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-4xl font-bold text-white mb-2">Dinesh Support Center</h1>
-                    <p className="text-purple-300">Manage customer support requests and feedback</p>
-                </div>
-
-                {/* Stats */}
-                <div className="grid grid-cols-4 gap-6 mb-8">
-                    <div className="bg-slate-900/50 backdrop-blur-sm border border-purple-500/30 rounded-xl p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-slate-400 text-sm">Total Support</p>
-                                <p className="text-3xl font-bold text-white mt-1">{stats.totalSupport}</p>
-                            </div>
-                            <MessageSquare className="text-purple-500" size={40} />
+        <div className="flex min-h-screen bg-[#0a0a0a] text-white">
+            <div className="flex-1 overflow-auto pb-24 lg:pb-8">
+                <div className="p-4 lg:p-8 max-w-7xl mx-auto">
+                    {/* Header */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
+                        <div>
+                            <h1 className="text-3xl lg:text-4xl font-black tracking-tighter flex items-center gap-3">
+                                <MessageCircleMore className="text-purple-500" />
+                                Support Lexicon
+                            </h1>
+                            <p className="text-[#888] mt-1 flex items-center gap-2 text-sm">
+                                <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+                                Dinesh Voice Assistant Inquiries
+                            </p>
+                        </div>
+                        <div className="flex p-1 glass-card rounded-2xl border border-white/5 bg-white/5">
+                            {(["support", "feedback"] as const).map((t) => (
+                                <button key={t} onClick={() => setActiveTab(t)} className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === t ? "bg-white text-[#0a0a0a] shadow-lg" : "text-[#555] hover:text-white"}`}>
+                                    {t === 'support' ? "Tickets" : "Insights"}
+                                </button>
+                            ))}
                         </div>
                     </div>
 
-                    <div className="bg-slate-900/50 backdrop-blur-sm border border-yellow-500/30 rounded-xl p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-slate-400 text-sm">Pending</p>
-                                <p className="text-3xl font-bold text-yellow-500 mt-1">{stats.pendingSupport}</p>
-                            </div>
-                            <Clock className="text-yellow-500" size={40} />
+                    {/* Stats */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        {[
+                            { label: "Total Requests", value: supportRequests.length, icon: MessageSquare, color: "text-purple-500", bg: "bg-purple-500/10" },
+                            { label: "Pending Fixes", value: supportRequests.filter(s => s.status === "pending").length, icon: Clock, color: "text-yellow-500", bg: "bg-yellow-500/10" },
+                            { label: "User Feedback", value: feedbackList.length, icon: MessageCircleMore, color: "text-blue-500", bg: "bg-blue-500/10" },
+                            { label: "New Sentiment", value: feedbackList.filter(f => f.status === "new").length, icon: Users, color: "text-green-500", bg: "bg-green-500/10" },
+                        ].map((stat, i) => (
+                            <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="glass-card rounded-2xl p-4 lg:p-6 border border-white/5 flex items-center gap-4">
+                                <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center shrink-0`}>
+                                    <stat.icon size={18} />
+                                </div>
+                                <div className="min-w-0">
+                                    <div className="text-lg lg:text-xl font-black tracking-tighter truncate">{stat.value}</div>
+                                    <div className="text-[8px] lg:text-[10px] font-black text-[#555] uppercase tracking-widest">{stat.label}</div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+
+                    {/* Filters */}
+                    <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                        <div className="flex-1 relative group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#333] group-focus-within:text-purple-500 transition-colors" size={16} />
+                            <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 outline-none focus:border-purple-500 font-bold" placeholder="Reference Search..." />
                         </div>
+                        <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="bg-white/5 border border-white/10 rounded-xl px-5 py-4 outline-none focus:border-purple-500 font-black uppercase text-[10px] tracking-widest appearance-none min-w-[160px]">
+                            <option value="all">Global Priority</option>
+                            <option value="pending">Pending</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="new">New Sentiment</option>
+                        </select>
                     </div>
 
-                    <div className="bg-slate-900/50 backdrop-blur-sm border border-blue-500/30 rounded-xl p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-slate-400 text-sm">Total Feedback</p>
-                                <p className="text-3xl font-bold text-white mt-1">{stats.totalFeedback}</p>
-                            </div>
-                            <MessageCircleMore className="text-blue-500" size={40} />
-                        </div>
-                    </div>
-
-                    <div className="bg-slate-900/50 backdrop-blur-sm border border-green-500/30 rounded-xl p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-slate-400 text-sm">New Feedback</p>
-                                <p className="text-3xl font-bold text-green-500 mt-1">{stats.newFeedback}</p>
-                            </div>
-                            <Users className="text-green-500" size={40} />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Tabs */}
-                <div className="flex gap-4 mb-6">
-                    <button
-                        onClick={() => setActiveTab("support")}
-                        className={`px-6 py-3 rounded-xl font-semibold transition-all ${activeTab === "support"
-                                ? "bg-purple-600 text-white"
-                                : "bg-slate-800 text-slate-400 hover:bg-slate-700"
-                            }`}
-                    >
-                        Support Requests
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("feedback")}
-                        className={`px-6 py-3 rounded-xl font-semibold transition-all ${activeTab === "feedback"
-                                ? "bg-purple-600 text-white"
-                                : "bg-slate-800 text-slate-400 hover:bg-slate-700"
-                            }`}
-                    >
-                        Customer Feedback
-                    </button>
-                </div>
-
-                {/* Filters */}
-                <div className="flex gap-4 mb-6">
-                    <div className="flex-1 relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                        <input
-                            type="text"
-                            placeholder="Search..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-slate-800 text-white pl-10 pr-4 py-3 rounded-xl border border-purple-500/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
-                    </div>
-                    <select
-                        value={filterStatus}
-                        onChange={(e) => setFilterStatus(e.target.value)}
-                        className="bg-slate-800 text-white px-4 py-3 rounded-xl border border-purple-500/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    >
-                        <option value="all">All Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="resolved">Resolved</option>
-                        <option value="new">New</option>
-                        <option value="reviewed">Reviewed</option>
-                    </select>
-                </div>
-
-                {/* Content */}
-                <div className="grid grid-cols-2 gap-6">
-                    {/* List */}
-                    <div className="bg-slate-900/50 backdrop-blur-sm border border-purple-500/30 rounded-xl p-6 max-h-[600px] overflow-y-auto">
-                        <h2 className="text-xl font-bold text-white mb-4">
-                            {activeTab === "support" ? "Support Requests" : "Feedback Submissions"}
-                        </h2>
-
-                        {loading ? (
-                            <div className="text-center text-slate-400 py-8">Loading...</div>
-                        ) : activeTab === "support" ? (
-                            <div className="space-y-4">
-                                {filteredSupport.map((request) => (
-                                    <div
-                                        key={request.id}
-                                        onClick={() => setSelectedSupport(request)}
-                                        className={`p-4 rounded-lg cursor-pointer transition-all ${selectedSupport?.id === request.id
-                                                ? "bg-purple-600/30 border-2 border-purple-500"
-                                                : "bg-slate-800/50 border border-slate-700 hover:bg-slate-800"
-                                            }`}
-                                    >
-                                        <div className="flex items-start justify-between mb-2">
-                                            <div className="flex items-center gap-2">
-                                                {getStatusIcon(request.status)}
-                                                <span className="font-semibold text-white">{request.customer_name}</span>
+                    {/* Feed */}
+                    <div className="grid lg:grid-cols-2 gap-8 items-start">
+                        <div className="glass-card rounded-[2.5rem] p-4 lg:p-8 border border-white/5">
+                            <h3 className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em] mb-8 px-2">Deployment Feed</h3>
+                            <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                                {loading ? (
+                                    <div className="py-20 text-center"><TrendingUp className="animate-spin mx-auto text-[#222]" /></div>
+                                ) : activeTab === "support" ? (
+                                    filteredSupport.map((req) => (
+                                        <motion.div key={req.id} layout onClick={() => setSelectedSupport(req)} className={`p-6 rounded-3xl border transition-all cursor-pointer ${selectedSupport?.id === req.id ? "bg-purple-500/10 border-purple-500/50" : "bg-white/[0.02] border-white/5 hover:border-white/20"}`}>
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div className="flex items-center gap-3">
+                                                    {getStatusIcon(req.status)}
+                                                    <span className="text-sm font-black tracking-tighter">{req.customer_name}</span>
+                                                </div>
+                                                <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${req.priority === 'urgent' ? 'bg-red-500 text-white' : 'bg-white/5 text-[#444]'}`}>{req.priority}</span>
                                             </div>
-                                            <span className={`px-2 py-1 rounded-full text-xs text-white ${getPriorityColor(request.priority)}`}>
-                                                {request.priority}
-                                            </span>
-                                        </div>
-                                        <h3 className="text-purple-300 font-medium mb-1">{request.subject}</h3>
-                                        <p className="text-slate-400 text-sm line-clamp-2">{request.message}</p>
-                                        <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
-                                            <span>{request.category}</span>
-                                            <span>•</span>
-                                            <span>{new Date(request.created_at).toLocaleDateString()}</span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                {filteredFeedback.map((feedback) => (
-                                    <div
-                                        key={feedback.id}
-                                        onClick={() => setSelectedFeedback(feedback)}
-                                        className={`p-4 rounded-lg cursor-pointer transition-all ${selectedFeedback?.id === feedback.id
-                                                ? "bg-purple-600/30 border-2 border-purple-500"
-                                                : "bg-slate-800/50 border border-slate-700 hover:bg-slate-800"
-                                            }`}
-                                    >
-                                        <div className="flex items-start justify-between mb-2">
-                                            <div className="flex items-center gap-2">
-                                                {getStatusIcon(feedback.status)}
-                                                <span className="font-semibold text-white">{feedback.customer_name}</span>
+                                            <h4 className="text-xs font-black text-purple-400 uppercase tracking-widest mb-2 line-clamp-1">{req.subject}</h4>
+                                            <p className="text-xs text-[#666] line-clamp-2 leading-relaxed">{req.message}</p>
+                                        </motion.div>
+                                    ))
+                                ) : (
+                                    filteredFeedback.map((fb) => (
+                                        <motion.div key={fb.id} layout onClick={() => setSelectedFeedback(fb)} className={`p-6 rounded-3xl border transition-all cursor-pointer ${selectedFeedback?.id === fb.id ? "bg-blue-500/10 border-blue-500/50" : "bg-white/[0.02] border-white/5 hover:border-white/20"}`}>
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div className="flex items-center gap-3">
+                                                    {getStatusIcon(fb.status)}
+                                                    <span className="text-sm font-black tracking-tighter">{fb.customer_name}</span>
+                                                </div>
+                                                {fb.rating && <span className="text-yellow-500 text-[10px]">{"★".repeat(fb.rating)}</span>}
                                             </div>
-                                            {feedback.rating && (
-                                                <span className="text-yellow-500">{"⭐".repeat(feedback.rating)}</span>
-                                            )}
-                                        </div>
-                                        <span className="inline-block px-2 py-1 bg-blue-500/20 text-blue-300 rounded text-xs mb-2">
-                                            {feedback.feedback_type}
-                                        </span>
-                                        <p className="text-slate-400 text-sm line-clamp-2">{feedback.message}</p>
-                                        <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
-                                            {feedback.category && <span>{feedback.category}</span>}
-                                            <span>•</span>
-                                            <span>{new Date(feedback.created_at).toLocaleDateString()}</span>
-                                        </div>
-                                    </div>
-                                ))}
+                                            <span className="inline-block px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded text-[8px] font-black uppercase tracking-widest mb-3">{fb.feedback_type}</span>
+                                            <p className="text-xs text-[#666] line-clamp-2 leading-relaxed">{fb.message}</p>
+                                        </motion.div>
+                                    ))
+                                )}
                             </div>
-                        )}
-                    </div>
+                        </div>
 
-                    {/* Details & Response */}
-                    <div className="bg-slate-900/50 backdrop-blur-sm border border-purple-500/30 rounded-xl p-6">
-                        {selectedSupport ? (
-                            <div>
-                                <h2 className="text-xl font-bold text-white mb-4">Support Request Details</h2>
-
-                                <div className="space-y-4 mb-6">
-                                    <div>
-                                        <label className="text-slate-400 text-sm">Customer</label>
-                                        <p className="text-white font-medium">{selectedSupport.customer_name}</p>
-                                    </div>
-
-                                    {selectedSupport.customer_email && (
-                                        <div className="flex items-center gap-2">
-                                            <Mail size={16} className="text-purple-400" />
-                                            <span className="text-slate-300">{selectedSupport.customer_email}</span>
+                        {/* Inspector */}
+                        <div className="glass-card rounded-[2.5rem] p-6 lg:p-10 border border-white/5 relative min-h-[400px]">
+                            <AnimatePresence mode="wait">
+                                {selectedSupport ? (
+                                    <motion.div key="support-detail" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+                                        <div className="flex justify-between items-start">
+                                            <h2 className="text-2xl font-black tracking-tighter">Vector Analysis</h2>
+                                            <button onClick={() => setSelectedSupport(null)} className="p-2 bg-white/5 rounded-xl"><X size={18} /></button>
                                         </div>
-                                    )}
-
-                                    {selectedSupport.customer_phone && (
-                                        <div className="flex items-center gap-2">
-                                            <Phone size={16} className="text-purple-400" />
-                                            <span className="text-slate-300">{selectedSupport.customer_phone}</span>
+                                        <div className="space-y-6">
+                                            <div className="grid grid-cols-2 gap-6 bg-white/[0.02] p-6 rounded-3xl border border-white/5">
+                                                <div>
+                                                    <label className="text-[8px] font-black text-[#555] uppercase tracking-widest block mb-1">Subject</label>
+                                                    <p className="text-xs font-bold text-purple-400">{selectedSupport.subject}</p>
+                                                </div>
+                                                <div>
+                                                    <label className="text-[8px] font-black text-[#555] uppercase tracking-widest block mb-1">Status</label>
+                                                    <p className="text-xs font-bold uppercase">{selectedSupport.status}</p>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[8px] font-black text-[#555] uppercase tracking-widest block">Payload context</label>
+                                                <div className="p-6 rounded-3xl bg-black/40 border border-white/5 text-xs leading-relaxed text-[#888]">{selectedSupport.message}</div>
+                                            </div>
+                                            <div className="space-y-4">
+                                                <label className="text-[10px] font-black uppercase tracking-widest ml-1">Admin Response</label>
+                                                <textarea value={responseText} onChange={(e) => setResponseText(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm outline-none focus:border-purple-500 h-32 resize-none" placeholder="Draft resolution message..." />
+                                                <button onClick={handleSupportResponse} className="w-full btn-premium py-5 rounded-2xl text-white font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3">
+                                                    <Send size={18} /> Deploy Resolution
+                                                </button>
+                                            </div>
                                         </div>
-                                    )}
-
-                                    <div>
-                                        <label className="text-slate-400 text-sm">Subject</label>
-                                        <p className="text-white font-medium">{selectedSupport.subject}</p>
-                                    </div>
-
-                                    <div>
-                                        <label className="text-slate-400 text-sm">Message</label>
-                                        <p className="text-slate-300">{selectedSupport.message}</p>
-                                    </div>
-
-                                    <div className="flex gap-4">
-                                        <div>
-                                            <label className="text-slate-400 text-sm">Status</label>
-                                            <p className="text-white capitalize">{selectedSupport.status}</p>
+                                    </motion.div>
+                                ) : selectedFeedback ? (
+                                    <motion.div key="feedback-detail" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+                                        <div className="flex justify-between items-start">
+                                            <h2 className="text-2xl font-black tracking-tighter">Sentiment Intake</h2>
+                                            <button onClick={() => setSelectedFeedback(null)} className="p-2 bg-white/5 rounded-xl"><X size={18} /></button>
                                         </div>
-                                        <div>
-                                            <label className="text-slate-400 text-sm">Priority</label>
-                                            <p className="text-white capitalize">{selectedSupport.priority}</p>
+                                        <div className="space-y-6">
+                                            <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/5 flex gap-4 items-center">
+                                                <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 font-black">{selectedFeedback.satisfaction_score}/10</div>
+                                                <div>
+                                                    <p className="text-sm font-black tracking-tighter">{selectedFeedback.customer_name}</p>
+                                                    <p className="text-[8px] font-black text-[#555] uppercase tracking-widest">{selectedFeedback.feedback_type}</p>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[8px] font-black text-[#555] uppercase tracking-widest block">Log Content</label>
+                                                <div className="p-6 rounded-3xl bg-black/40 border border-white/5 text-xs leading-relaxed text-[#888]">{selectedFeedback.message}</div>
+                                            </div>
+                                            <div className="space-y-4">
+                                                <label className="text-[10px] font-black uppercase tracking-widest ml-1">Internal Notes</label>
+                                                <textarea value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm outline-none focus:border-blue-500 h-24 resize-none" placeholder="Classify sentiment..." />
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <button onClick={() => handleFeedbackReview("reviewed")} className="py-4 bg-white/5 border border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-500/20 hover:text-blue-400 transition-all">Review</button>
+                                                    <button onClick={() => handleFeedbackReview("implemented")} className="py-4 bg-white/5 border border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-green-500/20 hover:text-green-400 transition-all">Implement</button>
+                                                </div>
+                                            </div>
                                         </div>
+                                    </motion.div>
+                                ) : (
+                                    <div className="h-full flex flex-col items-center justify-center text-[#222] gap-4">
+                                        <MessageCircle size={48} />
+                                        <p className="text-[10px] font-black uppercase tracking-widest">Select Vector Feed</p>
                                     </div>
-                                </div>
-
-                                <div>
-                                    <label className="text-white font-medium mb-2 block">Admin Response</label>
-                                    <textarea
-                                        value={responseText}
-                                        onChange={(e) => setResponseText(e.target.value)}
-                                        placeholder="Type your response..."
-                                        className="w-full bg-slate-800 text-white p-4 rounded-xl border border-purple-500/30 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[150px]"
-                                    />
-                                    <button
-                                        onClick={handleSupportResponse}
-                                        className="mt-4 w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2"
-                                    >
-                                        <Send size={20} />
-                                        Send Response & Mark Resolved
-                                    </button>
-                                </div>
-                            </div>
-                        ) : selectedFeedback ? (
-                            <div>
-                                <h2 className="text-xl font-bold text-white mb-4">Feedback Details</h2>
-
-                                <div className="space-y-4 mb-6">
-                                    <div>
-                                        <label className="text-slate-400 text-sm">Customer</label>
-                                        <p className="text-white font-medium">{selectedFeedback.customer_name}</p>
-                                    </div>
-
-                                    <div>
-                                        <label className="text-slate-400 text-sm">Type</label>
-                                        <span className="inline-block px-3 py-1 bg-blue-500/20 text-blue-300 rounded-lg capitalize">
-                                            {selectedFeedback.feedback_type.replace("_", " ")}
-                                        </span>
-                                    </div>
-
-                                    {selectedFeedback.rating && (
-                                        <div>
-                                            <label className="text-slate-400 text-sm">Rating</label>
-                                            <p className="text-yellow-500 text-2xl">{"⭐".repeat(selectedFeedback.rating)}</p>
-                                        </div>
-                                    )}
-
-                                    <div>
-                                        <label className="text-slate-400 text-sm">Feedback</label>
-                                        <p className="text-slate-300">{selectedFeedback.message}</p>
-                                    </div>
-
-                                    {selectedFeedback.satisfaction_score && (
-                                        <div>
-                                            <label className="text-slate-400 text-sm">Satisfaction Score</label>
-                                            <p className="text-white font-bold text-2xl">{selectedFeedback.satisfaction_score}/10</p>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <label className="text-white font-medium mb-2 block">Admin Notes</label>
-                                    <textarea
-                                        value={adminNotes}
-                                        onChange={(e) => setAdminNotes(e.target.value)}
-                                        placeholder="Add internal notes..."
-                                        className="w-full bg-slate-800 text-white p-4 rounded-xl border border-purple-500/30 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[100px]"
-                                    />
-                                    <div className="grid grid-cols-3 gap-2 mt-4">
-                                        <button
-                                            onClick={() => handleFeedbackReview("reviewed")}
-                                            className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium"
-                                        >
-                                            Reviewed
-                                        </button>
-                                        <button
-                                            onClick={() => handleFeedbackReview("acknowledged")}
-                                            className="bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-lg font-medium"
-                                        >
-                                            Acknowledged
-                                        </button>
-                                        <button
-                                            onClick={() => handleFeedbackReview("implemented")}
-                                            className="bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-medium"
-                                        >
-                                            Implemented
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="flex items-center justify-center h-full text-slate-400">
-                                Select an item to view details
-                            </div>
-                        )}
+                                )}
+                            </AnimatePresence>
+                        </div>
                     </div>
                 </div>
             </div>

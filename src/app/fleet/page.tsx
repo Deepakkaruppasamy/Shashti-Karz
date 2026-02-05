@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Building2, Car, Plus, Users, FileText, Calendar, Phone, MapPin, Trash2, Edit3, X } from "lucide-react";
+import { Building2, Car, Plus, Users, FileText, Calendar, Phone, MapPin, Trash2, Edit3, X, Zap } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -117,7 +117,7 @@ export default function FleetPage() {
   return (
     <main className="min-h-screen bg-[#0a0a0a]">
       <Navbar />
-      
+
       <div className="pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
@@ -145,7 +145,7 @@ export default function FleetPage() {
               </div>
               <h3 className="text-xl font-bold mb-2">No Fleet Accounts</h3>
               <p className="text-[#888] mb-6 max-w-md mx-auto">
-                Create a fleet account to manage multiple vehicles for your business with bulk booking and monthly invoicing.
+                Create a fleet account to manage multiple vehicles for your business with bulk booking, real-time health monitoring, and automated mission scheduling.
               </p>
               <button
                 onClick={() => setShowModal(true)}
@@ -163,11 +163,10 @@ export default function FleetPage() {
                     key={fleet.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={`glass-card rounded-xl p-4 cursor-pointer transition-all ${
-                      selectedFleet?.id === fleet.id
-                        ? "border-2 border-[#ff1744]"
-                        : "border border-white/10 hover:border-[#ff1744]/50"
-                    }`}
+                    className={`glass-card rounded-xl p-4 cursor-pointer transition-all ${selectedFleet?.id === fleet.id
+                      ? "border-2 border-[#ff1744]"
+                      : "border border-white/10 hover:border-[#ff1744]/50"
+                      }`}
                     onClick={() => loadFleetDetails(fleet.id)}
                   >
                     <div className="flex items-center gap-4">
@@ -180,9 +179,8 @@ export default function FleetPage() {
                           {fleet.vehicle_count || 0} vehicles
                         </p>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        fleet.status === "active" ? "bg-green-500/20 text-green-500" : "bg-red-500/20 text-red-500"
-                      }`}>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${fleet.status === "active" ? "bg-green-500/20 text-green-500" : "bg-red-500/20 text-red-500"
+                        }`}>
                         {fleet.status}
                       </span>
                     </div>
@@ -201,9 +199,8 @@ export default function FleetPage() {
                           </div>
                           <div>
                             <h2 className="text-2xl font-bold">{selectedFleet.company_name}</h2>
-                            <span className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium ${
-                              selectedFleet.status === "active" ? "bg-green-500/20 text-green-500" : "bg-red-500/20 text-red-500"
-                            }`}>
+                            <span className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium ${selectedFleet.status === "active" ? "bg-green-500/20 text-green-500" : "bg-red-500/20 text-red-500"
+                              }`}>
                               {selectedFleet.status}
                             </span>
                           </div>
@@ -292,6 +289,13 @@ export default function FleetPage() {
                       >
                         <Calendar size={18} />
                         Book Fleet Service
+                      </Link>
+                      <Link
+                        href={`/fleet/operations/${selectedFleet.id}`}
+                        className="flex-1 bg-white/5 border border-white/10 hover:bg-white/10 px-6 py-3 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-2 transition-all group"
+                      >
+                        <Zap size={18} className="text-[#ff1744] group-hover:animate-pulse" />
+                        Enter Command Center
                       </Link>
                     </div>
                   </div>

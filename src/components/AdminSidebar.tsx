@@ -25,6 +25,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   // Core
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/admin" },
+  { id: "global-analytics", label: "Global Analytics", icon: TrendingUp, href: "/admin/analytics", badge: "Master", badgeColor: "bg-blue-500/20 text-blue-500" },
   { id: "analytics", label: "AI Analytics", icon: Brain, href: "/admin?tab=analytics", ai: true },
   { id: "bookings", label: "Bookings", icon: Calendar, href: "/admin?tab=bookings" },
   { id: "tracking", label: "Service Tracking", icon: Play, href: "/admin?tab=tracking" },

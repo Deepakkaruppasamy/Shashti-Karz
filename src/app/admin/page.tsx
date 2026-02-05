@@ -713,7 +713,7 @@ function AdminDashboardContent() {
       <SuccessConfetti trigger={showConfetti} />
 
       <header className="sticky top-0 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 z-40">
-        <div className="flex items-center justify-between h-14 lg:h-16 pl-14 pr-3 lg:px-6">{/* Added pl-14 for mobile menu button */}
+        <div className="flex items-center justify-between h-14 lg:h-16 pl-4 lg:px-6">
           <div className="flex items-center gap-2 lg:gap-4 flex-1">
             <div className="relative flex-1 max-w-md hidden sm:block">
               <Brain size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#ff1744]" />
@@ -773,7 +773,7 @@ function AdminDashboardContent() {
         </div>
       </header>
 
-      <div className="p-3 sm:p-4 lg:p-6">
+      <div className="p-3 sm:p-4 lg:p-6 pb-24 lg:pb-6">
         {activeTab === "dashboard" && analytics && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4 lg:space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -790,6 +790,13 @@ function AdminDashboardContent() {
                   Real-time insights by Shashti AI
                   <span className="text-[10px] opacity-50">• Last updated: {lastUpdate.toLocaleTimeString()}</span>
                 </p>
+                <Link
+                  href="/admin/analytics"
+                  className="mt-3 inline-flex items-center gap-2 px-6 py-2 rounded-xl bg-[#ff1744]/10 border border-[#ff1744]/20 text-[#ff1744] text-[10px] font-black uppercase tracking-widest hover:bg-[#ff1744]/20 transition-all group"
+                >
+                  <TrendingUp size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                  Global Intelligence Deep Dive
+                </Link>
               </div>
               <div className="flex gap-2 lg:gap-3">
                 <button onClick={downloadBookingsExcel} className="px-3 lg:px-4 py-1.5 lg:py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs lg:text-sm font-medium flex items-center gap-1.5 lg:gap-2 hover:bg-white/10"><Download size={14} /><span className="hidden sm:inline">Export</span></button>
@@ -809,7 +816,7 @@ function AdminDashboardContent() {
                   </motion.div>
                 )}
 
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+                <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
                   {[
                     { label: "Total Revenue", value: `₹${analytics.totalRevenue.toLocaleString()}`, change: analytics.revenueChange, icon: DollarSign, color: "#d4af37" },
                     { label: "Revenue Forecast", value: `₹${analytics.revenueForecast.toLocaleString()}`, icon: TrendingUp, color: "#4CAF50" },
@@ -829,15 +836,15 @@ function AdminDashboardContent() {
                         delay: i * 0.1,
                         duration: (stat.label === "Total Revenue" && pulseRevenue) ? 0.5 : 0.3
                       }}
-                      className={`glass-card rounded-xl lg:rounded-2xl p-3 lg:p-5 relative overflow-hidden ${(stat.label === "Total Revenue" && pulseRevenue) ? "border-[#d4af37]/50" : ""}`}
+                      className={`glass-card rounded-xl lg:rounded-2xl p-4 lg:p-5 relative overflow-hidden ${(stat.label === "Total Revenue" && pulseRevenue) ? "border-[#d4af37]/50" : ""}`}
                     >
                       <div className="absolute top-0 right-0 w-16 lg:w-20 h-16 lg:h-20 rounded-full opacity-10" style={{ backgroundColor: stat.color, filter: "blur(20px)" }} />
-                      <div className="flex items-center justify-between mb-2 lg:mb-3">
-                        <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg lg:rounded-xl flex items-center justify-center" style={{ backgroundColor: `${stat.color}20` }}><stat.icon size={16} className="lg:w-5 lg:h-5" style={{ color: stat.color }} /></div>
-                        {stat.change !== undefined && <div className={`flex items-center gap-0.5 text-[10px] lg:text-xs ${stat.change >= 0 ? "text-green-500" : "text-red-500"}`}>{stat.change >= 0 ? <ArrowUp size={10} /> : <ArrowDown size={10} />}{Math.abs(stat.change)}%</div>}
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${stat.color}20` }}><stat.icon size={20} style={{ color: stat.color }} /></div>
+                        {stat.change !== undefined && <div className={`flex items-center gap-0.5 text-xs ${stat.change >= 0 ? "text-green-500" : "text-red-500"}`}>{stat.change >= 0 ? <ArrowUp size={10} /> : <ArrowDown size={10} />}{Math.abs(stat.change)}%</div>}
                       </div>
-                      <h3 className="text-lg lg:text-xl font-bold">{stat.value}</h3>
-                      <p className="text-[10px] lg:text-xs text-[#888] mt-0.5 lg:mt-1">{stat.label}</p>
+                      <h3 className="text-xl lg:text-2xl font-bold">{stat.value}</h3>
+                      <p className="text-xs text-[#888] mt-1">{stat.label}</p>
                     </motion.div>
                   ))}
                 </div>
@@ -885,7 +892,7 @@ function AdminDashboardContent() {
                 {liveAnalytics && (
                   <>
                     {/* Animated Metric Cards */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4">
                       <AnimatedMetricCard
                         title="Revenue Today"
                         value={liveAnalytics.todayRevenue}
@@ -947,7 +954,7 @@ function AdminDashboardContent() {
                     </div>
 
                     {/* Additional Metrics Row */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4">
                       <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -1206,7 +1213,7 @@ function AdminDashboardContent() {
             <h1 className="text-2xl font-bold font-display flex items-center gap-3"><DollarSign className="text-[#d4af37]" />Finance & Revenue</h1>
             {financeLoading && !financeData ? <div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-2 border-[#d4af37] border-t-transparent rounded-full animate-spin" /></div> : (financeData && analytics) ? (
               <div className="space-y-6">
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="glass-card rounded-2xl p-6">
                     <p className="text-xs text-[#888]">Total Revenue</p>
                     <p className="text-2xl font-bold text-green-500">₹{financeData.summary.totalRevenue.toLocaleString()}</p>
@@ -1256,24 +1263,83 @@ function AdminDashboardContent() {
 
         {activeTab === "bookings" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-            <div className="flex items-center justify-between"><h1 className="text-2xl font-bold font-display">Manage Bookings</h1><button onClick={downloadBookingsExcel} className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm font-medium flex items-center gap-2"><Download size={16} />Export</button></div>
-            <div className="glass-card rounded-2xl overflow-hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <h1 className="text-2xl font-bold font-display">Manage Bookings</h1>
+              <div className="flex gap-2">
+                <button onClick={downloadBookingsExcel} className="flex-1 sm:flex-none px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm font-medium flex items-center justify-center gap-2">
+                  <Download size={16} /> Export
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-4 lg:hidden">
+              {filteredBookings.map((booking) => (
+                <div key={booking.id} className="glass-card rounded-xl p-4 space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-sm font-bold text-gradient">{booking.booking_id}</p>
+                      <h3 className="font-bold mt-1">{booking.customer_name}</h3>
+                      <p className="text-xs text-[#888]">{booking.customer_email}</p>
+                    </div>
+                    <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase border ${statusColors[booking.status]}`}>{booking.status}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
+                    <div>
+                      <p className="text-[10px] text-[#666] uppercase font-bold tracking-wider">Service</p>
+                      <p className="text-sm">{booking.service?.name || booking.service_id}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-[#666] uppercase font-bold tracking-wider">Date</p>
+                      <p className="text-sm">{booking.date}</p>
+                    </div>
+                  </div>
+                  <div className="pt-4 border-t border-white/5 flex flex-col gap-3">
+                    <p className="text-[10px] text-[#666] uppercase font-bold tracking-wider mb-1">Assign Specialist</p>
+                    <select
+                      value={booking.assigned_worker_id || ""}
+                      onChange={(e) => handleUpdateBooking(booking.id, { assigned_worker_id: e.target.value })}
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+                    >
+                      <option value="">Unassigned</option>
+                      {workers.map(w => (
+                        <option key={w.id} value={w.id}>{w.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    {booking.status === "pending" && (
+                      <button onClick={() => handleStatusChange(booking.id, "approved")} className="flex-1 py-2 rounded-lg bg-green-500/10 text-green-500 text-sm font-bold flex items-center justify-center gap-2">
+                        <CheckCircle size={16} /> Approve
+                      </button>
+                    )}
+                    <button onClick={() => { setSelectedBooking(booking); setShowTrackingModal(true); }} className="flex-1 py-2 rounded-lg bg-purple-500/10 text-purple-500 text-sm font-bold flex items-center justify-center gap-2">
+                      <Play size={16} /> Track
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="hidden lg:block glass-card rounded-2xl overflow-hidden shadow-2xl">
               <table className="w-full">
                 <thead className="bg-white/5">
                   <tr>
-                    <th className="text-left px-6 py-4 text-xs font-bold text-[#888] uppercase">ID</th>
-                    <th className="text-left px-6 py-4 text-xs font-bold text-[#888] uppercase">Customer</th>
-                    <th className="text-left px-6 py-4 text-xs font-bold text-[#888] uppercase">Service</th>
-                    <th className="text-left px-6 py-4 text-xs font-bold text-[#888] uppercase">Assigned Specialist</th>
-                    <th className="text-left px-6 py-4 text-xs font-bold text-[#888] uppercase">Status</th>
-                    <th className="text-left px-6 py-4 text-xs font-bold text-[#888] uppercase">Actions</th>
+                    <th className="text-left px-6 py-4 text-xs font-bold text-[#888] uppercase tracking-wider">ID</th>
+                    <th className="text-left px-6 py-4 text-xs font-bold text-[#888] uppercase tracking-wider">Customer</th>
+                    <th className="text-left px-6 py-4 text-xs font-bold text-[#888] uppercase tracking-wider">Service</th>
+                    <th className="text-left px-6 py-4 text-xs font-bold text-[#888] uppercase tracking-wider">Assigned Specialist</th>
+                    <th className="text-left px-6 py-4 text-xs font-bold text-[#888] uppercase tracking-wider">Status</th>
+                    <th className="text-left px-6 py-4 text-xs font-bold text-[#888] uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredBookings.map((booking) => (
                     <tr key={booking.id} className="border-t border-white/5 hover:bg-white/5">
                       <td className="px-6 py-4 text-sm font-mono">{booking.booking_id}</td>
-                      <td className="px-6 py-4 text-sm font-bold">{booking.customer_name}</td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-bold">{booking.customer_name}</div>
+                        <div className="text-xs text-[#888]">{booking.customer_email}</div>
+                      </td>
                       <td className="px-6 py-4 text-sm">{booking.service?.name || booking.service_id}</td>
                       <td className="px-6 py-4">
                         <select
@@ -1462,25 +1528,52 @@ function AdminDashboardContent() {
               </div>
             </div>
 
-            <div className="glass-card rounded-2xl overflow-hidden">
+            <div className="space-y-4 lg:hidden">
+              {services.map((s) => (
+                <div key={s.id} className="glass-card rounded-xl p-4 space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-bold text-lg">{s.name}</h3>
+                      <p className="text-xs text-[#888]">Base: ₹{s.price}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] text-[#888] uppercase font-bold">Final Price</p>
+                      <p className="text-lg font-black text-[#d4af37]">₹{Math.round(s.price * surgeMultiplier)}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <button onClick={() => { setSelectedService(s); setShowServiceModal(true); }} className="flex-1 py-2 rounded-lg bg-white/5 border border-white/10 text-sm font-medium flex items-center justify-center gap-2">
+                      <Edit2 size={14} /> Edit
+                    </button>
+                    <button onClick={() => handleDeleteService(s.id)} className="flex-1 py-2 rounded-lg bg-red-500/10 text-red-500 text-sm font-medium flex items-center justify-center gap-2">
+                      <Trash2 size={14} /> Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="hidden lg:block glass-card rounded-2xl overflow-hidden shadow-xl">
               <table className="w-full">
                 <thead className="bg-white/5">
                   <tr>
-                    <th className="text-left px-6 py-4 text-xs font-bold text-[#888] uppercase">Service Name</th>
-                    <th className="text-left px-6 py-4 text-xs font-bold text-[#888] uppercase">Base price</th>
-                    <th className="text-left px-6 py-4 text-xs font-bold text-[#888] uppercase">Final price (Surge)</th>
-                    <th className="text-right px-6 py-4 text-xs font-bold text-[#888] uppercase">Actions</th>
+                    <th className="text-left px-6 py-4 text-xs font-bold text-[#888] uppercase tracking-wider">Service Name</th>
+                    <th className="text-left px-6 py-4 text-xs font-bold text-[#888] uppercase tracking-wider">Base price</th>
+                    <th className="text-left px-6 py-4 text-xs font-bold text-[#888] uppercase tracking-wider">Final price (Surge)</th>
+                    <th className="text-right px-6 py-4 text-xs font-bold text-[#888] uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {services.map((s) => (
-                    <tr key={s.id} className="border-t border-white/5">
+                    <tr key={s.id} className="border-t border-white/5 hover:bg-white/5 transition-colors">
                       <td className="px-6 py-4 font-medium">{s.name}</td>
                       <td className="px-6 py-4 text-[#888]">₹{s.price}</td>
                       <td className="px-6 py-4 font-bold text-[#d4af37]">₹{Math.round(s.price * surgeMultiplier)}</td>
                       <td className="px-6 py-4 text-right">
-                        <button onClick={() => { setSelectedService(s); setShowServiceModal(true); }} className="p-2 hover:text-[#ff1744] transition-colors"><Edit2 size={16} /></button>
-                        <button onClick={() => handleDeleteService(s.id)} className="p-2 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
+                        <div className="flex justify-end gap-2">
+                          <button onClick={() => { setSelectedService(s); setShowServiceModal(true); }} className="p-2 hover:bg-white/10 rounded-lg transition-colors" title="Edit Service"><Edit2 size={16} /></button>
+                          <button onClick={() => handleDeleteService(s.id)} className="p-2 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-colors" title="Delete Service"><Trash2 size={16} /></button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -1507,7 +1600,20 @@ function AdminDashboardContent() {
         {activeTab === "users" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
             <div className="flex items-center justify-between"><h1 className="text-2xl font-bold font-display">Customers</h1><button onClick={downloadUsersExcel} className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white"><Download size={16} />Export</button></div>
-            <div className="glass-card rounded-2xl overflow-hidden"><table className="w-full"><tbody>{users.map((u) => (<tr key={u.id} className="border-t border-white/5"><td className="px-6 py-4">{u.full_name || u.email}</td><td className="px-6 py-4 text-[#888]">{u.phone || "No phone"}</td></tr>))}</tbody></table></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {users.map((u) => (
+                <div key={u.id} className="glass-card rounded-xl p-4 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#ff1744] to-[#d4af37] flex items-center justify-center text-white font-bold">
+                    {(u.full_name || u.email).charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm">{u.full_name || "Anonymous User"}</h3>
+                    <p className="text-xs text-[#888]">{u.email}</p>
+                    <p className="text-xs text-[#d4af37] font-medium mt-1">{u.phone || "No phone added"}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </motion.div>
         )}
       </div>

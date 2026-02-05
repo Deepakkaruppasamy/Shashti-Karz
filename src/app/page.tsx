@@ -198,7 +198,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-8"
+          className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-8 sm:gap-8"
         >
           {[
             { value: 500, suffix: "+", label: t('cars_detailed') },

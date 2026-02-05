@@ -9,7 +9,7 @@ import {
   Save, Phone, Mail, MapPin, Shield, Sparkles, History,
   CreditCard, Gift, Star, TrendingUp, Award, Crown,
   Copy, Share2, Users, Zap, Eye, Package, Send, MessageCircle,
-  Download, FileText, BarChart, Brain, RefreshCw
+  Download, FileText, BarChart, Brain, RefreshCw, Plus
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { Navbar } from "@/components/Navbar";
@@ -486,7 +486,7 @@ export default function DashboardPage() {
             </motion.div>
           </div>
 
-          <div className="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -530,7 +530,7 @@ export default function DashboardPage() {
                     Export Data
                   </button>
                 </div>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4">
 
                   {[
                     { label: "Total Bookings", value: stats.totalBookings, icon: Calendar, color: "from-[#ff1744] to-[#ff4569]" },
@@ -606,6 +606,77 @@ export default function DashboardPage() {
                   </div>
                 )}
 
+                {/* Digital Garage / AI Diagnostics section */}
+                <div className="glass-card rounded-2xl p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-semibold flex items-center gap-2">
+                      <Brain size={20} className="text-[#d4af37]" />
+                      Digital Garage & AI Vision
+                    </h2>
+                    <Link
+                      href="/ai-diagnostic"
+                      className="text-sm text-[#d4af37] hover:underline flex items-center gap-1"
+                    >
+                      New Scan <ChevronRight size={16} />
+                    </Link>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {[
+                      {
+                        name: "My Tesla Model 3",
+                        score: 94,
+                        lastScan: "2 days ago",
+                        status: "Excellent",
+                        color: "text-green-500",
+                        issues: 0
+                      },
+                      {
+                        name: "BMW 5 Series",
+                        score: 72,
+                        lastScan: "1 week ago",
+                        status: "Needs Attention",
+                        color: "text-yellow-500",
+                        issues: 3
+                      },
+                    ].map((vehicle, i) => (
+                      <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-[#d4af37]/30 transition-all group">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="w-10 h-10 rounded-lg bg-[#d4af37]/10 flex items-center justify-center">
+                            <Car size={20} className="text-[#d4af37]" />
+                          </div>
+                          <div className="text-right">
+                            <span className={`text-2xl font-black ${vehicle.color}`}>{vehicle.score}</span>
+                            <p className="text-[10px] text-[#666] font-bold uppercase tracking-widest">Health Score</p>
+                          </div>
+                        </div>
+                        <h4 className="font-bold mb-1">{vehicle.name}</h4>
+                        <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-[#888]">
+                          <span>{vehicle.lastScan}</span>
+                          <span className={vehicle.color}>{vehicle.status}</span>
+                        </div>
+                        {vehicle.issues > 0 && (
+                          <div className="mt-4 pt-4 border-t border-white/5">
+                            <p className="text-[10px] text-[#ff1744] font-black uppercase tracking-widest mb-1">
+                              {vehicle.issues} Imperfections Detected
+                            </p>
+                            <Link href="/booking" className="text-[10px] text-white underline decoration-[#ff1744]">
+                              Schedule Correction
+                            </Link>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+
+                    <Link href="/ai-diagnostic" className="md:col-span-2 p-6 rounded-xl border border-dashed border-white/10 flex flex-col items-center justify-center gap-2 hover:bg-white/[0.02] transition-colors group">
+                      <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-[#d4af37]/10 transition-colors">
+                        <Plus size={24} className="text-[#888] group-hover:text-[#d4af37]" />
+                      </div>
+                      <p className="text-sm font-bold text-[#888] group-hover:text-white uppercase tracking-widest">Add Another Vehicle for AI Scan</p>
+                    </Link>
+                  </div>
+                </div>
+
                 <div className="glass-card rounded-2xl p-6 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-[#ff1744]/10 rounded-full blur-3xl" />
                   <div className="flex items-center gap-3 mb-6 relative">
@@ -617,7 +688,7 @@ export default function DashboardPage() {
                       <p className="text-xs text-[#888]">Personalized for your {bookings[0]?.car_model || "vehicle"}</p>
                     </div>
                   </div>
-                  <div className="grid sm:grid-cols-2 gap-4 relative">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative">
                     {[
                       { title: "Recommended Service", desc: "Based on your last wash, a Ceramic Pro coating would protect your paint for 5+ years.", icon: Sparkles, color: "#d4af37" },
                       { title: "Loyalty Boost", desc: "You're only 2 bookings away from Gold tier! Book an interior detail to get there faster.", icon: TrendingUp, color: "#ff1744" }
@@ -646,7 +717,7 @@ export default function DashboardPage() {
                       </button>
                     </div>
 
-                    <div className="grid sm:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-4">
                       <div className="p-4 rounded-xl" style={{ backgroundColor: `${tierInfo.color}20` }}>
                         <TierIcon size={24} style={{ color: tierInfo.color }} className="mb-2" />
                         <h4 className="font-semibold" style={{ color: tierInfo.color }}>
@@ -953,9 +1024,9 @@ export default function DashboardPage() {
                             >
                               <div className="flex items-center gap-4">
                                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg transition-transform group-hover/item:scale-110 ${transaction.type === "earned" ? "bg-green-500/10 text-green-500" :
-                                    transaction.type === "redeemed" ? "bg-red-500/10 text-red-500" :
-                                      transaction.type === "referral" ? "bg-blue-500/10 text-blue-500" :
-                                        "bg-[#d4af37]/10 text-[#d4af37]"
+                                  transaction.type === "redeemed" ? "bg-red-500/10 text-red-500" :
+                                    transaction.type === "referral" ? "bg-blue-500/10 text-blue-500" :
+                                      "bg-[#d4af37]/10 text-[#d4af37]"
                                   }`}>
                                   {transaction.type === "earned" ? <TrendingUp size={20} /> :
                                     transaction.type === "redeemed" ? <CreditCard size={20} /> :

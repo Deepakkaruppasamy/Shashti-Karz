@@ -572,7 +572,7 @@ function BookingForm() {
                     <Clock size={16} className="text-[#ff1744]" />
                     Select Time Slot
                   </label>
-                  <div className="grid grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {timeSlots.map((slot, i) => (
                       <motion.button
                         key={slot}
@@ -580,7 +580,7 @@ function BookingForm() {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: i * 0.05 }}
                         onClick={() => setFormData({ ...formData, time: slot })}
-                        className={`p-3 rounded-xl text-sm font-medium transition-all ${formData.time === slot
+                        className={`p-3 rounded-xl text-sm font-bold transition-all ${formData.time === slot
                           ? "bg-[#ff1744] text-white shadow-lg shadow-[#ff1744]/30"
                           : "bg-white/5 text-[#888] hover:bg-white/10 hover:text-white"
                           }`}

@@ -168,6 +168,15 @@ export function NotificationBell() {
     return date.toLocaleDateString();
   };
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   if (!user) return null;
 
   return (
@@ -183,7 +192,7 @@ export function NotificationBell() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
-              className="absolute -top-1 -right-1 w-5 h-5 bg-[#ff1744] rounded-full flex items-center justify-center text-xs font-bold text-white"
+              className="absolute -top-1 -right-1 w-5 h-5 bg-[#ff1744] rounded-full flex items-center justify-center text-xs font-bold text-white shadow-[0_0_10px_rgba(255,23,68,0.5)]"
             >
               {unreadCount > 9 ? "9+" : unreadCount}
             </motion.span>
@@ -198,47 +207,53 @@ export function NotificationBell() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40"
+              className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:absolute lg:bg-transparent lg:backdrop-blur-none lg:inset-auto lg:z-auto"
               onClick={() => setIsOpen(false)}
             />
 
             <motion.div
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="absolute right-0 top-full mt-2 w-96 max-h-[80vh] bg-[#111] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50"
+              initial={isMobile ? { y: "100%" } : { opacity: 0, y: 10, scale: 0.95 }}
+              animate={isMobile ? { y: 0 } : { opacity: 1, y: 0, scale: 1 }}
+              exit={isMobile ? { y: "100%" } : { opacity: 0, y: 10, scale: 0.95 }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className={`fixed bottom-0 left-0 right-0 z-50 bg-[#111] border-t border-white/10 rounded-t-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh] lg:absolute lg:bottom-auto lg:left-auto lg:right-0 lg:top-full lg:mt-4 lg:w-[400px] lg:rounded-2xl lg:border lg:max-h-[600px] shadow-[0_-20px_50px_rgba(0,0,0,0.5)] lg:shadow-2xl`}
             >
-              <div className="p-4 border-b border-white/10">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-lg">Notifications</h3>
-                  <div className="flex items-center gap-2">
+              {/* Handle for mobile bottom sheet */}
+              <div className="lg:hidden w-12 h-1.5 bg-white/10 rounded-full mx-auto mt-4 mb-2 flex-shrink-0" />
+
+              <div className="p-4 lg:p-6 border-b border-white/10">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="font-bold text-xl lg:text-lg">Notifications</h3>
+                    <p className="text-xs text-[#666] mt-0.5">Stay updated with your bookings</p>
+                  </div>
+                  <div className="flex items-center gap-3">
                     {unreadCount > 0 && (
                       <button
                         onClick={markAllAsRead}
-                        className="text-xs text-[#d4af37] hover:text-[#d4af37]/80 flex items-center gap-1"
+                        className="text-xs font-semibold text-[#d4af37] hover:brightness-110 flex items-center gap-1.5 bg-[#d4af37]/10 px-3 py-1.5 rounded-full transition-all"
                       >
                         <CheckCheck size={14} />
                         Mark all read
                       </button>
                     )}
-                    <Link
-                      href="/dashboard/notifications"
+                    <button
                       onClick={() => setIsOpen(false)}
-                      className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+                      className="lg:hidden p-2 hover:bg-white/5 rounded-full text-[#888]"
                     >
-                      <Settings size={16} className="text-[#888]" />
-                    </Link>
+                      <X size={20} />
+                    </button>
                   </div>
                 </div>
 
-                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
                   {(["all", "booking", "payment", "service", "insight"] as const).map(cat => (
                     <button
                       key={cat}
                       onClick={() => setActiveCategory(cat)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${activeCategory === cat
-                          ? "bg-[#ff1744] text-white"
-                          : "bg-white/5 text-[#888] hover:bg-white/10"
+                      className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${activeCategory === cat
+                        ? "bg-[#ff1744] text-white shadow-[0_0_15px_rgba(255,23,68,0.3)]"
+                        : "bg-white/5 text-[#888] hover:bg-white/10"
                         }`}
                     >
                       {cat === "all" ? "All" : cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -247,15 +262,19 @@ export function NotificationBell() {
                 </div>
               </div>
 
-              <div className="max-h-[60vh] overflow-y-auto">
+              <div className="overflow-y-auto flex-1 custom-scrollbar pb-safe-area-inset-bottom">
                 {isLoading ? (
-                  <div className="p-8 text-center">
-                    <div className="w-8 h-8 border-2 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto" />
+                  <div className="p-12 text-center">
+                    <div className="w-10 h-10 border-2 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                    <p className="text-[#666] text-sm font-medium">Fetching updates...</p>
                   </div>
                 ) : filteredNotifications.length === 0 ? (
-                  <div className="p-8 text-center">
-                    <Bell className="w-12 h-12 text-[#333] mx-auto mb-3" />
-                    <p className="text-[#666]">No notifications yet</p>
+                  <div className="p-12 text-center">
+                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Bell className="w-8 h-8 text-[#333]" />
+                    </div>
+                    <h4 className="text-white font-medium">All caught up!</h4>
+                    <p className="text-[#666] text-sm mt-1">No new notifications at the moment.</p>
                   </div>
                 ) : (
                   <div className="divide-y divide-white/5">
@@ -267,41 +286,46 @@ export function NotificationBell() {
                       return (
                         <motion.div
                           key={notification.id}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          className={`p-4 hover:bg-white/5 transition-colors cursor-pointer border-l-2 ${priorityClass} ${!notification.read ? "bg-white/[0.02]" : ""
+                          layout
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className={`p-4 lg:p-5 hover:bg-white/[0.03] transition-colors cursor-pointer border-l-4 ${priorityClass} ${!notification.read ? "bg-[#ff1744]/[0.02]" : ""
                             }`}
                           onClick={() => {
                             if (!notification.read) markAsRead(notification.id);
                             if (notification.action_url) {
                               setIsOpen(false);
-                              window.location.href = notification.action_url;
+                              if (notification.action_url.startsWith('http')) {
+                                window.open(notification.action_url, '_blank');
+                              } else {
+                                window.location.href = notification.action_url;
+                              }
                             }
                           }}
                         >
-                          <div className="flex gap-3">
-                            <div className={`w-10 h-10 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0 ${colorClass}`}>
-                              <Icon size={18} />
+                          <div className="flex gap-4">
+                            <div className={`w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center flex-shrink-0 ${colorClass} shadow-inner`}>
+                              <Icon size={20} />
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2">
-                                <h4 className={`font-medium text-sm ${!notification.read ? "text-white" : "text-[#aaa]"}`}>
+                                <h4 className={`font-bold text-sm lg:text-base leading-tight ${!notification.read ? "text-white" : "text-[#aaa]"}`}>
                                   {notification.title}
                                 </h4>
                                 {!notification.read && (
-                                  <span className="w-2 h-2 rounded-full bg-[#ff1744] flex-shrink-0 mt-1.5" />
+                                  <span className="w-2.5 h-2.5 rounded-full bg-[#ff1744] flex-shrink-0 mt-1 shadow-[0_0_8px_rgba(255,23,68,0.8)]" />
                                 )}
                               </div>
-                              <p className="text-sm text-[#888] line-clamp-2 mt-0.5">
+                              <p className="text-sm text-[#888] line-clamp-2 mt-1 leading-relaxed">
                                 {notification.message}
                               </p>
-                              <div className="flex items-center gap-2 mt-2">
-                                <span className="text-xs text-[#666]">
+                              <div className="flex items-center justify-between mt-3">
+                                <span className="text-[11px] font-medium text-[#666] tracking-wide uppercase">
                                   {formatTime(notification.created_at)}
                                 </span>
                                 {notification.action_url && (
-                                  <span className="text-xs text-[#d4af37] flex items-center gap-0.5">
-                                    View <ChevronRight size={12} />
+                                  <span className="text-xs font-bold text-[#d4af37] flex items-center gap-1 hover:gap-2 transition-all">
+                                    Track Status <ChevronRight size={14} />
                                   </span>
                                 )}
                               </div>
@@ -314,13 +338,14 @@ export function NotificationBell() {
                 )}
               </div>
 
-              <div className="p-3 border-t border-white/10">
+              <div className="p-4 lg:p-4 border-t border-white/10 bg-[#161616]/50 lg:bg-transparent">
                 <Link
                   href="/dashboard/notifications"
                   onClick={() => setIsOpen(false)}
-                  className="block w-full text-center py-2 text-sm text-[#d4af37] hover:text-[#d4af37]/80 transition-colors"
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold text-white bg-white/5 hover:bg-white/10 border border-white/5 transition-all"
                 >
-                  View All Notifications
+                  <Bell size={16} />
+                  See older notifications
                 </Link>
               </div>
             </motion.div>

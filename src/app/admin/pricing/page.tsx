@@ -15,9 +15,11 @@ import {
   TrendingUp,
   Plus,
   Power,
-  Trash2
+  Trash2,
+  X,
+  ChevronRight
 } from "lucide-react";
-import { AdminSidebar } from "@/components/AdminSidebar";
+
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import type { PricingRule } from "@/lib/types";
@@ -45,7 +47,7 @@ export default function PricingRulesPage() {
     table: "pricing_rules",
     onInsert: (newRule) => {
       setRules((prev) => [newRule, ...prev]);
-      toast.success("New pricing rule detected!");
+      toast.success("New pricing strategy detected");
     },
     onUpdate: (updatedRule) => {
       setRules((prev) => prev.map((r) => (r.id === updatedRule.id ? updatedRule : r)));
@@ -84,8 +86,6 @@ export default function PricingRulesPage() {
         const data = await res.json();
         setAiInsight(data.response);
       }
-    } catch (e) {
-      console.error(e);
     } finally {
       setIsAiLoading(false);
     }
@@ -117,16 +117,14 @@ export default function PricingRulesPage() {
       body: JSON.stringify(form),
     });
     if (res.ok) {
-      toast.success("Rule created!");
+      toast.success("Dynamic rule deployed!");
       setShowModal(false);
-      setForm({
-        name: "",
-        rule_type: "weekend",
-        modifier_type: "percentage",
-        modifier_value: 10,
-        conditions: {},
-      });
+      resetForm();
     }
+  };
+
+  const resetForm = () => {
+    setForm({ name: "", rule_type: "weekend", modifier_type: "percentage", modifier_value: 10, conditions: {} });
   };
 
   const toggleActive = async (rule: PricingRule) => {
@@ -138,7 +136,7 @@ export default function PricingRulesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete?")) return;
+    if (!confirm("Decommission this rule?")) return;
     await fetch(`/api/pricing-rules/${id}`, { method: "DELETE" });
   };
 
@@ -153,44 +151,43 @@ export default function PricingRulesPage() {
 
   const getColor = (t: string) => {
     switch (t) {
-      case "weekend": return "from-purple-500 to-pink-500";
-      case "peak_hour": return "from-orange-500 to-red-500";
-      case "weather": return "from-blue-500 to-cyan-500";
-      default: return "from-green-500 to-emerald-500";
+      case "weekend": return "text-purple-500 bg-purple-500/10";
+      case "peak_hour": return "text-orange-500 bg-orange-500/10";
+      case "weather": return "text-blue-500 bg-blue-500/10";
+      default: return "text-green-500 bg-green-500/10";
     }
   };
 
   return (
     <div className="flex min-h-screen bg-[#0a0a0a] text-white">
-      <AdminSidebar />
-      <div className="flex-1 overflow-auto">
+
+      <div className="flex-1 overflow-auto pb-24 lg:pb-8">
         <div className="p-4 lg:p-8 max-w-7xl mx-auto">
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
             <div>
-              <h1 className="text-4xl font-black tracking-tight flex items-center gap-3">
+              <h1 className="text-3xl lg:text-4xl font-black tracking-tighter flex items-center gap-3">
                 <Layers className="text-[#ff1744]" />
                 Dynamic Pricing
               </h1>
-              <p className="text-[#888] mt-1 flex items-center gap-2">
+              <p className="text-[#888] mt-1 flex items-center gap-2 text-sm">
                 <span className="w-2 h-2 rounded-full bg-[#ff1744] animate-pulse" />
-                Live Revenue Optimizer Active
+                Live Revenue Optimizer
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex items-center gap-3 w-full md:w-auto">
               <button
                 onClick={() => setTestMode(!testMode)}
-                className={`px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all ${testMode ? "bg-white/10 text-white" : "bg-white/5 text-[#888] hover:bg-white/10"
-                  }`}
+                className={`flex-1 md:flex-none px-6 py-3.5 rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 transition-all ${testMode ? "bg-white text-black" : "bg-white/5 text-[#555] border border-white/5"}`}
               >
-                <Calculator size={18} />
+                <Calculator size={16} />
                 Simulator
               </button>
               <button
                 onClick={() => setShowModal(true)}
-                className="btn-premium px-6 py-3 rounded-xl text-white font-bold flex items-center gap-2 shadow-lg shadow-[#ff1744]/20"
+                className="flex-1 md:flex-none btn-premium px-6 py-3.5 rounded-2xl text-white font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-[#ff1744]/20"
               >
-                <Plus size={18} />
+                <Plus size={16} />
                 New Rule
               </button>
             </div>
@@ -198,47 +195,42 @@ export default function PricingRulesPage() {
 
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">
-              {/* AI Insight */}
+              {/* AI Insight Bar */}
               <motion.div
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="glass-card rounded-[2rem] p-6 border border-[#ff1744]/20 bg-gradient-to-br from-[#ff1744]/5 to-transparent relative overflow-hidden"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-5 lg:p-6 glass-card rounded-2xl lg:rounded-[2rem] border border-[#ff1744]/20 bg-gradient-to-br from-[#ff1744]/5 to-transparent relative overflow-hidden flex flex-col sm:flex-row items-center gap-6"
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#ff1744]/10 rounded-full blur-3xl" />
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-[#ff1744] rounded-lg">
-                    <Zap size={18} className="text-white fill-white" />
-                  </div>
-                  <h3 className="font-bold">AI Surge Recommender</h3>
-                  <button onClick={generateAiInsights} className="ml-auto text-[#888] hover:text-white">
-                    <RefreshCw size={16} className={isAiLoading ? "animate-spin" : ""} />
-                  </button>
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#ff1744] to-[#a30d29] flex items-center justify-center shrink-0 shadow-lg">
+                  <Sparkles className="text-white fill-white" size={24} />
                 </div>
-                <p className="text-sm text-[#ccc] leading-relaxed italic">
-                  {isAiLoading ? "Analyzing market demand patterns..." : aiInsight || "Refresh to generate pricing insights."}
-                </p>
+                <div className="flex-1 text-center sm:text-left">
+                  <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                    <h3 className="text-[10px] font-black uppercase tracking-widest text-[#ff1744]">AI Surge Recommender</h3>
+                    <button onClick={generateAiInsights} className="p-1.5 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
+                      <RefreshCw size={12} className={isAiLoading ? "animate-spin" : ""} />
+                    </button>
+                  </div>
+                  <p className="text-xs lg:text-sm text-[#ccc] leading-relaxed italic">
+                    {isAiLoading ? "Analyzing market demand patterns..." : (aiInsight || "No insights yet. Engage engine to analyze demand.")}
+                  </p>
+                </div>
               </motion.div>
 
-              {/* Rules List */}
-              <div className="glass-card rounded-[2rem] p-8 border border-white/5">
-                <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-                  Active Strategy
-                  <span className="px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 text-[10px] font-black uppercase tracking-widest border border-green-500/20">Synced</span>
-                </h3>
+              {/* Strategy Feed */}
+              <div className="glass-card rounded-2xl lg:rounded-[2.5rem] p-4 lg:p-8 border border-white/5">
+                <div className="flex items-center justify-between mb-8">
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#444]">Revenue Algorithms</h3>
+                  <span className="px-2 py-0.5 rounded-lg bg-green-500/10 text-green-500 text-[8px] font-black uppercase tracking-widest border border-green-500/10">Active Mesh</span>
+                </div>
+
                 {isLoading ? (
-                  <div className="text-center py-20 animate-pulse">
-                    <Layers size={48} className="mx-auto mb-4 text-[#222]" />
-                    <p className="text-[#888]">Loading master rules...</p>
-                  </div>
-                ) : rules.length === 0 ? (
-                  <div className="text-center py-20 text-[#888]">
-                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-                      <Zap size={32} className="opacity-20" />
-                    </div>
-                    <p>No pricing rules configured.</p>
+                  <div className="text-center py-20">
+                    <div className="w-12 h-12 border-4 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[#222]">Syncing Rules...</p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-3 lg:space-y-4">
                     {rules.map((rule) => {
                       const Icon = getIcon(rule.rule_type);
                       const isSurge = rule.modifier_value > 0;
@@ -246,43 +238,32 @@ export default function PricingRulesPage() {
                         <motion.div
                           key={rule.id}
                           layout
-                          className={`group flex items-center gap-6 p-6 rounded-2xl border transition-all duration-300 ${rule.active
-                            ? "bg-white/[0.03] border-white/10 hover:border-white/20"
-                            : "bg-white/[0.01] border-white/5 opacity-50 grayscale"
-                            }`}
+                          className={`p-4 lg:p-6 rounded-2xl border-2 transition-all group ${rule.active ? "bg-white/[0.02] border-white/5 hover:border-[#ff1744]/30" : "bg-white/[0.01] border-white/5 opacity-40 grayscale"}`}
                         >
-                          <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${getColor(rule.rule_type)} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
-                            <Icon size={24} className="text-white" />
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="text-lg font-bold group-hover:text-[#ff1744] transition-colors">{rule.name}</h4>
-                            <div className="flex items-center gap-2 mt-1">
-                              <span className="text-[10px] font-black uppercase tracking-widest text-[#888]">{rule.rule_type.replace("_", " ")}</span>
-                              <span className="w-1 h-1 rounded-full bg-white/20" />
-                              <span className={`text-[10px] font-black uppercase tracking-widest ${isSurge ? "text-orange-500" : "text-green-500"}`}>
-                                {isSurge ? "Surge Pricing" : "Discount Rule"}
-                              </span>
+                          <div className="flex items-center gap-4 lg:gap-6">
+                            <div className={`w-12 h-12 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl ${getColor(rule.rule_type)} flex items-center justify-center shrink-0`}>
+                              <Icon size={22} className="lg:w-6 lg:h-6" />
                             </div>
-                          </div>
-                          <div className="text-right px-6 border-x border-white/5">
-                            <div className={`text-2xl font-black tracking-tighter ${isSurge ? "text-[#ff1744]" : "text-green-500"}`}>
-                              {isSurge ? "+" : ""}{rule.modifier_type === "percentage" ? `${rule.modifier_value}%` : `₹${rule.modifier_value}`}
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-lg font-black tracking-tight truncate pr-4">{rule.name}</h4>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-[8px] lg:text-[10px] font-black uppercase tracking-widest text-[#444] whitespace-nowrap">{rule.rule_type.replace("_", " ")}</span>
+                                <div className={`w-1 h-1 rounded-full ${isSurge ? "bg-orange-500" : "bg-green-500"}`} />
+                                <span className={`text-[8px] lg:text-[10px] font-black uppercase tracking-widest ${isSurge ? "text-orange-500" : "text-green-500"}`}>
+                                  {isSurge ? "Surge" : "Efficiency"}
+                                </span>
+                              </div>
                             </div>
-                            <div className="text-[10px] font-bold text-[#666] uppercase">Adjustment</div>
-                          </div>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => toggleActive(rule)}
-                              className={`p-3 rounded-xl transition-all ${rule.active ? "bg-green-500/10 text-green-500 border border-green-500/20" : "bg-white/5 text-[#888] border border-white/10"}`}
-                            >
-                              <Power size={18} />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(rule.id)}
-                              className="p-3 rounded-xl bg-red-500/5 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20"
-                            >
-                              <Trash2 size={18} />
-                            </button>
+                            <div className="text-right pr-4 lg:pr-8 border-r border-white/5 w-24 lg:w-32">
+                              <div className={`text-xl lg:text-3xl font-black tracking-tighter ${isSurge ? "text-[#ff1744]" : "text-green-500"}`}>
+                                {isSurge ? "+" : ""}{rule.modifier_type === "percentage" ? `${rule.modifier_value}%` : `₹${rule.modifier_value}`}
+                              </div>
+                              <div className="text-[8px] font-black text-[#333] uppercase">Shift</div>
+                            </div>
+                            <div className="flex flex-col sm:flex-row gap-2">
+                              <button onClick={() => toggleActive(rule)} className={`p-2.5 rounded-xl border transition-all ${rule.active ? "bg-green-500/10 text-green-500 border-green-500/10" : "bg-black/20 text-[#333] border-white/5"}`}><Power size={18} /></button>
+                              <button onClick={() => handleDelete(rule.id)} className="p-2.5 rounded-xl bg-red-500/10 text-red-500 border border-red-500/10"><Trash2 size={18} /></button>
+                            </div>
                           </div>
                         </motion.div>
                       );
@@ -293,61 +274,49 @@ export default function PricingRulesPage() {
             </div>
 
             <div className="space-y-6">
-              {/* Simulator Card */}
+              {/* Simulator Overlay/Card */}
               <AnimatePresence>
                 {testMode && (
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    className="glass-card rounded-[2rem] p-6 border border-blue-500/20 bg-blue-500/5"
-                  >
-                    <h3 className="font-bold flex items-center gap-2 mb-6">
-                      <Calculator size={20} className="text-blue-500" />
-                      Revenue Simulator
-                    </h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-[10px] font-black text-[#888] uppercase tracking-[0.2em] ml-1">Base Price (₹)</label>
-                        <input
-                          type="number"
-                          value={testBasePrice}
-                          onChange={(e) => setTestBasePrice(parseInt(e.target.value))}
-                          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-blue-500 focus:outline-none transition-all font-bold"
-                        />
+                  <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="glass-card rounded-[2rem] p-6 lg:p-8 border border-blue-500/20 bg-blue-500/5 shadow-2xl overflow-hidden relative">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-[60px]" />
+                    <div className="flex items-center justify-between mb-8">
+                      <h3 className="text-lg font-black tracking-tighter flex items-center gap-2">
+                        <Calculator size={20} className="text-blue-500" />
+                        Revenue Sim
+                      </h3>
+                      <button onClick={() => setTestMode(false)} className="lg:hidden p-2 hover:bg-black/20 rounded-lg"><X size={18} /></button>
+                    </div>
+
+                    <div className="space-y-6">
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black text-[#555] uppercase tracking-widest ml-1">Base Vector (₹)</label>
+                        <input type="number" value={testBasePrice} onChange={(e) => setTestBasePrice(parseInt(e.target.value))} className="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 focus:border-blue-500 outline-none font-black text-xl tracking-tighter" />
                       </div>
-                      <button
-                        onClick={runTest}
-                        className="w-full py-4 rounded-xl bg-blue-500 text-white font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-500/20 hover:scale-[1.02] transition-all"
-                      >
-                        Calculate Final Price
-                      </button>
+                      <button onClick={runTest} className="w-full py-4 rounded-xl bg-blue-500 text-white font-black uppercase tracking-widest text-[10px] shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.02]">Process Matrix</button>
 
                       {testResult && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-2"
-                        >
-                          <div className="flex justify-between items-center text-sm font-bold">
-                            <span className="text-[#888]">Final Price:</span>
-                            <span className="text-xl text-white">₹{testResult.final_price}</span>
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-5 rounded-2xl bg-black/40 border border-white/5 space-y-4">
+                          <div className="flex justify-between items-end">
+                            <span className="text-[8px] font-black text-[#444] uppercase">Net Output</span>
+                            <span className="text-2xl font-black tracking-tighter text-white">₹{testResult.final_price}</span>
                           </div>
-                          <div className="flex justify-between items-center text-xs">
-                            <span className="text-[#888]">Total Adjustment:</span>
-                            <span className={testResult.discount < 0 ? "text-red-400" : "text-green-400"}>
+                          <div className="flex justify-between items-center bg-white/5 p-3 rounded-lg">
+                            <span className="text-[8px] font-black text-[#444] uppercase">Delta</span>
+                            <span className={`text-[10px] font-black ${testResult.discount < 0 ? "text-red-400" : "text-green-400"}`}>
                               ₹{Math.abs(testResult.discount)} {testResult.discount < 0 ? "Surge" : "Saving"}
                             </span>
                           </div>
                           {testResult.applied_rules.length > 0 && (
                             <div className="pt-2 border-t border-white/5">
-                              <p className="text-[10px] text-[#666] uppercase mb-1">Applied Rules:</p>
-                              {testResult.applied_rules.map((r: any) => (
-                                <div key={r.id} className="text-[10px] flex justify-between">
-                                  <span>{r.name}</span>
-                                  <span className="font-bold">{r.modifier_value > 0 ? "+" : ""}{r.modifier_value}%</span>
-                                </div>
-                              ))}
+                              <p className="text-[8px] font-black text-[#222] uppercase mb-2">Applied Logic:</p>
+                              <div className="space-y-2">
+                                {testResult.applied_rules.map((r: any) => (
+                                  <div key={r.id} className="text-[9px] flex justify-between items-center">
+                                    <span className="text-[#666] font-bold truncate pr-4">{r.name}</span>
+                                    <span className="font-black text-white shrink-0">{r.modifier_value > 0 ? "+" : ""}{r.modifier_value}%</span>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           )}
                         </motion.div>
@@ -357,23 +326,17 @@ export default function PricingRulesPage() {
                 )}
               </AnimatePresence>
 
-              {/* Quick Stats */}
-              <div className="glass-card rounded-[2rem] p-6 border border-white/5">
-                <h3 className="text-sm font-bold mb-4 uppercase tracking-[0.2em] text-[#888]">Live Stats</h3>
-                <div className="space-y-4">
-                  <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between">
-                    <div>
-                      <div className="text-lg font-black">{rules.filter(r => r.active).length}</div>
-                      <div className="text-[10px] text-[#888] font-bold uppercase">Active Rules</div>
-                    </div>
-                    <Layers className="text-[#888]" size={20} />
+              {/* Status Pool */}
+              <div className="glass-card rounded-[2rem] p-6 lg:p-8 border border-white/5">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#333] mb-6 flex items-center gap-2"><Target size={14} /> Algorithm Health</h3>
+                <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
+                  <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                    <div className="text-2xl font-black text-white">{rules.filter(r => r.active).length}</div>
+                    <div className="text-[8px] text-[#444] font-black uppercase tracking-widest mt-1">Live Agents</div>
                   </div>
-                  <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between">
-                    <div>
-                      <div className="text-lg font-black text-[#ff1744]">{rules.filter(r => r.modifier_value > 15).length}</div>
-                      <div className="text-[10px] text-[#888] font-bold uppercase">High Surge Rules</div>
-                    </div>
-                    <AlertTriangle className="text-[#ff1744]" size={20} />
+                  <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                    <div className="text-2xl font-black text-[#ff1744]">{rules.filter(r => Math.abs(r.modifier_value) > 20).length}</div>
+                    <div className="text-[8px] text-[#444] font-black uppercase tracking-widest mt-1">Critical Surge</div>
                   </div>
                 </div>
               </div>
@@ -382,36 +345,52 @@ export default function PricingRulesPage() {
         </div>
       </div>
 
-      {/* Modal remains largely same but updated styling */}
+      {/* Provisioning Modal */}
       <AnimatePresence>
         {showModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowModal(false)} />
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="relative w-full max-w-lg bg-[#111] border border-white/10 rounded-[2.5rem] p-8 overflow-hidden" onClick={(e) => e.stopPropagation()}>
-              <h2 className="text-2xl font-black mb-6">Create Adjustment Rule</h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-[#888] uppercase tracking-[0.2em] ml-1">Rule Name</label>
-                  <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="w-full px-4 py-4 rounded-xl bg-white/5 border border-white/10 focus:border-[#ff1744] focus:outline-none" placeholder="e.g. Monsoon Special Surge" />
+          <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/90 backdrop-blur-md" onClick={() => setShowModal(false)}>
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              className="relative w-full max-w-lg bg-[#0d0d0d] border-t sm:border border-white/10 rounded-t-[2.5rem] sm:rounded-[3rem] p-8 lg:p-10 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-4 mb-10">
+                <div className="w-12 h-12 rounded-2xl bg-[#ff1744] flex items-center justify-center"><Plus size={24} /></div>
+                <div>
+                  <h2 className="text-2xl font-black tracking-tighter">Algorithm Entry</h2>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[#444] mt-1">New Pricing Logic</p>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-[#888] uppercase tracking-[0.2em] ml-1">Trigger</label>
-                    <select value={form.rule_type} onChange={(e) => setForm({ ...form, rule_type: e.target.value as any })} className="w-full px-4 py-4 rounded-xl bg-white/5 border border-white/10">
-                      <option value="weekend">Weekend</option>
-                      <option value="peak_hour">Peak Hour</option>
-                      <option value="high_demand">High Demand</option>
-                      <option value="weather">Weather</option>
-                    </select>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-[#555] uppercase tracking-widest ml-1">Concept Name</label>
+                  <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 focus:border-[#ff1744] outline-none font-bold text-sm" placeholder="e.g. MONSOON SURGE X" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-[#555] uppercase tracking-widest ml-1">Trigger Signal</label>
+                    <div className="relative">
+                      <select value={form.rule_type} onChange={(e) => setForm({ ...form, rule_type: e.target.value as any })} className="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 outline-none font-black uppercase text-[10px] tracking-widest appearance-none transition-colors focus:border-[#ff1744]">
+                        <option value="weekend">Weekend</option>
+                        <option value="peak_hour">Peak Hour</option>
+                        <option value="high_demand">Demand</option>
+                        <option value="weather">Weather</option>
+                      </select>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-[#888] uppercase tracking-[0.2em] ml-1">Value (%)</label>
-                    <input type="number" value={form.modifier_value} onChange={(e) => setForm({ ...form, modifier_value: parseInt(e.target.value) })} className="w-full px-4 py-4 rounded-xl bg-white/5 border border-white/10" />
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-[#555] uppercase tracking-widest ml-1">Vector Bias (%)</label>
+                    <input type="number" value={form.modifier_value} onChange={(e) => setForm({ ...form, modifier_value: parseInt(e.target.value) })} className="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 focus:border-[#ff1744] outline-none font-black text-sm text-center" />
                   </div>
                 </div>
-                <div className="flex gap-4 pt-4">
-                  <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-4 bg-white/5 rounded-xl font-bold">Cancel</button>
-                  <button type="submit" className="flex-2 py-4 btn-premium rounded-xl font-bold shadow-lg shadow-[#ff1744]/20">Deploy Rule</button>
+
+                <div className="flex gap-4 pt-8">
+                  <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-4 bg-white/5 rounded-2xl font-black uppercase text-[10px] tracking-widest text-[#444]">Abort</button>
+                  <button type="submit" className="flex-[2] py-4 btn-premium rounded-2xl font-black uppercase text-[10px] tracking-widest text-white shadow-xl">Engage Algorithm</button>
                 </div>
               </form>
             </motion.div>
@@ -421,4 +400,3 @@ export default function PricingRulesPage() {
     </div>
   );
 }
-

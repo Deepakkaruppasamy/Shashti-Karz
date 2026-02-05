@@ -148,7 +148,7 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
 
             <div className="mb-6">
               <h4 className="text-sm font-semibold text-[#d4af37] mb-3">Price by Vehicle Type:</h4>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-2">
                 {carTypes.slice(0, 4).map((car) => (
                   <div key={car.id} className="flex items-center justify-between bg-white/5 rounded-lg px-3 py-2">
                     <span className="text-xs text-[#888]">{car.name}</span>
@@ -287,7 +287,7 @@ export default function ServicesPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="flex justify-center gap-3 mb-12"
+            className="flex flex-wrap justify-center gap-3 mb-12"
           >
             {[
               { value: "all", label: "All Services" },
@@ -310,6 +310,75 @@ export default function ServicesPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredServices.map((service, i) => (
               <ServiceCard key={service.id} service={service} index={i} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Master Detailers Section */}
+      <section className="py-24 bg-white/[0.02]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-6">
+            <div className="max-w-xl">
+              <span className="text-[#d4af37] text-sm font-bold tracking-[0.3em] uppercase mb-4 block">The Artisans</span>
+              <h2 className="text-4xl md:text-5xl font-black italic tracking-tighter mb-6">MEET OUR <span className="text-gradient">MASTER</span> DETAILERS</h2>
+              <p className="text-[#888] leading-relaxed">
+                Our technicians aren't just staff; they are certified artisans with over 10,000 hours of experience in surface restoration and protection.
+              </p>
+            </div>
+            <Link href="/gallery" className="text-sm font-bold flex items-center gap-2 group text-[#888] hover:text-white transition-colors">
+              VIEW RECENT MASTERPIECES
+              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Vikram R.",
+                specialty: "Ceramic Master",
+                exp: "12+ Years",
+                avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&h=200&auto=format&fit=crop",
+                tag: "Precision"
+              },
+              {
+                name: "Arjun S.",
+                specialty: "Paint Correction Specialist",
+                exp: "8 Years",
+                avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&h=200&auto=format&fit=crop",
+                tag: "Focus"
+              },
+              {
+                name: "Sanjay K.",
+                specialty: "Interior Restoration Art",
+                exp: "10 Years",
+                avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&h=200&auto=format&fit=crop",
+                tag: "Craft"
+              },
+            ].map((detailer, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="glass-card rounded-3xl p-8 border border-white/5 group hover:border-[#ff1744]/30 transition-all"
+              >
+                <div className="relative mb-6">
+                  <div className="w-24 h-24 rounded-2xl overflow-hidden mb-6 border-2 border-white/10 group-hover:border-[#ff1744]/50 transition-colors">
+                    <img src={detailer.avatar} alt={detailer.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+                  </div>
+                  <span className="absolute -top-2 -right-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-[#888] group-hover:text-white">
+                    {detailer.tag}
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold mb-1">{detailer.name}</h3>
+                <p className="text-[#d4af37] text-xs font-black uppercase tracking-widest mb-4">{detailer.specialty}</p>
+                <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                  <span className="text-[10px] text-[#666] uppercase font-bold">Experience</span>
+                  <span className="text-sm font-bold text-white">{detailer.exp}</span>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>

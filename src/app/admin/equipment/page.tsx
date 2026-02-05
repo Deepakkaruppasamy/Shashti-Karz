@@ -13,11 +13,14 @@ import {
     Plus,
     CheckCircle2,
     Calendar,
-    TrendingDown
+    TrendingDown,
+    X,
+    ChevronRight,
+    MapPin,
+    Toolbox
 } from "lucide-react";
-import { AdminSidebar } from "@/components/AdminSidebar";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Equipment {
     id: string;
@@ -44,6 +47,7 @@ export default function EquipmentAdminPage() {
     const [loading, setLoading] = useState(true);
     const [aiInsight, setAiInsight] = useState<string>("");
     const [isAiLoading, setIsAiLoading] = useState(false);
+    const [showRegisterModal, setShowRegisterModal] = useState(false);
     const router = useRouter();
 
     // Real-time subscription
@@ -63,7 +67,6 @@ export default function EquipmentAdminPage() {
 
     useEffect(() => {
         fetchEquipment();
-        generateAiInsights();
     }, []);
 
     const fetchEquipment = async () => {
@@ -74,7 +77,6 @@ export default function EquipmentAdminPage() {
             setEquipment(data.equipment || []);
             setAlerts(data.alerts || []);
         } catch (error) {
-            console.error("Error fetching equipment:", error);
             toast.error("Failed to load equipment data");
         } finally {
             setLoading(false);
@@ -96,222 +98,256 @@ export default function EquipmentAdminPage() {
                 const data = await res.json();
                 setAiInsight(data.response);
             }
-        } catch (e) {
-            console.error(e);
         } finally {
             setIsAiLoading(false);
         }
     };
 
     const getConditionColor = (condition: string) => {
-        const colors: Record<string, string> = {
-            excellent: "bg-green-500/20 text-green-400 border border-green-500/30",
-            good: "bg-blue-500/20 text-blue-400 border border-blue-500/30",
-            fair: "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30",
-            poor: "bg-orange-500/20 text-orange-400 border border-orange-500/30",
-            critical: "bg-red-500/20 text-red-400 border border-red-500/30",
-        };
-        return colors[condition] || "bg-gray-500/20 text-gray-400 border border-gray-500/30";
-    };
-
-    const getPriorityColor = (priority: string) => {
-        const colors: Record<string, string> = {
-            low: "text-green-400",
-            medium: "text-yellow-400",
-            high: "text-orange-400",
-            critical: "text-red-400",
-        };
-        return colors[priority] || "text-gray-400";
+        switch (condition) {
+            case 'excellent': return "text-green-400 bg-green-400/10 border-green-400/20";
+            case 'good': return "text-blue-400 bg-blue-400/10 border-blue-400/20";
+            case 'fair': return "text-yellow-400 bg-yellow-400/10 border-yellow-400/20";
+            case 'poor': return "text-orange-400 bg-orange-400/10 border-orange-400/20";
+            case 'critical': return "text-red-400 bg-red-400/10 border-red-400/20";
+            default: return "text-slate-400 bg-white/5 border-white/10";
+        }
     };
 
     const isDueForMaintenance = (dueDate: string) => {
-        const daysUntilDue = Math.floor(
-            (new Date(dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-        );
+        const daysUntilDue = Math.floor((new Date(dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
         return daysUntilDue <= 7;
     };
 
-    if (loading) {
-        return (
-            <div className="flex min-h-screen bg-[#0a0a0a]">
-                <AdminSidebar />
-                <div className="flex-1 p-8 space-y-4">
-                    <div className="w-12 h-12 border-4 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto mt-20" />
-                    <div className="text-center text-[#888] font-black uppercase tracking-widest text-[10px]">Syncing Logistics...</div>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="flex min-h-screen bg-[#0a0a0a] text-white">
-            <AdminSidebar />
-            <div className="flex-1 p-8 space-y-8 overflow-auto max-w-7xl mx-auto">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-4xl font-black tracking-tight flex items-center gap-3">
-                            <Activity className="text-[#ff1744]" />
-                            Equipment Hub
-                        </h1>
-                        <p className="text-[#888] mt-1 flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                            Live Asset Monitoring Active
-                        </p>
-                    </div>
-                    <button className="btn-premium px-8 py-4 rounded-2xl text-white font-black flex items-center gap-3 shadow-xl shadow-[#ff1744]/10 hover:scale-[1.02] active:scale-[0.98] transition-all">
-                        <Plus size={20} />
-                        Register Unit
-                    </button>
-                </div>
-
-                {/* AI Predictor Insight */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="glass-card rounded-[2.5rem] p-6 border border-[#ff1744]/20 bg-[#ff1744]/5 relative overflow-hidden group"
-                >
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="p-3 bg-gradient-to-br from-[#ff1744] to-[#d4af37] rounded-xl shadow-lg shadow-[#ff1744]/20">
-                            <Sparkles size={24} className="text-white fill-white" />
-                        </div>
+            <div className="flex-1 overflow-auto pb-24 lg:pb-8">
+                <div className="p-4 lg:p-8 max-w-7xl mx-auto">
+                    {/* Header */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
                         <div>
-                            <h2 className="font-bold text-lg">AI Maintenance Predictor</h2>
-                            <p className="text-xs text-[#888] uppercase font-bold tracking-widest">Failure prevention engine</p>
+                            <h1 className="text-3xl lg:text-4xl font-black tracking-tighter flex items-center gap-3">
+                                <Activity className="text-[#ff1744]" />
+                                Equipment Hub
+                            </h1>
+                            <p className="text-[#888] mt-1 flex items-center gap-2 text-sm">
+                                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                Live Asset Monitoring
+                            </p>
                         </div>
-                        <button onClick={generateAiInsights} className="ml-auto p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
-                            <RefreshCw size={16} className={isAiLoading ? "animate-spin" : ""} />
+                        <button
+                            onClick={() => setShowRegisterModal(true)}
+                            className="w-full md:w-auto btn-premium px-8 py-4 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#ff1744]/20 transition-all hover:scale-[1.02]"
+                        >
+                            <Plus size={18} />
+                            Register Unit
                         </button>
                     </div>
-                    <div className="text-sm leading-relaxed text-[#ccc] min-h-[40px] italic">
-                        {isAiLoading ? "Analyzing vibration patterns and thermal wear..." : aiInsight || "Refresh to run health scan."}
-                    </div>
-                </motion.div>
 
-                <div className="grid lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-2 space-y-8">
-                        {/* Stats Grid */}
-                        <div className="grid grid-cols-2 gap-4">
-                            {[
-                                { label: "Total Units", value: equipment.length, icon: Layers, color: "text-blue-500" },
-                                { label: "Operational", value: equipment.filter((e) => e.is_active).length, icon: CheckCircle2, color: "text-green-500" },
-                            ].map((stat, i) => (
-                                <div key={i} className="glass-card rounded-[1.5rem] p-6 border border-white/5 flex items-center gap-5">
-                                    <div className={`w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center ${stat.color} shadow-lg`}>
-                                        <stat.icon size={28} />
+                    {/* AI Predictor Insight */}
+                    <div className="glass-card rounded-[2rem] p-6 lg:p-10 border border-[#ff1744]/20 bg-[#ff1744]/5 relative overflow-hidden mb-8">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff1744]/5 rounded-full blur-[80px]" />
+                        <div className="flex flex-col md:flex-row items-start justify-between gap-8 relative z-10">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="p-3 bg-gradient-to-br from-[#ff1744] to-[#fb8c00] rounded-2xl shadow-lg shadow-[#ff1744]/20">
+                                        <Sparkles size={24} className="text-white" />
                                     </div>
                                     <div>
-                                        <div className="text-3xl font-black tracking-tighter">{stat.value}</div>
-                                        <div className="text-[10px] font-black text-[#888] uppercase tracking-[0.2em]">{stat.label}</div>
+                                        <h3 className="text-xl font-black tracking-tighter">AI Health Predictor</h3>
+                                        <p className="text-[10px] font-black text-[#555] uppercase tracking-widest mt-1">Failure Prevention System</p>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
 
-                        {/* Equipment Table */}
-                        <div className="glass-card rounded-[2.5rem] overflow-hidden border border-white/5">
-                            <div className="p-8 border-b border-white/5 flex items-center justify-between">
-                                <h2 className="text-xl font-bold">Asset Inventory</h2>
-                                <div className="text-[10px] font-black uppercase tracking-widest text-[#444]">Real-time Sync Active</div>
+                                <div className="p-6 rounded-2xl bg-black/20 border border-white/5 min-h-[100px] text-sm leading-relaxed text-[#ccc] font-medium backdrop-blur-sm">
+                                    {isAiLoading ? (
+                                        <div className="flex items-center gap-3 text-[#ff1744]">
+                                            <RefreshCw className="animate-spin" size={18} />
+                                            <span className="text-xs font-black uppercase tracking-widest">Scanning vibration patterns...</span>
+                                        </div>
+                                    ) : aiInsight ? (
+                                        <div className="prose prose-invert max-w-none text-xs lg:text-sm">
+                                            {aiInsight}
+                                        </div>
+                                    ) : (
+                                        <p className="text-[#444] italic">Initiate health scan to analyze acoustic and thermal sensor data.</p>
+                                    )}
+                                </div>
                             </div>
-                            <div className="overflow-x-auto">
-                                <table className="w-full">
-                                    <thead className="bg-white/[0.02]">
-                                        <tr>
-                                            <th className="px-8 py-5 text-left text-[10px] font-black text-[#888] uppercase tracking-widest">Unit</th>
-                                            <th className="px-8 py-5 text-left text-[10px] font-black text-[#888] uppercase tracking-widest">Condition</th>
-                                            <th className="px-8 py-5 text-left text-[10px] font-black text-[#888] uppercase tracking-widest">Next Due</th>
-                                            <th className="px-8 py-5 text-left text-[10px] font-black text-[#888] uppercase tracking-widest">Cost Center</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-white/[0.02]">
-                                        {equipment.map((item) => (
-                                            <tr key={item.id} className="group hover:bg-white/[0.02] transition-colors">
-                                                <td className="px-8 py-6">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className={`w-2 h-2 rounded-full ${item.is_active ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"}`} />
-                                                        <div>
-                                                            <p className="font-bold text-white group-hover:text-[#ff1744] transition-colors">{item.name}</p>
-                                                            <p className="text-[10px] text-[#444] font-bold uppercase tracking-widest">{item.equipment_type.replace("_", " ")} • {item.location}</p>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="px-8 py-6">
-                                                    <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${getConditionColor(item.current_condition)}`}>
-                                                        {item.current_condition}
-                                                    </span>
-                                                </td>
-                                                <td className="px-8 py-6">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-sm font-bold text-white">{new Date(item.next_maintenance_due).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}</span>
-                                                        {isDueForMaintenance(item.next_maintenance_due) && (
-                                                            <span className="text-[9px] font-black text-red-500 uppercase tracking-tighter mt-1 animate-pulse flex items-center gap-1">
-                                                                <ShieldAlert size={10} /> Critical Window
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                                <td className="px-8 py-6">
-                                                    <div className="text-sm font-black tracking-tight text-white">₹{item.total_maintenance_cost.toLocaleString()}</div>
-                                                    <div className="text-[10px] text-[#444] font-bold uppercase tracking-widest">Total Sunk</div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                            <button
+                                onClick={generateAiInsights}
+                                className="w-full md:w-32 h-32 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex flex-col items-center justify-center gap-2 group"
+                            >
+                                <Zap size={32} className="text-[#ff1744] group-hover:scale-110 transition-transform" />
+                                <span className="text-[10px] font-black uppercase tracking-widest text-[#888] text-center">Run<br />Health Scan</span>
+                            </button>
                         </div>
                     </div>
 
-                    <div className="space-y-8">
-                        {/* Maintenance Highlights */}
-                        <div className="glass-card rounded-[2.5rem] p-8 border border-white/5 space-y-6">
-                            <h3 className="text-sm font-black text-[#888] uppercase tracking-[0.3em] ml-1">Critical Zones</h3>
-                            <div className="space-y-4">
-                                <div className="p-6 rounded-[2rem] bg-red-500/5 border border-red-500/20">
-                                    <div className="flex items-center gap-3 mb-2 text-red-500">
-                                        <Calendar size={18} />
-                                        <span className="text-xl font-black">{equipment.filter((e) => isDueForMaintenance(e.next_maintenance_due)).length}</span>
-                                    </div>
-                                    <p className="text-[10px] font-black text-[#888] uppercase tracking-widest">Units Flagged for Service</p>
-                                </div>
-                                <div className="p-6 rounded-[2rem] bg-[#d4af37]/5 border border-[#d4af37]/20">
-                                    <div className="flex items-center gap-3 mb-2 text-[#d4af37]">
-                                        <TrendingDown size={18} />
-                                        <span className="text-xl font-black">₹{equipment.reduce((sum, e) => sum + e.total_maintenance_cost, 0).toLocaleString()}</span>
-                                    </div>
-                                    <p className="text-[10px] font-black text-[#888] uppercase tracking-widest">Operational Burn Rate</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Recent Alerts */}
-                        <div className="glass-card rounded-[2.5rem] p-8 border border-white/5">
-                            <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-sm font-black text-[#888] uppercase tracking-[0.3em] ml-1">Live Feed</h3>
-                                <Zap size={14} className="text-[#ff1744] animate-pulse" />
-                            </div>
-                            <div className="space-y-4">
-                                {alerts.length > 0 ? alerts.slice(0, 5).map((alert) => (
-                                    <div key={alert.id} className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-white/10 transition-all cursor-default group">
-                                        <div className="flex justify-between items-start mb-1">
-                                            <span className="text-[10px] font-black text-white group-hover:text-[#ff1744]">{alert.equipment_name}</span>
-                                            <span className={`text-[8px] font-black uppercase ${getPriorityColor(alert.priority)}`}>{alert.priority}</span>
+                    <div className="grid lg:grid-cols-3 gap-8">
+                        <div className="lg:col-span-2 space-y-6">
+                            {/* Stats Overview */}
+                            <div className="grid grid-cols-2 gap-4">
+                                {[
+                                    { label: "Asset Count", value: equipment.length, icon: Toolbox, color: "text-blue-500", bg: "bg-blue-500/10" },
+                                    { label: "Operational", value: equipment.filter(e => e.is_active).length, icon: CheckCircle2, color: "text-green-500", bg: "bg-green-400/10" },
+                                ].map((stat, i) => (
+                                    <div key={i} className="glass-card rounded-2xl p-4 lg:p-6 border border-white/5 flex items-center gap-4">
+                                        <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center shrink-0`}>
+                                            <stat.icon size={18} />
                                         </div>
-                                        <p className="text-[11px] text-[#666] leading-tight mb-2 line-clamp-1">{alert.message}</p>
-                                        <div className="text-[9px] text-[#444] font-bold">DUE: {new Date(alert.due_date).toLocaleDateString()}</div>
+                                        <div className="min-w-0">
+                                            <div className="text-lg lg:text-xl font-black tracking-tighter truncate">{stat.value}</div>
+                                            <div className="text-[8px] lg:text-[10px] font-black text-[#555] uppercase tracking-widest">{stat.label}</div>
+                                        </div>
                                     </div>
-                                )) : (
-                                    <div className="text-center py-8 opacity-20">
-                                        <CheckCircle2 size={32} className="mx-auto mb-2" />
-                                        <p className="text-[10px] font-black uppercase">All Systems Nominal</p>
+                                ))}
+                            </div>
+
+                            {/* Equipment List */}
+                            <div className="glass-card rounded-3xl lg:rounded-[2.5rem] p-4 lg:p-8 border border-white/5">
+                                <div className="flex items-center justify-between mb-8 px-2">
+                                    <h3 className="text-[10px] font-black text-[#555] uppercase tracking-[0.3em]">Asset Registry</h3>
+                                    <div className="text-[8px] font-black text-[#555] uppercase tracking-widest">Live Sync</div>
+                                </div>
+
+                                {loading ? (
+                                    <div className="py-20 text-center"><RefreshCw className="animate-spin mx-auto text-[#222]" /></div>
+                                ) : equipment.length === 0 ? (
+                                    <div className="py-20 text-center border-2 border-dashed border-white/5 rounded-3xl">
+                                        <p className="text-[10px] font-black uppercase text-[#444] tracking-widest">Registry empty</p>
+                                    </div>
+                                ) : (
+                                    <div className="grid sm:grid-cols-2 gap-4 lg:gap-6">
+                                        {equipment.map((item) => (
+                                            <motion.div key={item.id} layout className="rounded-3xl bg-white/[0.02] border border-white/5 p-6 hover:border-[#ff1744]/30 transition-all flex flex-col">
+                                                <div className="flex justify-between items-start mb-6">
+                                                    <div className="min-w-0">
+                                                        <h4 className="text-lg font-black tracking-tighter truncate mb-1">{item.name}</h4>
+                                                        <div className="flex items-center gap-2 text-[8px] font-black text-[#555] uppercase tracking-widest">
+                                                            <MapPin size={8} /> {item.location}
+                                                        </div>
+                                                    </div>
+                                                    <div className={`w-2 h-2 rounded-full ${item.is_active ? "bg-green-500 animate-pulse" : "bg-red-500"}`} />
+                                                </div>
+
+                                                <div className="mt-auto pt-6 border-t border-white/5 flex flex-col gap-4">
+                                                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                                                        <span className="text-[#333]">Status</span>
+                                                        <span className={`px-2 py-0.5 rounded-lg border ${getConditionColor(item.current_condition)}`}>{item.current_condition}</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                                                        <span className="text-[#333]">Sunk Cost</span>
+                                                        <span className="text-white">₹{item.total_maintenance_cost.toLocaleString()}</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                                                        <span className="text-[#333]">Next Sync</span>
+                                                        <span className={`text-white ${isDueForMaintenance(item.next_maintenance_due) ? "text-red-500 font-bold" : ""}`}>
+                                                            {new Date(item.next_maintenance_due).toLocaleDateString("en-IN", { month: "short", day: "numeric" })}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        ))}
                                     </div>
                                 )}
                             </div>
                         </div>
+
+                        <div className="space-y-6">
+                            {/* Critical Insights */}
+                            <div className="glass-card rounded-3xl p-6 lg:p-8 border border-white/5 space-y-6">
+                                <h3 className="text-[10px] font-black text-[#555] uppercase tracking-[0.3em]">Critical Insights</h3>
+                                <div className="space-y-4">
+                                    <div className="p-6 rounded-[2rem] bg-red-500/5 border border-red-500/20">
+                                        <div className="text-2xl font-black text-red-500 mb-1">{equipment.filter(e => isDueForMaintenance(e.next_maintenance_due)).length}</div>
+                                        <div className="text-[10px] font-black text-[#888] uppercase tracking-widest">Action Required</div>
+                                    </div>
+                                    <div className="p-6 rounded-[2rem] bg-[#d4af37]/5 border border-[#d4af37]/20">
+                                        <div className="text-2xl font-black text-[#d4af37] mb-1">₹{equipment.reduce((s, e) => s + e.total_maintenance_cost, 0).toLocaleString()}</div>
+                                        <div className="text-[10px] font-black text-[#888] uppercase tracking-widest">OpEx Burn</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Maintenance Logs */}
+                            <div className="glass-card rounded-3xl p-6 lg:p-8 border border-white/5">
+                                <div className="flex items-center justify-between mb-6">
+                                    <h3 className="text-[10px] font-black text-[#555] uppercase tracking-[0.3em]">Log Feed</h3>
+                                    <Activity size={12} className="text-[#ff1744] animate-pulse" />
+                                </div>
+                                <div className="space-y-3">
+                                    {alerts.length > 0 ? alerts.slice(0, 5).map((alert) => (
+                                        <div key={alert.id} className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-white/10 transition-all flex flex-col gap-2">
+                                            <div className="flex justify-between items-center font-black uppercase text-[8px] tracking-widest">
+                                                <span className="text-white truncate max-w-[120px]">{alert.equipment_name}</span>
+                                                <span className={alert.priority === 'critical' || alert.priority === 'high' ? 'text-red-500' : 'text-[#555]'}>{alert.priority}</span>
+                                            </div>
+                                            <p className="text-[10px] text-[#666] leading-relaxed line-clamp-2">{alert.message}</p>
+                                        </div>
+                                    )) : (
+                                        <div className="py-10 text-center opacity-10">
+                                            <Calendar size={32} className="mx-auto" />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            {/* Register Modal - Bottom Sheet */}
+            <AnimatePresence>
+                {showRegisterModal && (
+                    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/95 backdrop-blur-md" onClick={() => setShowRegisterModal(false)}>
+                        <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className="w-full max-w-2xl bg-[#0d0d0d] rounded-t-[3rem] sm:rounded-[3rem] p-8 lg:p-12 relative overflow-hidden" onClick={e => e.stopPropagation()}>
+                            <div className="flex justify-between items-center mb-10">
+                                <div>
+                                    <h2 className="text-3xl font-black tracking-tighter">Register Asset</h2>
+                                    <p className="text-[10px] font-black text-[#555] uppercase tracking-widest mt-1">Add Unit to Registry</p>
+                                </div>
+                                <button onClick={() => setShowRegisterModal(false)} className="p-3 bg-white/5 border border-white/5 rounded-2xl"><X size={24} /></button>
+                            </div>
+
+                            <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); toast.info("Implementation pending backend bridge."); setShowRegisterModal(false); }}>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black text-[#444] uppercase tracking-widest ml-1">Asset Name</label>
+                                        <input required className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 outline-none focus:border-[#ff1744] font-bold" placeholder="e.g. High-Pressure Washer V2" />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black text-[#444] uppercase tracking-widest ml-1">Location Node</label>
+                                        <input required className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 outline-none focus:border-[#ff1744] font-bold" placeholder="Bay 1 / Storage A" />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black text-[#444] uppercase tracking-widest ml-1">Category</label>
+                                        <select className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 outline-none focus:border-[#ff1744] font-black uppercase text-[10px] tracking-widest appearance-none">
+                                            <option>Heavy Machinery</option>
+                                            <option>Hand Tools</option>
+                                            <option>Electronic Node</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black text-[#444] uppercase tracking-widest ml-1">Maintenance Window</label>
+                                        <input type="date" required className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 outline-none focus:border-[#ff1744] font-bold" />
+                                    </div>
+                                </div>
+
+                                <div className="pt-8 flex gap-4">
+                                    <button type="button" onClick={() => setShowRegisterModal(false)} className="flex-1 py-5 rounded-2xl bg-white/5 text-[#444] font-black uppercase text-[10px] tracking-widest">Abort</button>
+                                    <button type="submit" className="flex-[2] py-5 rounded-2xl btn-premium text-white font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 shadow-xl shadow-[#ff1744]/20 transition-all hover:scale-[1.02]">
+                                        Authorize Unit
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
