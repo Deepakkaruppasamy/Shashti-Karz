@@ -15,7 +15,7 @@ import {
   Loader2,
   Star,
   Sparkles,
-  Zap,
+  Search,
   Globe,
   ChevronRight,
   ShieldCheck,
@@ -27,6 +27,7 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/LanguageContext";
+import Image from "next/image";
 
 // --- Advanced Components ---
 
@@ -59,8 +60,8 @@ const GlassShards = () => {
 
 const BackgroundGradient = () => (
   <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-[#020202]">
-    <motion.div animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0], x: ["-10%", "10%", "-10%"], y: ["-10%", "5%", "-10%"] }} transition={{ duration: 25, repeat: Infinity, ease: "linear" }} className="absolute top-0 left-0 w-[80%] h-[80%] bg-purple-600/10 rounded-full blur-[160px]" />
-    <motion.div animate={{ scale: [1.2, 1, 1.2], rotate: [0, -90, 0], x: ["10%", "-10%", "10%"], y: ["10%", "-5%", "10%"] }} transition={{ duration: 30, repeat: Infinity, ease: "linear" }} className="absolute bottom-0 right-0 w-[80%] h-[80%] bg-blue-600/10 rounded-full blur-[160px]" />
+    <motion.div animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0], x: ["-10%", "10%", "-10%"], y: ["-10%", "5%", "-10%"] }} transition={{ duration: 25, repeat: Infinity, ease: "linear" }} className="absolute top-0 left-0 w-[80%] h-[80%] bg-amber-600/10 rounded-full blur-[160px]" />
+    <motion.div animate={{ scale: [1.2, 1, 1.2], rotate: [0, -90, 0], x: ["10%", "-10%", "10%"], y: ["10%", "-5%", "10%"] }} transition={{ duration: 30, repeat: Infinity, ease: "linear" }} className="absolute bottom-0 right-0 w-[80%] h-[80%] bg-yellow-600/10 rounded-full blur-[160px]" />
     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)]" />
   </div>
 );
@@ -69,7 +70,7 @@ const CarAnimation = () => (
   <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-30 sm:opacity-50">
     {[...Array(2)].map((_, i) => (
       <motion.div key={i} initial={{ x: "-20%", y: `${30 + i * 40}%`, opacity: 0 }} animate={{ x: "120%", opacity: [0, 0.1, 0.1, 0] }} transition={{ duration: 15 + i * 5, repeat: Infinity, delay: i * 5, ease: "linear" }} className="absolute">
-        <Car size={100} className="text-purple-500/10 fill-purple-500/5" />
+        <Car size={100} className="text-amber-500/10 fill-amber-500/5" />
       </motion.div>
     ))}
   </div>
@@ -97,15 +98,15 @@ const FloatingInput = ({ label, icon: Icon, type = "text", value, onChange, requ
 
   return (
     <div className="relative group w-full mb-4">
-      <div className={`relative flex items-center bg-white/[0.02] border transition-all duration-300 rounded-[20px] overflow-hidden h-[60px] ${isFocused ? 'border-purple-500/50 bg-white/[0.05]' : 'border-white/5 hover:border-white/10'} ${error ? 'border-red-500/50' : ''}`}>
-        <div className={`pl-5 transition-colors ${isFocused ? 'text-purple-400' : 'text-[#444]'}`}>
+      <div className={`relative flex items-center bg-white/[0.02] border transition-all duration-300 rounded-[20px] overflow-hidden h-[60px] ${isFocused ? 'border-amber-500/50 bg-white/[0.05]' : 'border-white/5 hover:border-white/10'} ${error ? 'border-red-500/50' : ''}`}>
+        <div className={`pl-5 transition-colors ${isFocused ? 'text-amber-400' : 'text-[#444]'}`}>
           <Icon size={18} />
         </div>
         <div className="relative flex-1 h-full px-4">
           <motion.label
             htmlFor={id}
             initial={false}
-            animate={{ y: (isFocused || isFilled) ? -14 : 0, scale: (isFocused || isFilled) ? 0.75 : 1, color: isFocused ? "#a855f7" : "#555" }}
+            animate={{ y: (isFocused || isFilled) ? -14 : 0, scale: (isFocused || isFilled) ? 0.75 : 1, color: isFocused ? "#d4af37" : "#555" }}
             className="absolute top-5 left-4 pointer-events-none origin-left font-black text-[10px] uppercase tracking-widest"
           >
             {label}
@@ -211,7 +212,7 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-x-hidden font-sans selection:bg-[#ff1744]/50">
+    <main className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-x-hidden font-sans selection:bg-[#d4af37]/50">
       <BackgroundGradient />
       <GlassShards />
       <CarAnimation />
@@ -235,15 +236,21 @@ export default function LoginPage() {
               <div className="relative z-10">
                 <div className="flex justify-between items-center mb-10">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#ff1744] to-[#f50057] flex items-center justify-center shadow-lg shadow-[#ff1744]/20">
-                      <Zap size={20} className="text-white fill-white" />
+                    <div className="w-12 h-12 rounded-2xl bg-[#0a0a0a] border border-white/5 flex items-center justify-center shadow-2xl shadow-gold/20 overflow-hidden">
+                      <Image
+                        src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Dec-8-2025-10_12_14-AM-1-1768823187171.png?width=200&height=200&resize=contain"
+                        alt="Logo"
+                        width={40}
+                        height={40}
+                        className="w-10 h-10 object-contain"
+                      />
                     </div>
                     <div>
-                      <h2 className="text-lg font-black tracking-tighter text-white">Shashti Karz</h2>
+                      <h2 className="text-lg font-black tracking-tighter text-white uppercase">Shashti Karz</h2>
                     </div>
                   </div>
                   <button onClick={() => { setIsLogin(!isLogin); setIsRecovery(false); }} className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-[#555] hover:text-white transition-all">
-                    {isLogin || isRecovery ? "Sign Up" : "Secure Login"}
+                    {isLogin || isRecovery ? "Join Now" : "Terminal Access"}
                   </button>
                 </div>
 
@@ -275,7 +282,7 @@ export default function LoginPage() {
 
                   {isLogin && (
                     <div className="flex justify-end pt-2 pb-6">
-                      <button type="button" onClick={() => { setIsRecovery(true); setIsLogin(false); }} className="text-[10px] font-black text-[#333] hover:text-purple-400 uppercase tracking-widest transition-colors">
+                      <button type="button" onClick={() => { setIsRecovery(true); setIsLogin(false); }} className="text-[10px] font-black text-[#333] hover:text-gold uppercase tracking-widest transition-colors">
                         Recovery Protocol
                       </button>
                     </div>
@@ -283,13 +290,13 @@ export default function LoginPage() {
 
                   {isRecovery && (
                     <div className="flex justify-end pt-2 pb-6">
-                      <button type="button" onClick={() => { setIsRecovery(false); setIsLogin(true); }} className="text-[10px] font-black text-[#333] hover:text-purple-400 uppercase tracking-widest transition-colors">
+                      <button type="button" onClick={() => { setIsRecovery(false); setIsLogin(true); }} className="text-[10px] font-black text-[#333] hover:text-gold uppercase tracking-widest transition-colors">
                         Back to Login
                       </button>
                     </div>
                   )}
 
-                  <button disabled={isLoading} className="w-full btn-premium py-4.5 rounded-2xl text-white font-black uppercase text-[10px] tracking-[0.2em] flex items-center justify-center gap-3 shadow-xl shadow-[#ff1744]/20 transition-all hover:scale-[1.02] disabled:opacity-50 mt-4">
+                  <button disabled={isLoading} className="w-full btn-premium py-4.5 rounded-2xl text-[#0a0a0a] font-black uppercase text-[10px] tracking-[0.2em] flex items-center justify-center gap-3 shadow-xl shadow-gold/20 transition-all hover:scale-[1.02] disabled:opacity-50 mt-4">
                     {isLoading ? <Loader2 size={18} className="animate-spin" /> : (isRecovery ? "Deploy Recovery" : isLogin ? "Enter Nexus" : "Join Shashti")}
                     {!isLoading && <ArrowRight size={16} />}
                   </button>
@@ -303,7 +310,7 @@ export default function LoginPage() {
       {/* Mobile-Friendly Bottom Info */}
       <div className="mt-12 flex flex-wrap items-center justify-center gap-4 sm:gap-8 opacity-40">
         <div className="flex items-center gap-2">
-          <ShieldCheck size={14} className="text-purple-500" />
+          <ShieldCheck size={14} className="text-amber-500" />
           <span className="text-[8px] font-black uppercase tracking-widest">AES-256 SECURED</span>
         </div>
         <div className="flex items-center gap-2">
