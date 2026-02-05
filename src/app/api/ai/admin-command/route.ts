@@ -8,10 +8,13 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req: Request) {
   try {
-    const { command } = await req.json();
-    const supabase = await createClient();
+    if (!process.env.GEMINI_API_KEY) {
+      return NextResponse.json({ error: "AI services configured incorrectly" }, { status: 500 });
+    }
 
+    const { command } = await req.json();
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
 
     const prompt = `
       You are Shashti AI, an admin assistant for a car detailing platform.

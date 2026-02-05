@@ -4,6 +4,18 @@ import { updateSession } from "@/lib/supabase/middleware";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Early exit for static assets and manifest
+  if (
+    pathname === "/manifest.json" ||
+    pathname.includes("/icons/") ||
+    pathname.includes("/screenshots/") ||
+    pathname.startsWith("/_next/") ||
+    pathname === "/favicon.ico"
+  ) {
+    return NextResponse.next();
+  }
+
+
   // Check if accessing admin routes (except login and API routes)
   if (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login") && !pathname.startsWith("/api/admin/auth")) {
     const adminSession = request.cookies.get("admin_session");
