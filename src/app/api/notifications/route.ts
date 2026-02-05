@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+export const dynamic = 'force-dynamic';
+
 import { createClient } from "@/lib/supabase/server";
-import { 
-  getUserNotifications, 
-  markAllNotificationsRead, 
-  getUnreadCount 
+import {
+  getUserNotifications,
+  markAllNotificationsRead,
+  getUnreadCount
 } from "@/lib/notification-service";
 
 export async function GET(request: NextRequest) {
@@ -26,17 +28,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ count });
     }
 
-    const notifications = await getUserNotifications(user.id, { 
-      limit, 
-      offset, 
-      category 
+    const notifications = await getUserNotifications(user.id, {
+      limit,
+      offset,
+      category
     });
     const unreadCount = await getUnreadCount(user.id);
 
-    return NextResponse.json({ 
-      notifications, 
+    return NextResponse.json({
+      notifications,
       unreadCount,
-      hasMore: notifications.length === limit 
+      hasMore: notifications.length === limit
     });
   } catch (error) {
     console.error("Error fetching notifications:", error);
