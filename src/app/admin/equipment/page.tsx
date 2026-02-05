@@ -17,7 +17,7 @@ import {
     X,
     ChevronRight,
     MapPin,
-    Toolbox
+    Box
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -189,7 +189,7 @@ export default function EquipmentAdminPage() {
                             {/* Stats Overview */}
                             <div className="grid grid-cols-2 gap-4">
                                 {[
-                                    { label: "Asset Count", value: equipment.length, icon: Toolbox, color: "text-blue-500", bg: "bg-blue-500/10" },
+                                    { label: "Asset Count", value: equipment.length, icon: Box, color: "text-blue-500", bg: "bg-blue-500/10" },
                                     { label: "Operational", value: equipment.filter(e => e.is_active).length, icon: CheckCircle2, color: "text-green-500", bg: "bg-green-400/10" },
                                 ].map((stat, i) => (
                                     <div key={i} className="glass-card rounded-2xl p-4 lg:p-6 border border-white/5 flex items-center gap-4">
