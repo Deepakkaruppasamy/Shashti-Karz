@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+export const dynamic = 'force-dynamic';
+
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@/lib/supabase/server";
 

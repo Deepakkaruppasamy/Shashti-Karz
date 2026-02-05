@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
+
 import { stripe } from '@/lib/stripe';
 import { createClient } from '@supabase/supabase-js';
 import { sendPaymentNotification } from '@/lib/notification-service';
@@ -76,9 +78,9 @@ export async function POST(request: NextRequest) {
       cancel_url: `${origin}/payment/cancel?booking_id=${booking.id}`,
     });
 
-    return NextResponse.json({ 
-      sessionId: session.id, 
-      url: session.url 
+    return NextResponse.json({
+      sessionId: session.id,
+      url: session.url
     });
   } catch (error) {
     console.error('Checkout error:', error);
@@ -110,21 +112,21 @@ export async function GET(request: NextRequest) {
         .single();
 
       if (booking && booking.payment_status !== 'paid') {
-          await supabase
-            .from('bookings')
-            .update({ payment_status: 'paid', status: 'confirmed' })
-            .eq('id', session.metadata.booking_id);
+        await supabase
+          .from('bookings')
+          .update({ payment_status: 'paid', status: 'confirmed' })
+          .eq('id', session.metadata.booking_id);
 
-          try {
-            await updateLoyaltyPoints(
-              booking.user_id,
-              booking.id,
-              booking.price,
-              "earned",
-              `Earned for booking ${booking.booking_id}`
-            );
+        try {
+          await updateLoyaltyPoints(
+            booking.user_id,
+            booking.id,
+            booking.price,
+            "earned",
+            `Earned for booking ${booking.booking_id}`
+          );
 
-            await sendPaymentNotification(
+          await sendPaymentNotification(
 
             booking.user_id,
             {

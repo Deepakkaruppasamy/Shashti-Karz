@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+export const dynamic = 'force-dynamic';
+
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -35,7 +37,7 @@ export async function POST(request: Request) {
 
   if (body.action === "calculate") {
     const { base_price, date, time } = body;
-    
+
     const { data: rules, error } = await supabase
       .from("pricing_rules")
       .select("*")
@@ -53,7 +55,7 @@ export async function POST(request: Request) {
 
     for (const rule of rules || []) {
       let applies = false;
-      
+
       switch (rule.rule_type) {
         case "weekend":
           applies = dayOfWeek === 0 || dayOfWeek === 6;

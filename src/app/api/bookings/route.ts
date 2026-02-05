@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+export const dynamic = 'force-dynamic';
+
 import { sendBookingNotification, sendAdminNotification } from "@/lib/notification-service";
 import { logActivity } from "@/lib/activities";
 
@@ -47,20 +49,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-    try {
-      await sendBookingNotification(
-        data.id,
-        "created",
-        data.user_id,
-        {
-          serviceName: data.service?.name || body.service_name || "Service",
-          date: data.date,
-          time: data.time,
-          price: data.price,
-          customerName: data.customer_name,
-          customerEmail: data.customer_email,
-        }
-      );
+  try {
+    await sendBookingNotification(
+      data.id,
+      "created",
+      data.user_id,
+      {
+        serviceName: data.service?.name || body.service_name || "Service",
+        date: data.date,
+        time: data.time,
+        price: data.price,
+        customerName: data.customer_name,
+        customerEmail: data.customer_email,
+      }
+    );
 
     await sendAdminNotification("new_booking", {
       bookingId: data.id,
@@ -72,21 +74,21 @@ export async function POST(request: Request) {
     });
 
     if (data.price >= 15000) {
-        await sendAdminNotification("high_value", {
-          bookingId: data.id,
-          customerName: data.customer_name,
-          serviceName: data.service?.name || body.service_name || "Service",
-          price: data.price,
-        });
-      }
-
-      await logActivity({
-        type: 'booking',
-        title: 'New Booking Created',
-        description: `${data.customer_name} booked ${data.service?.name || 'a service'} for ₹${data.price}`,
-        metadata: { booking_id: data.booking_id, id: data.id }
+      await sendAdminNotification("high_value", {
+        bookingId: data.id,
+        customerName: data.customer_name,
+        serviceName: data.service?.name || body.service_name || "Service",
+        price: data.price,
       });
-    } catch (notifError) {
+    }
+
+    await logActivity({
+      type: 'booking',
+      title: 'New Booking Created',
+      description: `${data.customer_name} booked ${data.service?.name || 'a service'} for ₹${data.price}`,
+      metadata: { booking_id: data.booking_id, id: data.id }
+    });
+  } catch (notifError) {
 
     console.error("Failed to send notification:", notifError);
   }

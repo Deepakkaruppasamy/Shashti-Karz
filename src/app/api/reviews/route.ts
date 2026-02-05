@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+export const dynamic = 'force-dynamic';
+
 import { analyzeReviewSentiment } from "@/lib/ai-rating";
 
 export async function GET(request: Request) {
@@ -16,7 +18,7 @@ export async function GET(request: Request) {
   if (!isAdmin) {
     query = query.eq("approved", true);
   }
-  
+
   if (serviceId) {
     query = query.eq("service_id", serviceId);
   }
@@ -47,23 +49,23 @@ export async function POST(request: Request) {
     isRepeatCustomer = (count || 0) > 0;
   }
 
-    const reviewData = {
-      ...body,
-      sentiment_score: sentiment.score,
-      sentiment_label: sentiment.label,
-      ai_metadata: {
-        themes: sentiment.themes,
-        intensity: sentiment.intensity,
-        is_low_effort: sentiment.is_low_effort
-      },
-      is_repeat_customer: isRepeatCustomer,
-      is_verified: true,
-      abuse_score: sentiment.is_abusive ? 1.0 : 0.0,
-      flagged: sentiment.is_abusive,
-      approved: !sentiment.is_abusive && !body.is_private, // Don't auto-approve private feedback for home page
-      feedback_category: body.feedback_category || 'service',
-      is_private: body.is_private || false
-    };
+  const reviewData = {
+    ...body,
+    sentiment_score: sentiment.score,
+    sentiment_label: sentiment.label,
+    ai_metadata: {
+      themes: sentiment.themes,
+      intensity: sentiment.intensity,
+      is_low_effort: sentiment.is_low_effort
+    },
+    is_repeat_customer: isRepeatCustomer,
+    is_verified: true,
+    abuse_score: sentiment.is_abusive ? 1.0 : 0.0,
+    flagged: sentiment.is_abusive,
+    approved: !sentiment.is_abusive && !body.is_private, // Don't auto-approve private feedback for home page
+    feedback_category: body.feedback_category || 'service',
+    is_private: body.is_private || false
+  };
 
   const { data, error } = await supabase
     .from("reviews")

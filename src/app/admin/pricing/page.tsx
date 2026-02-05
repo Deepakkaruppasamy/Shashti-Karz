@@ -6,18 +6,16 @@ import {
   Sparkles,
   RefreshCw,
   Layers,
-  Zap,
   Calculator,
-  AlertTriangle,
   Calendar,
   Clock,
   Cloud,
   TrendingUp,
   Plus,
+  Target,
   Power,
   Trash2,
-  X,
-  ChevronRight
+  X
 } from "lucide-react";
 
 import { toast } from "sonner";
@@ -32,14 +30,18 @@ export default function PricingRulesPage() {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [testMode, setTestMode] = useState(false);
   const [testBasePrice, setTestBasePrice] = useState(1000);
-  const [testResult, setTestResult] = useState<any>(null);
+  const [testResult, setTestResult] = useState<{
+    final_price: number;
+    discount: number;
+    applied_rules: PricingRule[];
+  } | null>(null);
 
   const [form, setForm] = useState({
     name: "",
     rule_type: "weekend" as PricingRule["rule_type"],
     modifier_type: "percentage" as "percentage" | "fixed",
     modifier_value: 10,
-    conditions: {} as Record<string, any>,
+    conditions: {} as Record<string, string | number | boolean>,
   });
 
   // Real-time subscription
@@ -60,6 +62,7 @@ export default function PricingRulesPage() {
   useEffect(() => {
     loadRules();
     generateAiInsights();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadRules = async () => {
@@ -310,7 +313,7 @@ export default function PricingRulesPage() {
                             <div className="pt-2 border-t border-white/5">
                               <p className="text-[8px] font-black text-[#222] uppercase mb-2">Applied Logic:</p>
                               <div className="space-y-2">
-                                {testResult.applied_rules.map((r: any) => (
+                                {testResult.applied_rules.map((r: { id: string; name: string; modifier_value: number }) => (
                                   <div key={r.id} className="text-[9px] flex justify-between items-center">
                                     <span className="text-[#666] font-bold truncate pr-4">{r.name}</span>
                                     <span className="font-black text-white shrink-0">{r.modifier_value > 0 ? "+" : ""}{r.modifier_value}%</span>
@@ -374,7 +377,7 @@ export default function PricingRulesPage() {
                   <div className="space-y-3">
                     <label className="text-[10px] font-black text-[#555] uppercase tracking-widest ml-1">Trigger Signal</label>
                     <div className="relative">
-                      <select value={form.rule_type} onChange={(e) => setForm({ ...form, rule_type: e.target.value as any })} className="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 outline-none font-black uppercase text-[10px] tracking-widest appearance-none transition-colors focus:border-[#ff1744]">
+                      <select value={form.rule_type} onChange={(e) => setForm({ ...form, rule_type: e.target.value as PricingRule["rule_type"] })} className="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 outline-none font-black uppercase text-[10px] tracking-widest appearance-none transition-colors focus:border-[#ff1744]">
                         <option value="weekend">Weekend</option>
                         <option value="peak_hour">Peak Hour</option>
                         <option value="high_demand">Demand</option>

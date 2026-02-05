@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+export const dynamic = 'force-dynamic';
+
 import { sendBookingNotification } from "@/lib/notification-service";
 import { logActivity } from "@/lib/activities";
 import { updateLoyaltyPoints } from "@/lib/loyalty";
@@ -64,20 +66,20 @@ export async function PUT(
             customerName: data.customer_name,
           }
         );
-        } else if (data.status === "completed") {
-          try {
-            await updateLoyaltyPoints(
-              data.user_id,
-              data.id,
-              data.price,
-              "earned",
-              `Earned for booking ${data.booking_id}`
-            );
-          } catch (loyaltyError) {
-            console.error("Failed to update loyalty points:", loyaltyError);
-          }
+      } else if (data.status === "completed") {
+        try {
+          await updateLoyaltyPoints(
+            data.user_id,
+            data.id,
+            data.price,
+            "earned",
+            `Earned for booking ${data.booking_id}`
+          );
+        } catch (loyaltyError) {
+          console.error("Failed to update loyalty points:", loyaltyError);
+        }
 
-          await sendBookingNotification(
+        await sendBookingNotification(
 
           data.id,
           "completed",
@@ -90,29 +92,29 @@ export async function PUT(
             customerName: data.customer_name,
           }
         );
-        } else if (data.status === "cancelled") {
-          await sendBookingNotification(
-            data.id,
-            "cancelled",
-            data.user_id,
-            {
-              serviceName: data.service?.name || "Service",
-              date: data.date,
-              time: data.time,
-              price: data.price,
-              customerName: data.customer_name,
-            }
-          );
-        }
-
-        await logActivity({
-          type: 'booking',
-          title: `Booking ${data.status.toUpperCase()}`,
-          description: `Booking ${data.booking_id} for ${data.customer_name} is now ${data.status}`,
-          metadata: { booking_id: data.booking_id, id: data.id, status: data.status }
-        });
+      } else if (data.status === "cancelled") {
+        await sendBookingNotification(
+          data.id,
+          "cancelled",
+          data.user_id,
+          {
+            serviceName: data.service?.name || "Service",
+            date: data.date,
+            time: data.time,
+            price: data.price,
+            customerName: data.customer_name,
+          }
+        );
       }
-    } catch (notifError) {
+
+      await logActivity({
+        type: 'booking',
+        title: `Booking ${data.status.toUpperCase()}`,
+        description: `Booking ${data.booking_id} for ${data.customer_name} is now ${data.status}`,
+        metadata: { booking_id: data.booking_id, id: data.id, status: data.status }
+      });
+    }
+  } catch (notifError) {
 
     console.error("Failed to send notification:", notifError);
   }

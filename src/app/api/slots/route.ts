@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+export const dynamic = 'force-dynamic';
+
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -54,8 +56,8 @@ export async function POST(request: Request) {
 
     for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
       const dateStr = d.toISOString().split("T")[0];
-      const slotsToUse = slots_per_day 
-        ? defaultSlots.slice(0, slots_per_day) 
+      const slotsToUse = slots_per_day
+        ? defaultSlots.slice(0, slots_per_day)
         : defaultSlots;
 
       for (const slot of slotsToUse) {

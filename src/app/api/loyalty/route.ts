@@ -1,5 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+export const dynamic = 'force-dynamic';
+
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -57,7 +59,7 @@ export async function GET(request: NextRequest) {
         .single();
 
       if (insertError) throw insertError;
-      
+
       await supabase.from("loyalty_transactions").insert({
         user_id: userId,
         points: 100,
