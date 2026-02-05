@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+export const dynamic = 'force-dynamic';
+
 import { createClient } from "@/lib/supabase/server";
 
 // PUT /api/subscriptions/[id] - Update subscription
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
+    const { id } = await params;
     try {
         const supabase = await createClient();
         const { data: { user } } = await supabase.auth.getUser();
@@ -21,7 +24,7 @@ export async function PUT(
         const { data: subscription, error: fetchError } = await supabase
             .from("user_subscriptions")
             .select("*")
-            .eq("id", params.id)
+            .eq("id", id)
             .eq("user_id", user.id)
             .single();
 
@@ -62,7 +65,7 @@ export async function PUT(
         const { data, error } = await supabase
             .from("user_subscriptions")
             .update({ ...updateData, updated_at: new Date().toISOString() })
-            .eq("id", params.id)
+            .eq("id", id)
             .select()
             .single();
 
@@ -83,8 +86,9 @@ export async function PUT(
 // GET /api/subscriptions/[id] - Get subscription details
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
+    const { id } = await params;
     try {
         const supabase = await createClient();
         const { data: { user } } = await supabase.auth.getUser();
@@ -100,7 +104,7 @@ export async function GET(
         plan:subscription_plans(*),
         usage:subscription_usage(*)
       `)
-            .eq("id", params.id)
+            .eq("id", id)
             .eq("user_id", user.id)
             .single();
 

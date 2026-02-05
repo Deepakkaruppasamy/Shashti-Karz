@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+export const dynamic = 'force-dynamic';
+
 import { createClient } from "@/lib/supabase/server";
 
 // GET /api/subscriptions/plans - Get all subscription plans
