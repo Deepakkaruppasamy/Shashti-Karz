@@ -40,11 +40,11 @@ export default function AdminLoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#020202] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden selection:bg-[#d4af37]/50">
+        <div className="min-h-screen bg-[#020202] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden selection:bg-[#ff1744]/50">
             {/* Background elements */}
             <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-0 right-0 w-[80%] h-[80%] bg-amber-600/5 rounded-full blur-[160px] animate-pulse" />
-                <div className="absolute bottom-0 left-0 w-[80%] h-[80%] bg-[#d4af37]/5 rounded-full blur-[160px] animate-pulse delay-1000" />
+                <div className="absolute top-0 right-0 w-[80%] h-[80%] bg-[#ff1744]/5 rounded-full blur-[160px] animate-pulse" />
+                <div className="absolute bottom-0 left-0 w-[80%] h-[80%] bg-blue-600/5 rounded-full blur-[160px] animate-pulse delay-1000" />
             </div>
 
             <motion.div
@@ -53,7 +53,7 @@ export default function AdminLoginPage() {
                 className="relative z-10 w-full max-w-[400px]"
             >
                 <div className="text-center mb-10">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-[#0a0a0a] border border-white/5 mb-6 shadow-2xl shadow-gold/20 relative overflow-hidden">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-[#0a0a0a] border border-white/5 mb-6 shadow-2xl shadow-[#ff1744]/30 relative overflow-hidden">
                         <Image
                             src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Dec-8-2025-10_12_14-AM-1-1768823187171.png?width=200&height=200&resize=contain"
                             alt="Logo"
@@ -63,9 +63,9 @@ export default function AdminLoginPage() {
                         />
                         <motion.div animate={{ x: ["-100%", "200%"] }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }} className="absolute inset-0 bg-white/5 -skew-x-12" />
                     </div>
-                    <h1 className="text-3xl font-black tracking-tighter uppercase mb-2 text-gradient">Admin Lexicon</h1>
+                    <h1 className="text-3xl font-black tracking-tighter uppercase mb-2">Admin Lexicon</h1>
                     <div className="flex items-center justify-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
                         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#555]">Secure Sector Authorization</p>
                     </div>
                 </div>
@@ -75,14 +75,14 @@ export default function AdminLoginPage() {
                         <div className="space-y-4">
                             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#333] ml-1">Terminal Cipher</label>
                             <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-[#444] group-focus-within:text-gold transition-colors">
+                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-[#444] group-focus-within:text-[#ff1744] transition-colors">
                                     <Lock size={18} />
                                 </div>
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full pl-14 pr-12 py-5 bg-white/[0.02] border border-white/5 rounded-2xl text-white font-bold text-sm tracking-widest placeholder-[#222] outline-none focus:border-gold/50 focus:bg-white/[0.05] transition-all"
+                                    className="w-full pl-14 pr-12 py-5 bg-white/[0.02] border border-white/5 rounded-2xl text-white font-bold text-sm tracking-widest placeholder-[#222] outline-none focus:border-[#ff1744]/50 focus:bg-white/[0.05] transition-all"
                                     placeholder="••••••••"
                                     required
                                     autoFocus
@@ -109,7 +109,7 @@ export default function AdminLoginPage() {
                         <button
                             type="submit"
                             disabled={loading || !password}
-                            className="w-full btn-premium py-5 rounded-2xl text-[#0a0a0a] font-black uppercase text-[10px] tracking-[0.2em] flex items-center justify-center gap-3 shadow-xl shadow-gold/20 transition-all hover:scale-[1.02] disabled:opacity-50"
+                            className="w-full btn-premium py-5 rounded-2xl text-white font-black uppercase text-[10px] tracking-[0.2em] flex items-center justify-center gap-3 shadow-xl shadow-[#ff1744]/20 transition-all hover:scale-[1.02] disabled:opacity-50"
                         >
                             {loading ? <Loader2 className="animate-spin" size={20} /> : "Authorize Entry"}
                             {!loading && <ArrowRight size={18} />}
