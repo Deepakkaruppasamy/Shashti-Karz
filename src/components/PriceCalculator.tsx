@@ -120,7 +120,7 @@ export function PriceCalculator({ services, onBookNow }: PriceCalculatorProps) {
   };
 
   return (
-    <section className="py-24 relative overflow-hidden">
+    <section className="py-12 sm:py-24 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-[#0d0d0d] to-[#0a0a0a]" />
       <motion.div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px]"
@@ -154,25 +154,25 @@ export function PriceCalculator({ services, onBookNow }: PriceCalculatorProps) {
             whileInView={{ opacity: 1, x: 0 }}
             className="lg:col-span-2 space-y-8"
           >
-            <div className="glass-card rounded-2xl p-6">
+            <div className="glass-card rounded-2xl p-4 sm:p-6">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Sparkles size={20} className="text-[#d4af37]" />
                 Select Service
               </h3>
-              <div className="grid sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 {services.slice(0, 6).map((service) => (
                   <motion.button
                     key={service.id}
                     onClick={() => setSelectedService(service)}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`p-4 rounded-xl text-left transition-all ${selectedService?.id === service.id
-                        ? "bg-gradient-to-br from-[#ff1744]/20 to-[#d4af37]/20 border-2 border-[#ff1744]"
-                        : "bg-white/5 border border-white/10 hover:border-white/20"
+                    className={`p-3 sm:p-4 rounded-xl text-left transition-all ${selectedService?.id === service.id
+                      ? "bg-gradient-to-br from-[#ff1744]/20 to-[#d4af37]/20 border-2 border-[#ff1744]"
+                      : "bg-white/5 border border-white/10 hover:border-white/20"
                       }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium">{service.name}</span>
+                      <span className="font-medium text-sm sm:text-base leading-tight">{service.name}</span>
                       {selectedService?.id === service.id && (
                         <motion.div
                           initial={{ scale: 0 }}
@@ -193,21 +193,21 @@ export function PriceCalculator({ services, onBookNow }: PriceCalculatorProps) {
               </div>
             </div>
 
-            <div className="glass-card rounded-2xl p-6">
+            <div className="glass-card rounded-2xl p-4 sm:p-6">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Car size={20} className="text-[#ff1744]" />
                 Select Car Type
               </h3>
-              <div className="flex flex-nowrap lg:flex-wrap gap-3 overflow-x-auto pb-4 lg:pb-0 scrollbar-hide -mx-2 px-2 lg:mx-0 lg:px-0 scroll-smooth">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:flex lg:flex-wrap gap-2 sm:gap-3">
                 {carTypes.map((car) => (
                   <motion.button
                     key={car.id}
                     onClick={() => setSelectedCarType(car)}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className={`px-5 py-3 rounded-xl flex items-center gap-2 transition-all whitespace-nowrap shrink-0 ${selectedCarType.id === car.id
-                        ? "bg-gradient-to-br from-[#ff1744] to-[#d4af37] text-white"
-                        : "bg-white/5 border border-white/10 hover:border-white/20"
+                    className={`px-3 py-2 sm:px-5 sm:py-3 rounded-xl flex items-center justify-center sm:justify-start gap-2 transition-all w-full ${selectedCarType.id === car.id
+                      ? "bg-gradient-to-br from-[#ff1744] to-[#d4af37] text-white"
+                      : "bg-white/5 border border-white/10 hover:border-white/20"
                       }`}
                   >
                     <span className="text-xl">{car.icon}</span>
@@ -222,26 +222,26 @@ export function PriceCalculator({ services, onBookNow }: PriceCalculatorProps) {
               </div>
             </div>
 
-            <div className="glass-card rounded-2xl p-6">
+            <div className="glass-card rounded-2xl p-4 sm:p-6">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Plus size={20} className="text-[#d4af37]" />
                 Add-ons (₹300 each)
               </h3>
-              <div className="grid sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 {addons.map((addon) => (
                   <motion.div
                     key={addon.id}
-                    className={`p-4 rounded-xl flex items-center justify-between transition-all ${selectedAddons.includes(addon.id)
-                        ? "bg-[#d4af37]/20 border-2 border-[#d4af37]"
-                        : "bg-white/5 border border-white/10 hover:border-white/20"
+                    className={`p-3 sm:p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between transition-all gap-2 ${selectedAddons.includes(addon.id)
+                      ? "bg-[#d4af37]/20 border-2 border-[#d4af37]"
+                      : "bg-white/5 border border-white/10 hover:border-white/20"
                       }`}
                   >
                     <button
                       onClick={() => toggleAddon(addon.id)}
                       className="flex-1 text-left"
                     >
-                      <span className="font-medium">{addon.name}</span>
-                      <span className="block text-sm text-[#d4af37]">₹{addon.price}</span>
+                      <span className="font-medium text-xs sm:text-sm leading-tight">{addon.name}</span>
+                      <span className="block text-[10px] sm:text-sm text-[#d4af37]">₹{addon.price}</span>
                     </button>
                     <div className="flex items-center gap-2">
                       <button
@@ -268,27 +268,27 @@ export function PriceCalculator({ services, onBookNow }: PriceCalculatorProps) {
               </div>
             </div>
 
-            <div className="glass-card rounded-2xl p-6">
+            <div className="glass-card rounded-2xl p-4 sm:p-6">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Sparkles size={20} className="text-[#ff1744]" />
                 Packages (₹300 each)
               </h3>
-              <div className="grid sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                 {packages.map((pkg) => (
                   <motion.div
                     key={pkg.id}
-                    className={`p-4 rounded-xl transition-all ${selectedPackages.includes(pkg.id)
-                        ? "bg-[#ff1744]/20 border-2 border-[#ff1744]"
-                        : "bg-white/5 border border-white/10 hover:border-white/20"
+                    className={`p-3 sm:p-4 rounded-xl transition-all ${selectedPackages.includes(pkg.id)
+                      ? "bg-[#ff1744]/20 border-2 border-[#ff1744]"
+                      : "bg-white/5 border border-white/10 hover:border-white/20"
                       }`}
                   >
                     <button
                       onClick={() => togglePackage(pkg.id)}
                       className="w-full text-left mb-3"
                     >
-                      <span className="font-medium block">{pkg.name}</span>
-                      <span className="text-xs text-[#888] block mt-1">{pkg.description}</span>
-                      <span className="text-sm text-[#d4af37] block mt-2">₹{pkg.price}</span>
+                      <span className="font-medium block text-sm leading-tight">{pkg.name}</span>
+                      <span className="text-[10px] text-[#888] block mt-1 line-clamp-1">{pkg.description}</span>
+                      <span className="text-xs sm:text-sm text-[#d4af37] block mt-2">₹{pkg.price}</span>
                     </button>
                     <div className="flex items-center justify-between">
                       <button
@@ -321,7 +321,7 @@ export function PriceCalculator({ services, onBookNow }: PriceCalculatorProps) {
             whileInView={{ opacity: 1, x: 0 }}
             className="lg:sticky lg:top-24 h-fit"
           >
-            <div className="glass-card rounded-2xl p-6 border border-[#ff1744]/20">
+            <div className="glass-card rounded-2xl p-4 sm:p-6 border border-[#ff1744]/20">
               <h3 className="text-lg font-semibold mb-6 text-center">Price Summary</h3>
 
               <div className="space-y-4 mb-6">
@@ -399,6 +399,32 @@ export function PriceCalculator({ services, onBookNow }: PriceCalculatorProps) {
               <p className="text-xs text-center text-[#666] mt-4">
                 *Final price may vary based on car condition
               </p>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Mobile Sticky Bottom Bar */}
+        <div className="lg:hidden fixed bottom-24 left-0 right-0 z-40 px-4 pb-4 pointer-events-none">
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="bg-[#111]/90 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 shadow-2xl pointer-events-auto"
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-[10px] text-[#888] font-bold uppercase tracking-wider">Total Est.</p>
+                <div className="text-xl font-bold text-gradient">
+                  {isCalculating ? "..." : `₹${totalPrice.toLocaleString()}`}
+                </div>
+              </div>
+              <button
+                onClick={handleBookNow}
+                disabled={!selectedService && selectedAddons.length === 0 && selectedPackages.length === 0}
+                className="flex-1 btn-premium py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 group disabled:opacity-50"
+              >
+                Book Now
+                <ArrowRight size={16} />
+              </button>
             </div>
           </motion.div>
         </div>

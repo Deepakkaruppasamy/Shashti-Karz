@@ -261,7 +261,7 @@ function HeroSection() {
 function ServiceIntroSection() {
   const { t } = useLanguage();
   return (
-    <section className="py-32 relative overflow-hidden">
+    <section className="py-16 sm:py-32 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-[#111] to-[#0a0a0a]" />
       <motion.div
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px]"
@@ -327,7 +327,7 @@ function WhyUsSection() {
   ];
 
   return (
-    <section className="py-24 hero-gradient">
+    <section className="py-12 sm:py-24 hero-gradient">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div>
@@ -407,7 +407,7 @@ function WhyUsSection() {
 function OffersSection({ offers }: { offers: Offer[] }) {
   const { t } = useLanguage();
   return (
-    <section className="py-24 section-gradient">
+    <section className="py-12 sm:py-24 section-gradient">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <ScrollReveal variant="fadeUp" className="text-center mb-12">
           <span className="text-[#d4af37] text-sm font-semibold tracking-widest uppercase">{t('special_offers')}</span>
@@ -455,7 +455,7 @@ function OffersSection({ offers }: { offers: Offer[] }) {
 function ReviewsSection({ reviews }: { reviews: Review[] }) {
   const { t } = useLanguage();
   return (
-    <section className="py-24 hero-gradient">
+    <section className="py-12 sm:py-24 hero-gradient">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <ScrollReveal variant="fadeUp" className="text-center mb-12">
           <span className="text-[#ff1744] text-sm font-semibold tracking-widest uppercase">{t('testimonials')}</span>
@@ -502,7 +502,7 @@ function ReviewsSection({ reviews }: { reviews: Review[] }) {
 function CTASection() {
   const { t } = useLanguage();
   return (
-    <section className="py-24 relative overflow-hidden">
+    <section className="py-12 sm:py-24 relative overflow-hidden">
       <motion.div
         animate={{
           background: [

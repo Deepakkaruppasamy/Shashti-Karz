@@ -651,10 +651,11 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             {!isOpen && (
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="fixed bottom-24 left-6 z-50 w-16 h-16 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 flex items-center justify-center shadow-2xl shadow-purple-500/50 transition-all hover:scale-110 animate-pulse-slow group"
+                    className="fixed bottom-28 left-4 sm:left-6 z-50 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 flex items-center justify-center shadow-2xl shadow-purple-500/50 transition-all hover:scale-110 animate-pulse-slow group"
                     title="Dinesh Voice Assistant"
                 >
-                    <HeadphonesIcon size={28} className="text-white" />
+                    <HeadphonesIcon size={24} className="text-white sm:hidden" />
+                    <HeadphonesIcon size={28} className="text-white hidden sm:block" />
                     <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-ping"></span>
                     <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></span>
 
@@ -667,7 +668,7 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
 
             {/* Chat Window */}
             {isOpen && (
-                <div className="fixed bottom-6 left-6 z-50 w-[400px] h-[600px] bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-purple-500/30">
+                <div className="fixed bottom-4 sm:bottom-6 left-4 sm:left-6 z-50 w-[calc(100vw-2rem)] sm:w-[400px] h-[85vh] sm:h-[600px] bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-purple-500/30">
                     {/* Header */}
                     <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">

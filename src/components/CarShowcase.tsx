@@ -34,7 +34,7 @@ export function ExplodedCarSection({ service, index }: ExplodedCarProps) {
   return (
     <section
       ref={ref}
-      className="min-h-screen py-24 relative overflow-hidden"
+      className="min-h-screen py-12 sm:py-24 relative overflow-hidden"
       style={{
         background: isEven
           ? "linear-gradient(180deg, #0a0a0a 0%, #111 50%, #0a0a0a 100%)"
@@ -156,8 +156,16 @@ export function ExplodedCarSection({ service, index }: ExplodedCarProps) {
                     }}
                     initial={{ x: "-50%", y: "-50%" }}
                     animate={{
-                      x: isExploded ? `calc(-50% + ${part.x}px)` : "-50%",
-                      y: isExploded ? `calc(-50% + ${part.y}px)` : "-50%",
+                      x: isExploded
+                        ? typeof window !== 'undefined' && window.innerWidth < 768
+                          ? `calc(-50% + ${part.x * 0.6}px)`
+                          : `calc(-50% + ${part.x}px)`
+                        : "-50%",
+                      y: isExploded
+                        ? typeof window !== 'undefined' && window.innerWidth < 768
+                          ? `calc(-50% + ${part.y * 0.6}px)`
+                          : `calc(-50% + ${part.y}px)`
+                        : "-50%",
                       rotate: isExploded ? part.rotation : 0,
                       scale: hoveredPart === part.id ? 1.1 : 1,
                     }}
@@ -271,7 +279,7 @@ export function ServiceBeforeAfter({ service, index }: ServiceBeforeAfterProps) 
   return (
     <section
       ref={sectionRef}
-      className="min-h-screen py-24 relative overflow-hidden"
+      className="min-h-screen py-12 sm:py-24 relative overflow-hidden"
       style={{
         background: isEven
           ? "linear-gradient(180deg, #0a0a0a 0%, #0f0808 50%, #0a0a0a 100%)"

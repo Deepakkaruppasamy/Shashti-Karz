@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase/client";
-import { 
-  Car, CheckCircle2, Clock, Sparkles, Wrench, Droplets, 
+import {
+  Car, CheckCircle2, Clock, Sparkles, Wrench, Droplets,
   Paintbrush, Shield, Wind, Search, Package, Bell, MessageSquare
 } from "lucide-react";
 import type { ServiceTracking, Booking } from "@/lib/types";
@@ -42,93 +42,93 @@ export function LiveServiceTracker({ bookingId, isClient = false }: LiveServiceT
     }
   }, [bookingId]);
 
-    useEffect(() => {
-      if (!booking?.id) return;
+  useEffect(() => {
+    if (!booking?.id) return;
 
-      const channel = supabase
-        .channel(`tracking-${booking.id}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "service_tracking",
-            filter: `booking_id=eq.${booking.id}`,
-          },
-          (payload) => {
-            console.log("Realtime update received:", payload);
-            if (payload.eventType === "INSERT") {
-              setTracking(prev => {
-                const exists = prev.find(t => t.id === payload.new.id);
-                if (exists) return prev;
-                return [...prev, payload.new as ServiceTracking].sort((a, b) => 
-                  new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
-                );
-              });
-            } else if (payload.eventType === "UPDATE") {
-              setTracking(prev => 
-                prev.map(t => t.id === payload.new.id ? payload.new as ServiceTracking : t)
+    const channel = supabase
+      .channel(`tracking-${booking.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "service_tracking",
+          filter: `booking_id=eq.${booking.id}`,
+        },
+        (payload) => {
+          console.log("Realtime update received:", payload);
+          if (payload.eventType === "INSERT") {
+            setTracking(prev => {
+              const exists = prev.find(t => t.id === payload.new.id);
+              if (exists) return prev;
+              return [...prev, payload.new as ServiceTracking].sort((a, b) =>
+                new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
               );
-            }
-            updateCurrentStage();
+            });
+          } else if (payload.eventType === "UPDATE") {
+            setTracking(prev =>
+              prev.map(t => t.id === payload.new.id ? payload.new as ServiceTracking : t)
+            );
           }
-        )
-        .subscribe((status) => {
-          console.log(`Realtime subscription status for booking ${booking.id}:`, status);
-        });
-
-      // Fallback polling every 10 seconds if realtime is slow or disabled
-      const pollInterval = setInterval(() => {
-        fetchTrackingData(booking.id, true);
-      }, 10000);
-
-      return () => {
-        supabase.removeChannel(channel);
-        clearInterval(pollInterval);
-      };
-    }, [booking?.id]);
-
-    const fetchTrackingData = async (id: string, isSilent = false) => {
-      if (!isSilent) setIsSearching(true);
-      setError("");
-
-      try {
-        const { data: bookingData, error: bookingError } = await supabase
-          .from("bookings")
-          .select("*")
-          .or(`booking_id.eq.${id},id.eq.${id}`)
-          .single();
-
-        if (bookingError || !bookingData) {
-          if (!isSilent) setError("Booking not found. Please check your booking ID.");
-          setBooking(null);
-          setTracking([]);
-          return;
+          updateCurrentStage();
         }
+      )
+      .subscribe((status) => {
+        console.log(`Realtime subscription status for booking ${booking.id}:`, status);
+      });
 
-        setBooking(bookingData);
+    // Fallback polling every 10 seconds if realtime is slow or disabled
+    const pollInterval = setInterval(() => {
+      fetchTrackingData(booking.id, true);
+    }, 10000);
 
-        const { data: trackingData } = await supabase
-          .from("service_tracking")
-          .select("*")
-          .eq("booking_id", bookingData.id)
-          .order("created_at", { ascending: true });
-
-        setTracking(trackingData || []);
-        updateCurrentStage(trackingData || []);
-      } catch {
-        if (!isSilent) setError("Error fetching tracking data");
-      } finally {
-        if (!isSilent) setIsSearching(false);
-      }
+    return () => {
+      supabase.removeChannel(channel);
+      clearInterval(pollInterval);
     };
+  }, [booking?.id]);
+
+  const fetchTrackingData = async (id: string, isSilent = false) => {
+    if (!isSilent) setIsSearching(true);
+    setError("");
+
+    try {
+      const { data: bookingData, error: bookingError } = await supabase
+        .from("bookings")
+        .select("*")
+        .or(`booking_id.eq.${id},id.eq.${id}`)
+        .single();
+
+      if (bookingError || !bookingData) {
+        if (!isSilent) setError("Booking not found. Please check your booking ID.");
+        setBooking(null);
+        setTracking([]);
+        return;
+      }
+
+      setBooking(bookingData);
+
+      const { data: trackingData } = await supabase
+        .from("service_tracking")
+        .select("*")
+        .eq("booking_id", bookingData.id)
+        .order("created_at", { ascending: true });
+
+      setTracking(trackingData || []);
+      updateCurrentStage(trackingData || []);
+    } catch {
+      if (!isSilent) setError("Error fetching tracking data");
+    } finally {
+      if (!isSilent) setIsSearching(false);
+    }
+  };
 
 
   const updateCurrentStage = (data?: ServiceTracking[]) => {
     const trackingData = data || tracking;
     const inProgressStage = trackingData.find(t => t.status === "in_progress");
     const lastCompleted = [...trackingData].reverse().find(t => t.status === "completed");
-    
+
     if (inProgressStage) {
       setCurrentStage(inProgressStage.stage);
     } else if (lastCompleted) {
@@ -156,7 +156,7 @@ export function LiveServiceTracker({ bookingId, isClient = false }: LiveServiceT
   return (
     <section className="py-16 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-[#0d0808] to-[#0a0a0a]" />
-      
+
       <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -243,28 +243,26 @@ export function LiveServiceTracker({ bookingId, isClient = false }: LiveServiceT
                 const status = getStageStatus(stage.id);
                 const stageData = tracking.find(t => t.stage === stage.id);
                 const Icon = stage.icon;
-                
+
                 return (
                   <motion.div
                     key={stage.id}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className={`glass-card rounded-xl p-4 flex items-center gap-4 transition-all ${
-                      status === "in_progress" 
+                    className={`glass-card rounded-xl p-4 flex items-center gap-4 transition-all ${status === "in_progress"
                         ? "border-2 border-[#ff1744] bg-[#ff1744]/5"
                         : status === "completed"
-                        ? "border border-green-500/30 bg-green-500/5"
-                        : "border border-white/5"
-                    }`}
+                          ? "border border-green-500/30 bg-green-500/5"
+                          : "border border-white/5"
+                      }`}
                   >
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                      status === "completed" 
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${status === "completed"
                         ? "bg-green-500/20"
                         : status === "in_progress"
-                        ? "bg-[#ff1744]/20"
-                        : "bg-white/5"
-                    }`}>
+                          ? "bg-[#ff1744]/20"
+                          : "bg-white/5"
+                      }`}>
                       {status === "completed" ? (
                         <CheckCircle2 className="text-green-500" size={24} />
                       ) : status === "in_progress" ? (
@@ -281,10 +279,9 @@ export function LiveServiceTracker({ bookingId, isClient = false }: LiveServiceT
 
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <h4 className={`font-medium ${
-                          status === "completed" ? "text-green-500" :
-                          status === "in_progress" ? "text-white" : "text-[#666]"
-                        }`}>
+                        <h4 className={`font-medium ${status === "completed" ? "text-green-500" :
+                            status === "in_progress" ? "text-white" : "text-[#666]"
+                          }`}>
                           {stage.name}
                         </h4>
                         {status === "in_progress" && (
@@ -320,7 +317,7 @@ export function LiveServiceTracker({ bookingId, isClient = false }: LiveServiceT
                 className="inline-flex items-center gap-2 px-6 py-3 bg-[#25D366] text-white rounded-xl hover:bg-[#25D366]/90 transition-colors mb-6"
               >
                 <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                 </svg>
                 Contact via WhatsApp
               </a>
@@ -365,9 +362,9 @@ export function ServiceTrackerDemo() {
   }, []);
 
   return (
-    <section className="py-24 relative overflow-hidden">
+    <section className="py-12 sm:py-24 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-[#080a0d] to-[#0a0a0a]" />
-      
+
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -394,7 +391,7 @@ export function ServiceTrackerDemo() {
               const Icon = stage.icon;
               const isActive = index === activeStage % 6;
               const isCompleted = index < activeStage % 6;
-              
+
               return (
                 <motion.div
                   key={stage.id}
@@ -409,10 +406,9 @@ export function ServiceTrackerDemo() {
                       boxShadow: isActive ? "0 0 30px rgba(255, 23, 68, 0.5)" : "none"
                     }}
                     transition={{ duration: 0.5, repeat: isActive ? Infinity : 0 }}
-                    className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center ${
-                      isCompleted ? "bg-green-500" :
-                      isActive ? "bg-[#ff1744]" : "bg-[#333]"
-                    }`}
+                    className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center ${isCompleted ? "bg-green-500" :
+                        isActive ? "bg-[#ff1744]" : "bg-[#333]"
+                      }`}
                   >
                     {isCompleted ? (
                       <CheckCircle2 size={20} className="text-white" />
@@ -422,13 +418,12 @@ export function ServiceTrackerDemo() {
                   </motion.div>
 
                   <motion.div
-                    animate={{ 
+                    animate={{
                       opacity: isActive ? 1 : 0.6,
-                      x: isActive ? 10 : 0 
+                      x: isActive ? 10 : 0
                     }}
-                    className={`flex-1 glass-card rounded-xl p-4 ${
-                      isActive ? "border-2 border-[#ff1744]" : ""
-                    }`}
+                    className={`flex-1 glass-card rounded-xl p-4 ${isActive ? "border-2 border-[#ff1744]" : ""
+                      }`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
@@ -466,7 +461,7 @@ export function ServiceTrackerDemo() {
             </div>
             <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl">
               <svg viewBox="0 0 24 24" className="w-4 h-4 fill-[#25D366]">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
               </svg>
               <span className="text-sm">WhatsApp Updates</span>
             </div>
