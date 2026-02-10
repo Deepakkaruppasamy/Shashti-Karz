@@ -19,6 +19,8 @@ import type {
   ServiceCertificate,
   VehicleHealthScore
 } from "@/lib/types";
+import { ServiceJournalModal } from "@/components/dashboard/ServiceJournalModal";
+import { MaintenanceReminderModal } from "@/components/dashboard/MaintenanceReminderModal";
 
 interface ExtendedVehicleData {
   vehicle: UserVehicle;
@@ -264,8 +266,8 @@ export default function VehicleGaragePage({
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === tab.id
-                    ? "bg-gradient-to-r from-[#ff1744] to-[#d4af37] text-white"
-                    : "bg-white/5 hover:bg-white/10 text-[#888]"
+                  ? "bg-gradient-to-r from-[#ff1744] to-[#d4af37] text-white"
+                  : "bg-white/5 hover:bg-white/10 text-[#888]"
                   }`}
               >
                 <tab.icon size={18} />
@@ -425,9 +427,9 @@ export default function VehicleGaragePage({
                                 )}
                                 <h3 className="font-semibold">{reminder.title}</h3>
                                 <span className={`text-xs px-2 py-1 rounded-full ${reminder.priority === 'critical' ? 'bg-red-500/20 text-red-500' :
-                                    reminder.priority === 'high' ? 'bg-orange-500/20 text-orange-500' :
-                                      reminder.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-500' :
-                                        'bg-green-500/20 text-green-500'
+                                  reminder.priority === 'high' ? 'bg-orange-500/20 text-orange-500' :
+                                    reminder.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-500' :
+                                      'bg-green-500/20 text-green-500'
                                   }`}>
                                   {reminder.priority}
                                 </span>
@@ -526,7 +528,10 @@ export default function VehicleGaragePage({
                         </div>
 
                         {cert.pdf_url && (
-                          <button className="w-full btn-premium py-3 rounded-xl text-sm font-semibold">
+                          <button
+                            onClick={() => window.open(cert.pdf_url, '_blank')}
+                            className="w-full btn-premium py-3 rounded-xl text-sm font-semibold"
+                          >
                             Download Certificate
                           </button>
                         )}
@@ -597,8 +602,8 @@ export default function VehicleGaragePage({
                           <div className="w-full bg-white/5 rounded-full h-2">
                             <div
                               className={`h-2 rounded-full ${item.score >= 80 ? 'bg-green-500' :
-                                  item.score >= 60 ? 'bg-yellow-500' :
-                                    item.score >= 40 ? 'bg-orange-500' : 'bg-red-500'
+                                item.score >= 60 ? 'bg-yellow-500' :
+                                  item.score >= 40 ? 'bg-orange-500' : 'bg-red-500'
                                 }`}
                               style={{ width: `${item.score}%` }}
                             />
@@ -662,6 +667,20 @@ export default function VehicleGaragePage({
           </AnimatePresence>
         </div>
       </div>
+
+      <ServiceJournalModal
+        isOpen={showJournalModal}
+        onClose={() => setShowJournalModal(false)}
+        vehicleId={vehicleId}
+        onSuccess={loadVehicleData}
+      />
+
+      <MaintenanceReminderModal
+        isOpen={showReminderModal}
+        onClose={() => setShowReminderModal(false)}
+        vehicleId={vehicleId}
+        onSuccess={loadVehicleData}
+      />
 
       <Footer />
     </main>

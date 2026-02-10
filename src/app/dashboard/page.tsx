@@ -18,7 +18,7 @@ import { supabase } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import Image from "next/image";
 import Link from "next/link";
-import type { LoyaltyPoints, LoyaltyTransaction, ServiceTracking, Booking, Worker, Service } from "@/lib/types";
+import type { LoyaltyPoints, LoyaltyTransaction, ServiceTracking, Booking, Worker, Service, UserVehicle, VehicleHealthScore } from "@/lib/types";
 import dynamic from "next/dynamic";
 
 function PayNowButton({ bookingId }: { bookingId: string }) {
@@ -127,6 +127,7 @@ export default function DashboardPage() {
   const [selectedBookingForReview, setSelectedBookingForReview] = useState<Booking | null>(null);
   const [selectedBookingForReschedule, setSelectedBookingForReschedule] = useState<Booking | null>(null);
   const [reviewedBookingIds, setReviewedBookingIds] = useState<Set<string>>(new Set());
+  const [vehicles, setVehicles] = useState<(UserVehicle & { health_score?: VehicleHealthScore })[]>([]);
 
   const refreshBookings = async () => {
     if (!user) return;
@@ -174,6 +175,31 @@ export default function DashboardPage() {
     }
   };
 
+  const loadVehicles = async () => {
+    if (!user) return;
+    try {
+      const res = await fetch(`/api/vehicles?user_id=${user.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        const vehiclesWithHealth = await Promise.all(data.map(async (v: UserVehicle) => {
+          try {
+            const healthRes = await fetch(`/api/vehicles/${v.id}/health-score`);
+            if (healthRes.ok) {
+              const healthData = await healthRes.json();
+              return { ...v, health_score: healthData };
+            }
+          } catch (e) {
+            console.error("Error fetching health score:", e);
+          }
+          return v;
+        }));
+        setVehicles(vehiclesWithHealth);
+      }
+    } catch (error) {
+      console.error("Error loading vehicles:", error);
+    }
+  };
+
   const [profileForm, setProfileForm] = useState<ProfileData>({
     id: "",
     email: "",
@@ -214,6 +240,7 @@ export default function DashboardPage() {
     if (user) {
       refreshBookings();
       loadLoyaltyData();
+      loadVehicles();
     }
   }, [user]);
 
@@ -222,6 +249,7 @@ export default function DashboardPage() {
       if (document.visibilityState === 'visible' && user) {
         refreshBookings();
         loadLoyaltyData();
+        loadVehicles();
       }
     };
 
@@ -622,58 +650,78 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
-                    {[
-                      {
-                        name: "My Tesla Model 3",
-                        score: 94,
-                        lastScan: "2 days ago",
-                        status: "Excellent",
-                        color: "text-green-500",
-                        issues: 0
-                      },
-                      {
-                        name: "BMW 5 Series",
-                        score: 72,
-                        lastScan: "1 week ago",
-                        status: "Needs Attention",
-                        color: "text-yellow-500",
-                        issues: 3
-                      },
-                    ].map((vehicle, i) => (
-                      <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-[#d4af37]/30 transition-all group">
-                        <div className="flex justify-between items-start mb-4">
-                          <div className="w-10 h-10 rounded-lg bg-[#d4af37]/10 flex items-center justify-center">
-                            <Car size={20} className="text-[#d4af37]" />
-                          </div>
-                          <div className="text-right">
-                            <span className={`text-2xl font-black ${vehicle.color}`}>{vehicle.score}</span>
-                            <p className="text-[10px] text-[#666] font-bold uppercase tracking-widest">Health Score</p>
-                          </div>
-                        </div>
-                        <h4 className="font-bold mb-1">{vehicle.name}</h4>
-                        <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-[#888]">
-                          <span>{vehicle.lastScan}</span>
-                          <span className={vehicle.color}>{vehicle.status}</span>
-                        </div>
-                        {vehicle.issues > 0 && (
-                          <div className="mt-4 pt-4 border-t border-white/5">
-                            <p className="text-[10px] text-[#ff1744] font-black uppercase tracking-widest mb-1">
-                              {vehicle.issues} Imperfections Detected
-                            </p>
-                            <Link href="/booking" className="text-[10px] text-white underline decoration-[#ff1744]">
-                              Schedule Correction
-                            </Link>
-                          </div>
-                        )}
+                    {vehicles.length === 0 ? (
+                      <div className="md:col-span-2 text-center py-8 text-[#888] bg-white/5 rounded-xl border border-dashed border-white/10">
+                        <Car size={48} className="mx-auto mb-3 opacity-20" />
+                        <p className="mb-4">No vehicles added yet. Start a scan or add one manually.</p>
+                        <Link
+                          href="/ai-diagnostic"
+                          className="btn-premium px-6 py-2 rounded-lg text-sm inline-flex items-center gap-2"
+                        >
+                          <Plus size={16} />
+                          Add Vehicle
+                        </Link>
                       </div>
-                    ))}
+                    ) : (
+                      vehicles.map((vehicle) => (
+                        <Link
+                          key={vehicle.id}
+                          href={`/dashboard/vehicles/${vehicle.id}`}
+                          className="block p-4 rounded-xl bg-white/5 border border-white/5 hover:border-[#d4af37]/30 transition-all group"
+                        >
+                          <div className="flex justify-between items-start mb-4">
+                            <div className="w-10 h-10 rounded-lg bg-[#d4af37]/10 flex items-center justify-center">
+                              <Car size={20} className="text-[#d4af37]" />
+                            </div>
+                            {vehicle.health_score && (
+                              <div className="text-right">
+                                <span className={`text-2xl font-black ${vehicle.health_score.overall_score >= 80 ? "text-green-500" :
+                                    vehicle.health_score.overall_score >= 60 ? "text-yellow-500" :
+                                      vehicle.health_score.overall_score >= 40 ? "text-orange-500" : "text-red-500"
+                                  }`}>{Math.round(vehicle.health_score.overall_score)}</span>
+                                <p className="text-[10px] text-[#666] font-bold uppercase tracking-widest">Health Score</p>
+                              </div>
+                            )}
+                          </div>
+                          <h4 className="font-bold mb-1">{vehicle.brand || "Unknown"} {vehicle.model || "Vehicle"}</h4>
+                          <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-[#888]">
+                            {vehicle.number_plate && <span>{vehicle.number_plate}</span>}
+                            {vehicle.health_score ? (
+                              <span className={
+                                vehicle.health_score.overall_score >= 80 ? "text-green-500" :
+                                  vehicle.health_score.overall_score >= 60 ? "text-yellow-500" :
+                                    vehicle.health_score.overall_score >= 40 ? "text-orange-500" : "text-red-500"
+                              }>
+                                {vehicle.health_score.overall_score >= 80 ? "Excellent" :
+                                  vehicle.health_score.overall_score >= 60 ? "Good" :
+                                    vehicle.health_score.overall_score >= 40 ? "Fair" : "Needs Attention"}
+                              </span>
+                            ) : (
+                              <span>No Health Data</span>
+                            )}
+                          </div>
+                          {vehicle.health_score && vehicle.health_score.recommendations && vehicle.health_score.recommendations.length > 0 && (
+                            <div className="mt-4 pt-4 border-t border-white/5">
+                              <p className="text-[10px] text-[#ff1744] font-black uppercase tracking-widest mb-1">
+                                {vehicle.health_score.recommendations.length} Issues Detected
+                              </p>
+                              <span className="text-[10px] text-white underline decoration-[#ff1744]">
+                                View Health Report
+                              </span>
+                            </div>
+                          )}
+                        </Link>
+                      ))
+                    )}
 
-                    <Link href="/ai-diagnostic" className="md:col-span-2 p-6 rounded-xl border border-dashed border-white/10 flex flex-col items-center justify-center gap-2 hover:bg-white/[0.02] transition-colors group">
-                      <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-[#d4af37]/10 transition-colors">
-                        <Plus size={24} className="text-[#888] group-hover:text-[#d4af37]" />
-                      </div>
-                      <p className="text-sm font-bold text-[#888] group-hover:text-white uppercase tracking-widest">Add Another Vehicle for AI Scan</p>
-                    </Link>
+                    {vehicles.length > 0 && (
+                      <Link href="/ai-diagnostic" className="md:col-span-2 p-6 rounded-xl border border-dashed border-white/10 flex flex-col items-center justify-center gap-2 hover:bg-white/[0.02] transition-colors group">
+                        <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-[#d4af37]/10 transition-colors">
+                          <Plus size={24} className="text-[#888] group-hover:text-[#d4af37]" />
+                        </div>
+                        <p className="text-sm font-bold text-[#888] group-hover:text-white uppercase tracking-widest">Add Another Vehicle for AI Scan</p>
+                      </Link>
+                    )}
                   </div>
                 </div>
 
