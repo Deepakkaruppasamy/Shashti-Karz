@@ -1,6 +1,6 @@
 -- Community Showroom Portal System
 -- Social platform for car enthusiasts to showcase detailing results
--- CLEAN VERSION: No policy conflicts
+-- API FIX VERSION: References public.profiles instead of auth.users to allow API joins
 
 -- Drop existing tables if they exist (for clean reinstall)
 DROP TABLE IF EXISTS showroom_comment_likes CASCADE;
@@ -37,7 +37,7 @@ CREATE TABLE showroom_contests (
     total_entries INTEGER DEFAULT 0,
     total_votes INTEGER DEFAULT 0,
     total_participants INTEGER DEFAULT 0,
-    winner_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+    winner_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
     winner_post_id UUID,
     runner_up_ids UUID[],
     winners_announced_at TIMESTAMPTZ,
@@ -53,7 +53,7 @@ CREATE TABLE showroom_contests (
 -- ============================================================================
 CREATE TABLE showroom_posts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
     description TEXT,
     media_type TEXT NOT NULL CHECK (media_type IN ('photo', 'video', 'reel')),
@@ -95,7 +95,7 @@ FOREIGN KEY (winner_post_id) REFERENCES showroom_posts(id) ON DELETE SET NULL;
 CREATE TABLE showroom_post_likes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     post_id UUID NOT NULL REFERENCES showroom_posts(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(post_id, user_id)
 );
@@ -104,7 +104,7 @@ CREATE TABLE showroom_post_votes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     post_id UUID NOT NULL REFERENCES showroom_posts(id) ON DELETE CASCADE,
     contest_id UUID NOT NULL REFERENCES showroom_contests(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
     vote_weight INTEGER DEFAULT 1,
     comment TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -114,7 +114,7 @@ CREATE TABLE showroom_post_votes (
 CREATE TABLE showroom_post_comments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     post_id UUID NOT NULL REFERENCES showroom_posts(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
     parent_comment_id UUID REFERENCES showroom_post_comments(id) ON DELETE CASCADE,
     comment TEXT NOT NULL,
     edited BOOLEAN DEFAULT false,
@@ -128,7 +128,7 @@ CREATE TABLE showroom_post_comments (
 CREATE TABLE showroom_comment_likes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     comment_id UUID NOT NULL REFERENCES showroom_post_comments(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(comment_id, user_id)
 );
@@ -138,7 +138,7 @@ CREATE TABLE showroom_comment_likes (
 -- ============================================================================
 CREATE TABLE referral_leaderboard (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL UNIQUE REFERENCES profiles(id) ON DELETE CASCADE,
     total_referrals INTEGER DEFAULT 0,
     successful_referrals INTEGER DEFAULT 0,
     active_referrals INTEGER DEFAULT 0,
@@ -162,8 +162,8 @@ CREATE TABLE referral_leaderboard (
 -- ============================================================================
 CREATE TABLE showroom_follows (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    follower_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-    following_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    follower_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    following_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(follower_id, following_id),
     CHECK (follower_id != following_id)
@@ -171,7 +171,7 @@ CREATE TABLE showroom_follows (
 
 CREATE TABLE showroom_user_stats (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL UNIQUE REFERENCES profiles(id) ON DELETE CASCADE,
     total_posts INTEGER DEFAULT 0,
     total_likes_received INTEGER DEFAULT 0,
     total_comments_received INTEGER DEFAULT 0,
@@ -356,9 +356,8 @@ $$ LANGUAGE plpgsql;
 -- ============================================================================
 DO $$ 
 BEGIN
-    RAISE NOTICE '✅ Community Showroom Portal created successfully!';
-    RAISE NOTICE '📋 Tables: 8 created';
-    RAISE NOTICE '🔐 RLS: Enabled on all tables';
-    RAISE NOTICE '⚡ Functions: 4 created';
-    RAISE NOTICE '� Triggers: 3 created';
+    RAISE NOTICE '✅ Community Showroom Portal API-COMPATIBLE schema created!';
+    RAISE NOTICE '📋 Tables now reference profiles(id) instead of auth.users(id)';
+    RAISE NOTICE '🔐 This enables foreign key joins in API calls';
+    RAISE NOTICE '⚠️ PLEASE RUN THIS IN SUPABASE SQL EDITOR';
 END $$;

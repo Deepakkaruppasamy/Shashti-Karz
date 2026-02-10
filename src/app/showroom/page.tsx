@@ -39,19 +39,37 @@ export default function ShowroomPage() {
             if (activeTab === "feed") {
                 const res = await fetch("/api/showroom/posts?status=approved&limit=50");
                 const data = await res.json();
-                setPosts(data || []);
+                if (Array.isArray(data)) {
+                    setPosts(data);
+                } else {
+                    console.error("Feed API Error:", data);
+                    setPosts([]);
+                }
             } else if (activeTab === "contests") {
                 const res = await fetch("/api/showroom/contests?status=active,voting");
                 const data = await res.json();
-                setContests(data || []);
+                if (Array.isArray(data)) {
+                    setContests(data);
+                } else {
+                    console.error("Contests API Error:", data);
+                    setContests([]);
+                }
             } else if (activeTab === "leaderboard") {
                 const res = await fetch("/api/showroom/leaderboard?limit=50");
                 const data = await res.json();
-                setLeaderboard(data || []);
+                if (Array.isArray(data)) {
+                    setLeaderboard(data);
+                } else {
+                    console.error("Leaderboard API Error:", data);
+                    setLeaderboard([]);
+                }
             }
         } catch (error) {
             console.error("Error loading data:", error);
             toast.error("Failed to load data");
+            setPosts([]);
+            setContests([]);
+            setLeaderboard([]);
         } finally {
             setIsLoading(false);
         }
