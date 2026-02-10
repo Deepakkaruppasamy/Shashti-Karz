@@ -42,6 +42,14 @@ export default function AiDiagnosticPage() {
     const [selectedVehicleId, setSelectedVehicleId] = useState<string>("");
     const [isSaving, setIsSaving] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
+    const [showAddVehicle, setShowAddVehicle] = useState(false);
+    const [isAddingVehicle, setIsAddingVehicle] = useState(false);
+    const [newVehicle, setNewVehicle] = useState({
+        brand: "",
+        model: "",
+        number_plate: "",
+        year: new Date().getFullYear()
+    });
 
     useEffect(() => {
         const loadVehicles = async () => {
@@ -57,6 +65,44 @@ export default function AiDiagnosticPage() {
         };
         loadVehicles();
     }, []);
+
+    const handleAddVehicle = async () => {
+        if (!newVehicle.brand || !newVehicle.model || !newVehicle.number_plate) {
+            toast.error("Please fill in all vehicle details");
+            return;
+        }
+
+        setIsAddingVehicle(true);
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("Not authenticated");
+
+            const res = await fetch("/api/vehicles", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ...newVehicle,
+                    user_id: user.id
+                })
+            });
+
+            if (res.ok) {
+                const addedVehicle = await res.json();
+                setVehicles([...vehicles, addedVehicle]);
+                setSelectedVehicleId(addedVehicle.id);
+                setShowAddVehicle(false);
+                setNewVehicle({ brand: "", model: "", number_plate: "", year: new Date().getFullYear() });
+                toast.success("Vehicle added successfully!");
+            } else {
+                throw new Error("Failed to add vehicle");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to add vehicle");
+        } finally {
+            setIsAddingVehicle(false);
+        }
+    };
 
     const handleSaveResults = async () => {
         if (!selectedVehicleId) {
@@ -189,20 +235,89 @@ export default function AiDiagnosticPage() {
 
                                     <div className="w-full mb-8">
                                         <label className="block text-xs font-black uppercase tracking-widest text-[#444] mb-3 text-left">Target Vehicle</label>
-                                        {vehicles.length > 0 ? (
-                                            <select
-                                                value={selectedVehicleId}
-                                                onChange={(e) => setSelectedVehicleId(e.target.value)}
-                                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-[#ff1744] outline-none transition-all appearance-none cursor-pointer"
-                                            >
-                                                {vehicles.map(v => (
-                                                    <option key={v.id} value={v.id} className="bg-[#111]">{v.brand} {v.model} ({v.number_plate})</option>
-                                                ))}
-                                            </select>
+
+                                        {!showAddVehicle && vehicles.length > 0 ? (
+                                            <div className="space-y-3">
+                                                <select
+                                                    value={selectedVehicleId}
+                                                    onChange={(e) => setSelectedVehicleId(e.target.value)}
+                                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-[#ff1744] outline-none transition-all appearance-none cursor-pointer"
+                                                >
+                                                    {vehicles.map(v => (
+                                                        <option key={v.id} value={v.id} className="bg-[#111]">{v.brand} {v.model} ({v.number_plate})</option>
+                                                    ))}
+                                                </select>
+                                                <button
+                                                    onClick={() => setShowAddVehicle(true)}
+                                                    className="flex items-center gap-2 text-xs text-[#888] hover:text-white transition-colors"
+                                                >
+                                                    <Plus size={14} /> Add another vehicle
+                                                </button>
+                                            </div>
                                         ) : (
-                                            <Link href="/dashboard" className="flex items-center justify-center gap-2 p-4 bg-white/5 border border-dashed border-white/20 rounded-2xl text-[#888] hover:text-white transition-all group">
-                                                <Plus size={16} /> Add a vehicle to your garage first
-                                            </Link>
+                                            <div className="space-y-4">
+                                                <div className="p-6 bg-white/5 border border-white/10 rounded-2xl space-y-4">
+                                                    <div>
+                                                        <label className="block text-xs text-[#888] mb-2">Brand</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="e.g., BMW, Mercedes"
+                                                            value={newVehicle.brand}
+                                                            onChange={(e) => setNewVehicle({ ...newVehicle, brand: e.target.value })}
+                                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#ff1744] outline-none transition-all"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs text-[#888] mb-2">Model</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="e.g., M4, S-Class"
+                                                            value={newVehicle.model}
+                                                            onChange={(e) => setNewVehicle({ ...newVehicle, model: e.target.value })}
+                                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#ff1744] outline-none transition-all"
+                                                        />
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <div>
+                                                            <label className="block text-xs text-[#888] mb-2">Number Plate</label>
+                                                            <input
+                                                                type="text"
+                                                                placeholder="TN01AB1234"
+                                                                value={newVehicle.number_plate}
+                                                                onChange={(e) => setNewVehicle({ ...newVehicle, number_plate: e.target.value.toUpperCase() })}
+                                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#ff1744] outline-none transition-all"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs text-[#888] mb-2">Year</label>
+                                                            <input
+                                                                type="number"
+                                                                value={newVehicle.year}
+                                                                onChange={(e) => setNewVehicle({ ...newVehicle, year: parseInt(e.target.value) })}
+                                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#ff1744] outline-none transition-all"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex gap-3 pt-2">
+                                                        <button
+                                                            onClick={handleAddVehicle}
+                                                            disabled={isAddingVehicle}
+                                                            className="flex-1 bg-[#ff1744] hover:bg-[#ff1744]/90 text-white py-3 rounded-xl font-bold text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                                        >
+                                                            {isAddingVehicle ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
+                                                            Add Vehicle
+                                                        </button>
+                                                        {vehicles.length > 0 && (
+                                                            <button
+                                                                onClick={() => setShowAddVehicle(false)}
+                                                                className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm transition-all"
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         )}
                                     </div>
 
