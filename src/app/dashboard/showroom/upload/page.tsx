@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, Suspense } from "react";
+import { useState, useRef, Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -25,6 +25,8 @@ function UploadForm() {
     const [mediaFile, setMediaFile] = useState<File | null>(null);
     const [mediaPreview, setMediaPreview] = useState<string | null>(null);
     const [mediaType, setMediaType] = useState<"photo" | "video">("photo");
+    const [activeContests, setActiveContests] = useState<any[]>([]);
+    const [userVehicles, setUserVehicles] = useState<any[]>([]);
 
     const [formData, setFormData] = useState({
         title: "",
@@ -35,6 +37,29 @@ function UploadForm() {
         hashtags: "",
         contest_id: contestId || ""
     });
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // Fetch active contests
+                const contestsRes = await fetch("/api/showroom/contests?status=active");
+                const contestsData = await contestsRes.json();
+                if (Array.isArray(contestsData)) {
+                    setActiveContests(contestsData);
+                }
+
+                // Fetch user vehicles
+                const vehiclesRes = await fetch("/api/vehicles");
+                const vehiclesData = await vehiclesRes.json();
+                if (Array.isArray(vehiclesData)) {
+                    setUserVehicles(vehiclesData);
+                }
+            } catch (error) {
+                console.error("Error fetching form data:", error);
+            }
+        };
+        fetchData();
+    }, []);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -206,21 +231,48 @@ function UploadForm() {
                         />
                     </div>
 
-                    {/* Car Model */}
+                    {/* Car Selection */}
                     <div>
-                        <label className="block text-sm font-medium mb-2 text-[#888]">Car Model</label>
+                        <label className="block text-sm font-medium mb-2 text-[#888]">Select Vehicle</label>
                         <div className="relative">
                             <Car size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#666]" />
-                            <input
-                                type="text"
-                                required
-                                placeholder="e.g., BMW M4 Competition"
-                                value={formData.car_model}
-                                onChange={e => setFormData({ ...formData, car_model: e.target.value })}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3 focus:border-[#ff1744] outline-none transition-colors"
-                            />
+                            <select
+                                value={formData.vehicle_id}
+                                onChange={e => {
+                                    const vehicle = userVehicles.find(v => v.id === e.target.value);
+                                    setFormData({
+                                        ...formData,
+                                        vehicle_id: e.target.value,
+                                        car_model: vehicle ? `${vehicle.brand} ${vehicle.model}` : formData.car_model
+                                    });
+                                }}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3 focus:border-[#ff1744] outline-none transition-colors appearance-none cursor-pointer"
+                            >
+                                <option value="">Select from your garage (optional)</option>
+                                {userVehicles.map(v => (
+                                    <option key={v.id} value={v.id}>{v.brand} {v.model} ({v.number_plate})</option>
+                                ))}
+                            </select>
                         </div>
                     </div>
+
+                    {/* Car Model (if not selecting from garage) */}
+                    {!formData.vehicle_id && (
+                        <div>
+                            <label className="block text-sm font-medium mb-2 text-[#888]">Car Model</label>
+                            <div className="relative">
+                                <Car size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#666]" />
+                                <input
+                                    type="text"
+                                    required
+                                    placeholder="e.g., BMW M4 Competition"
+                                    value={formData.car_model}
+                                    onChange={e => setFormData({ ...formData, car_model: e.target.value })}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3 focus:border-[#ff1744] outline-none transition-colors"
+                                />
+                            </div>
+                        </div>
+                    )}
 
                     {/* Contest Selection (Optional) */}
                     <div>
@@ -233,14 +285,17 @@ function UploadForm() {
                                 className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3 focus:border-[#ff1744] outline-none transition-colors appearance-none cursor-pointer"
                             >
                                 <option value="">No Contest Entry</option>
-                                {/* Ideally fetch active contests here */}
-                                <option value="feb-2026-detail">Detail of the Month (Feb 2026)</option>
+                                {activeContests.map(c => (
+                                    <option key={c.id} value={c.id}>{c.title}</option>
+                                ))}
                             </select>
                         </div>
                         {formData.contest_id && (
                             <p className="text-xs text-[#d4af37] mt-2 flex items-center gap-1">
                                 <Info size={12} />
-                                Win 1000 points if selected!
+                                {activeContests.find(c => c.id === formData.contest_id)?.prizes?.points
+                                    ? `Win ${activeContests.find(c => c.id === formData.contest_id).prizes.points} points if selected!`
+                                    : "Win points if selected!"}
                             </p>
                         )}
                     </div>
