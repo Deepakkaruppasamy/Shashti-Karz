@@ -15,7 +15,14 @@ const PRECACHE_ASSETS = [
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(PRECACHE_ASSETS);
+            // Cache assets individually to avoid failing on missing files
+            return Promise.allSettled(
+                PRECACHE_ASSETS.map(asset =>
+                    cache.add(asset).catch(err => {
+                        console.warn(`Failed to cache ${asset}:`, err);
+                    })
+                )
+            );
         })
     );
     self.skipWaiting();
@@ -45,7 +52,13 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // API requests - network first
+    // Skip caching for non-GET requests (POST, PUT, DELETE)
+    if (request.method !== 'GET') {
+        event.respondWith(fetch(request));
+        return;
+    }
+
+    // API requests - network first (GET only)
     if (url.pathname.startsWith('/api/')) {
         event.respondWith(networkFirst(request));
         return;
@@ -61,12 +74,18 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(networkFirst(request));
 });
 
-// Network first strategy
+// Network first strategy (for GET requests only)
 async function networkFirst(request) {
     try {
         const response = await fetch(request);
-        const cache = await caches.open(RUNTIME_CACHE);
-        cache.put(request, response.clone());
+        // Only cache successful responses
+        if (response && response.status === 200) {
+            const cache = await caches.open(RUNTIME_CACHE);
+            // Clone the response before caching
+            cache.put(request, response.clone()).catch((err) => {
+                console.warn('Cache put failed:', err);
+            });
+        }
         return response;
     } catch (error) {
         const cached = await caches.match(request);
@@ -75,7 +94,10 @@ async function networkFirst(request) {
         }
         // Return offline page for navigation requests
         if (request.mode === 'navigate') {
-            return caches.match('/offline');
+            const offlinePage = await caches.match('/offline');
+            if (offlinePage) {
+                return offlinePage;
+            }
         }
         throw error;
     }
