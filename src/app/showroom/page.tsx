@@ -162,8 +162,8 @@ export default function ShowroomPage() {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id as any)}
                                 className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === tab.id
-                                        ? "bg-gradient-to-r from-[#ff1744] to-[#d4af37] text-white"
-                                        : "bg-white/5 hover:bg-white/10 text-[#888]"
+                                    ? "bg-gradient-to-r from-[#ff1744] to-[#d4af37] text-white"
+                                    : "bg-white/5 hover:bg-white/10 text-[#888]"
                                     }`}
                             >
                                 <tab.icon size={18} />
@@ -175,156 +175,156 @@ export default function ShowroomPage() {
                     {/* Tab Content */}
                     <AnimatePresence mode="wait">
                         {/* Community Feed Tab */}
-                        {active Tab === "feed" && (
-                        <motion.div
-                            key="feed"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                        >
-                            {/* Filters */}
-                            <div className="flex flex-wrap gap-4 mb-8">
-                                <div className="flex-1 min-w-[200px]">
-                                    <div className="relative">
-                                        <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#888]" />
-                                        <input
-                                            type="text"
-                                            placeholder="Search posts..."
-                                            value={searchQuery}
-                                            onChange={(e) => setSearchQuery(e.target.value)}
-                                            className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-[#ff1744]/50 outline-none transition-colors"
-                                        />
+                        {activeTab === "feed" && (
+                            <motion.div
+                                key="feed"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                            >
+                                {/* Filters */}
+                                <div className="flex flex-wrap gap-4 mb-8">
+                                    <div className="flex-1 min-w-[200px]">
+                                        <div className="relative">
+                                            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#888]" />
+                                            <input
+                                                type="text"
+                                                placeholder="Search posts..."
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-[#ff1744]/50 outline-none transition-colors"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                        {["all", "photo", "video", "reel"].map((type) => (
+                                            <button
+                                                key={type}
+                                                onClick={() => setFilterType(type as any)}
+                                                className={`px-4 py-3 rounded-xl font-medium capitalize transition-all ${filterType === type
+                                                    ? "bg-[#ff1744] text-white"
+                                                    : "bg-white/5 hover:bg-white/10 text-[#888]"
+                                                    }`}
+                                            >
+                                                {type}
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
 
-                                <div className="flex gap-2">
-                                    {["all", "photo", "video", "reel"].map((type) => (
-                                        <button
-                                            key={type}
-                                            onClick={() => setFilterType(type as any)}
-                                            className={`px-4 py-3 rounded-xl font-medium capitalize transition-all ${filterType === type
-                                                    ? "bg-[#ff1744] text-white"
-                                                    : "bg-white/5 hover:bg-white/10 text-[#888]"
-                                                }`}
-                                        >
-                                            {type}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
+                                {/* Posts Grid */}
+                                {isLoading ? (
+                                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {[...Array(6)].map((_, i) => (
+                                            <div key={i} className="glass-card rounded-2xl p-6 animate-pulse">
+                                                <div className="aspect-square bg-white/5 rounded-xl mb-4" />
+                                                <div className="h-4 bg-white/5 rounded mb-2" />
+                                                <div className="h-3 bg-white/5 rounded w-2/3" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : filteredPosts.length === 0 ? (
+                                    <div className="glass-card rounded-2xl p-12 text-center">
+                                        <Camera size={48} className="mx-auto text-[#888] mb-4" />
+                                        <h3 className="text-lg font-medium mb-2">No Posts Yet</h3>
+                                        <p className="text-[#888] mb-6">Be the first to share your detailing transformation!</p>
+                                        {user && (
+                                            <button
+                                                onClick={() => router.push("/dashboard/showroom/upload")}
+                                                className="btn-premium px-6 py-3 rounded-xl"
+                                            >
+                                                Upload Now
+                                            </button>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {filteredPosts.map((post) => (
+                                            <motion.div
+                                                key={post.id}
+                                                initial={{ opacity: 0, scale: 0.95 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                className="glass-card rounded-2xl overflow-hidden hover:scale-105 transition-transform duration-300 cursor-pointer group"
+                                                onClick={() => router.push(`/showroom/${post.id}`)}
+                                            >
+                                                {/* Media */}
+                                                <div className="relative aspect-square bg-white/5">
+                                                    {post.media_type === "video" || post.media_type === "reel" ? (
+                                                        <div className="absolute inset-0 flex items-center justify-center">
+                                                            <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                                                                <Play size={28} className="text-white ml-1" />
+                                                            </div>
+                                                        </div>
+                                                    ) : null}
+                                                    {post.featured && (
+                                                        <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[#d4af37] text-black text-xs font-bold flex items-center gap-1">
+                                                            <Star size={12} fill="currentColor" />
+                                                            Featured
+                                                        </div>
+                                                    )}
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                                                </div>
 
-                            {/* Posts Grid */}
-                            {isLoading ? (
-                                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {[...Array(6)].map((_, i) => (
-                                        <div key={i} className="glass-card rounded-2xl p-6 animate-pulse">
-                                            <div className="aspect-square bg-white/5 rounded-xl mb-4" />
-                                            <div className="h-4 bg-white/5 rounded mb-2" />
-                                            <div className="h-3 bg-white/5 rounded w-2/3" />
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : filteredPosts.length === 0 ? (
-                                <div className="glass-card rounded-2xl p-12 text-center">
-                                    <Camera size={48} className="mx-auto text-[#888] mb-4" />
-                                    <h3 className="text-lg font-medium mb-2">No Posts Yet</h3>
-                                    <p className="text-[#888] mb-6">Be the first to share your detailing transformation!</p>
-                                    {user && (
-                                        <button
-                                            onClick={() => router.push("/dashboard/showroom/upload")}
-                                            className="btn-premium px-6 py-3 rounded-xl"
-                                        >
-                                            Upload Now
-                                        </button>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {filteredPosts.map((post) => (
-                                        <motion.div
-                                            key={post.id}
-                                            initial={{ opacity: 0, scale: 0.95 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            className="glass-card rounded-2xl overflow-hidden hover:scale-105 transition-transform duration-300 cursor-pointer group"
-                                            onClick={() => router.push(`/showroom/${post.id}`)}
-                                        >
-                                            {/* Media */}
-                                            <div className="relative aspect-square bg-white/5">
-                                                {post.media_type === "video" || post.media_type === "reel" ? (
-                                                    <div className="absolute inset-0 flex items-center justify-center">
-                                                        <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/20 transition-colors">
-                                                            <Play size={28} className="text-white ml-1" />
+                                                {/* Content */}
+                                                <div className="p-6">
+                                                    <h3 className="text-lg font-semibold mb-2 line-clamp-2">{post.title}</h3>
+                                                    {post.description && (
+                                                        <p className="text-sm text-[#888] mb-4 line-clamp-2">{post.description}</p>
+                                                    )}
+
+                                                    {/* User Info */}
+                                                    <div className="flex items-center gap-3 mb-4">
+                                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ff1744] to-[#d4af37]" />
+                                                        <div>
+                                                            <p className="text-sm font-medium">{post.user?.full_name || "Anonymous"}</p>
+                                                            {post.car_model && (
+                                                                <p className="text-xs text-[#666]">{post.car_model}</p>
+                                                            )}
                                                         </div>
                                                     </div>
-                                                ) : null}
-                                                {post.featured && (
-                                                    <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[#d4af37] text-black text-xs font-bold flex items-center gap-1">
-                                                        <Star size={12} fill="currentColor" />
-                                                        Featured
-                                                    </div>
-                                                )}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                                            </div>
 
-                                            {/* Content */}
-                                            <div className="p-6">
-                                                <h3 className="text-lg font-semibold mb-2 line-clamp-2">{post.title}</h3>
-                                                {post.description && (
-                                                    <p className="text-sm text-[#888] mb-4 line-clamp-2">{post.description}</p>
-                                                )}
+                                                    {/* Engagement Stats */}
+                                                    <div className="flex items-center justify-between">
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleLike(post.id);
+                                                            }}
+                                                            className="flex items-center gap-2 text-sm hover:text-[#ff1744] transition-colors"
+                                                        >
+                                                            <Heart
+                                                                size={18}
+                                                                className={post.is_liked ? "fill-[#ff1744] text-[#ff1744]" : ""}
+                                                            />
+                                                            {post.likes_count}
+                                                        </button>
 
-                                                {/* User Info */}
-                                                <div className="flex items-center gap-3 mb-4">
-                                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ff1744] to-[#d4af37]" />
-                                                    <div>
-                                                        <p className="text-sm font-medium">{post.user?.full_name || "Anonymous"}</p>
-                                                        {post.car_model && (
-                                                            <p className="text-xs text-[#666]">{post.car_model}</p>
-                                                        )}
+                                                        <div className="flex items-center gap-2 text-sm text-[#888]">
+                                                            <MessageCircle size={18} />
+                                                            {post.comments_count}
+                                                        </div>
+
+                                                        <div className="flex items-center gap-2 text-sm text-[#888]">
+                                                            <Eye size={18} />
+                                                            {post.views_count}
+                                                        </div>
                                                     </div>
+
+                                                    {/* Contest Badge */}
+                                                    {post.contest_entry && (
+                                                        <div className="mt-4 px-3 py-2 rounded-lg bg-[#ff1744]/10 border border-[#ff1744]/30 text-xs font-medium flex items-center gap-2">
+                                                            <Trophy size={14} className="text-[#ff1744]" />
+                                                            Contest Entry
+                                                        </div>
+                                                    )}
                                                 </div>
-
-                                                {/* Engagement Stats */}
-                                                <div className="flex items-center justify-between">
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleLike(post.id);
-                                                        }}
-                                                        className="flex items-center gap-2 text-sm hover:text-[#ff1744] transition-colors"
-                                                    >
-                                                        <Heart
-                                                            size={18}
-                                                            className={post.is_liked ? "fill-[#ff1744] text-[#ff1744]" : ""}
-                                                        />
-                                                        {post.likes_count}
-                                                    </button>
-
-                                                    <div className="flex items-center gap-2 text-sm text-[#888]">
-                                                        <MessageCircle size={18} />
-                                                        {post.comments_count}
-                                                    </div>
-
-                                                    <div className="flex items-center gap-2 text-sm text-[#888]">
-                                                        <Eye size={18} />
-                                                        {post.views_count}
-                                                    </div>
-                                                </div>
-
-                                                {/* Contest Badge */}
-                                                {post.contest_entry && (
-                                                    <div className="mt-4 px-3 py-2 rounded-lg bg-[#ff1744]/10 border border-[#ff1744]/30 text-xs font-medium flex items-center gap-2">
-                                                        <Trophy size={14} className="text-[#ff1744]" />
-                                                        Contest Entry
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </motion.div>
-                                    ))}
-                                </div>
-                            )}
-                        </motion.div>
-            )}
+                                            </motion.div>
+                                        ))}
+                                    </div>
+                                )}
+                            </motion.div>
+                        )}
 
                         {/* Contests Tab */}
                         {activeTab === "contests" && (
@@ -365,8 +365,8 @@ export default function ShowroomPage() {
                                                                 <Trophy size={24} className="text-[#d4af37]" />
                                                                 <h2 className="text-2xl font-bold">{contest.title}</h2>
                                                                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${contest.status === 'active' ? 'bg-green-500/20 text-green-500' :
-                                                                        contest.status === 'voting' ? 'bg-yellow-500/20 text-yellow-500' :
-                                                                            'bg-white/10 text-white'
+                                                                    contest.status === 'voting' ? 'bg-yellow-500/20 text-yellow-500' :
+                                                                        'bg-white/10 text-white'
                                                                     }`}>
                                                                     {contest.status.toUpperCase()}
                                                                 </span>
