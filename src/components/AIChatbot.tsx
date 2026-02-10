@@ -141,7 +141,7 @@ How can I help you today?`
     <>
       <motion.button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 left-6 z-40 group"
+        className="fixed bottom-32 left-6 lg:bottom-6 lg:left-6 z-40 group"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         aria-label="Open AI Chat"
@@ -164,7 +164,7 @@ How can I help you today?`
             transition={{ duration: 1, repeat: Infinity }}
           />
         </div>
-        
+
         <motion.div
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
@@ -180,9 +180,9 @@ How can I help you today?`
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ 
-              opacity: 1, 
-              scale: 1, 
+            animate={{
+              opacity: 1,
+              scale: 1,
               y: 0,
               height: isMinimized ? "auto" : 540
             }}
@@ -191,10 +191,10 @@ How can I help you today?`
           >
             <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-black/50 border border-white/10 bg-[#0d0d0d]">
               <div className="absolute inset-0 bg-gradient-to-b from-[#ff1744]/5 to-transparent pointer-events-none" />
-              
+
               <div className="relative">
                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#ff1744] to-transparent" />
-                
+
                 <div className="p-4 flex items-center justify-between bg-[#0d0d0d]/90 backdrop-blur-xl">
                   <div className="flex items-center gap-3">
                     <motion.div
@@ -219,7 +219,7 @@ How can I help you today?`
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-1">
                     <motion.button
                       whileHover={{ scale: 1.1 }}
@@ -276,11 +276,10 @@ How can I help you today?`
                             className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                           >
                             <div
-                              className={`relative max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed ${
-                                msg.role === "user"
+                              className={`relative max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed ${msg.role === "user"
                                   ? "bg-gradient-to-r from-[#ff1744] to-[#ff4569] text-white rounded-br-sm"
                                   : "bg-white/5 text-white/90 rounded-bl-sm border border-white/5"
-                              }`}
+                                }`}
                             >
                               {msg.role === "assistant" && (
                                 <div className="absolute -left-1 -top-1 w-6 h-6 rounded-full bg-gradient-to-r from-[#ff1744] to-[#d4af37] flex items-center justify-center">
@@ -294,7 +293,7 @@ How can I help you today?`
                             </div>
                           </motion.div>
                         ))}
-                        
+
                         {isLoading && (
                           <motion.div
                             initial={{ opacity: 0 }}
@@ -365,7 +364,7 @@ How can I help you today?`
                             ))}
                           </motion.div>
                         )}
-                        
+
                         <div className="flex gap-2">
                           <div className="flex-1 relative">
                             <input
@@ -434,7 +433,7 @@ How can I help you today?`
 
                 <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#d4af37] to-transparent" />
               </div>
-              
+
               <div className="absolute top-0 left-0 w-2 h-2 border-l border-t border-[#ff1744]/50" />
               <div className="absolute top-0 right-0 w-2 h-2 border-r border-t border-[#ff1744]/50" />
               <div className="absolute bottom-0 left-0 w-2 h-2 border-l border-b border-[#d4af37]/50" />

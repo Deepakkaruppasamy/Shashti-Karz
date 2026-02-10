@@ -117,7 +117,7 @@ export function AdminSidebar({ mobileMenuOpen, setMobileMenuOpen }: { mobileMenu
               <Link
                 key={item.id}
                 href={item.href}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${active
+                className={`w-full flex items-center gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-medium transition-all ${active
                   ? "bg-gradient-to-r from-[#ff1744]/20 to-[#d4af37]/10 text-white border border-[#ff1744]/30"
                   : "text-[#888] hover:bg-white/5 hover:text-white"
                   }`}
@@ -140,14 +140,14 @@ export function AdminSidebar({ mobileMenuOpen, setMobileMenuOpen }: { mobileMenu
 
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/5 bg-[#0d0d0d]">
           <button
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-gradient-to-r from-[#ff1744]/10 to-[#d4af37]/10 text-white border border-white/10 hover:border-[#ff1744]/30 transition-all mb-2"
+            className="w-full flex items-center gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-medium bg-gradient-to-r from-[#ff1744]/10 to-[#d4af37]/10 text-white border border-white/10 hover:border-[#ff1744]/30 transition-all mb-2"
           >
             <Brain size={18} className="text-[#ff1744]" />
             Ask Shashti AI
           </button>
           <button
             onClick={handleAdminLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#888] hover:bg-white/5 hover:text-white"
+            className="w-full flex items-center gap-3 px-4 py-2.5 lg:py-3 rounded-xl text-sm font-medium text-[#888] hover:bg-white/5 hover:text-white"
           >
             <LogOut size={18} />
             Logout

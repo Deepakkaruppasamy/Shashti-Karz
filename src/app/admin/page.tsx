@@ -836,33 +836,31 @@ function AdminDashboardContent() {
                         delay: i * 0.1,
                         duration: (stat.label === "Total Revenue" && pulseRevenue) ? 0.5 : 0.3
                       }}
-                      className={`glass-card rounded-xl lg:rounded-2xl p-4 lg:p-5 relative overflow-hidden ${(stat.label === "Total Revenue" && pulseRevenue) ? "border-[#d4af37]/50" : ""}`}
+                      className={`glass-card rounded-xl lg:rounded-2xl p-3.5 sm:p-5 relative overflow-hidden ${(stat.label === "Total Revenue" && pulseRevenue) ? "border-[#d4af37]/50" : ""}`}
                     >
                       <div className="absolute top-0 right-0 w-16 lg:w-20 h-16 lg:h-20 rounded-full opacity-10" style={{ backgroundColor: stat.color, filter: "blur(20px)" }} />
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${stat.color}20` }}><stat.icon size={20} style={{ color: stat.color }} /></div>
-                        {stat.change !== undefined && <div className={`flex items-center gap-0.5 text-xs ${stat.change >= 0 ? "text-green-500" : "text-red-500"}`}>{stat.change >= 0 ? <ArrowUp size={10} /> : <ArrowDown size={10} />}{Math.abs(stat.change)}%</div>}
+                      <div className="flex items-center justify-between mb-2 sm:mb-3">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center" style={{ backgroundColor: `${stat.color}20` }}><stat.icon size={16} className="sm:w-5 sm:h-5" style={{ color: stat.color }} /></div>
+                        {stat.change !== undefined && <div className={`flex items-center gap-0.5 text-[10px] sm:text-xs ${stat.change >= 0 ? "text-green-500" : "text-red-500"}`}>{stat.change >= 0 ? <ArrowUp size={8} className="sm:w-2.5 sm:h-2.5" /> : <ArrowDown size={8} className="sm:w-2.5 sm:h-2.5" />}{Math.abs(stat.change)}%</div>}
                       </div>
-                      <h3 className="text-xl lg:text-2xl font-bold">{stat.value}</h3>
-                      <p className="text-xs text-[#888] mt-1">{stat.label}</p>
+                      <h3 className="text-lg sm:text-2xl font-bold">{stat.value}</h3>
+                      <p className="text-[10px] sm:text-xs text-[#888] mt-0.5 sm:mt-1">{stat.label}</p>
                     </motion.div>
                   ))}
                 </div>
 
                 {analytics.insights.length > 0 && (
-                  <div className="glass-card rounded-2xl p-6">
-                    <div className="flex items-center gap-3 mb-6"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ff1744]/20 to-[#d4af37]/20 flex items-center justify-center"><Brain size={20} className="text-[#ff1744]" /></div><div><h3 className="font-semibold">AI Briefing</h3><p className="text-xs text-[#888]">Live intelligence from Shashti AI</p></div></div>
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      {analytics.insights.slice(0, 4).map((insight, i) => (
-                        <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.1 }} className={`p-4 rounded-xl border ${insight.priority === "critical" ? "border-red-500/30 bg-red-500/5" : insight.priority === "high" ? "border-yellow-500/30 bg-yellow-500/5" : "border-white/10 bg-white/5"}`}>
-                          <div className="flex items-start gap-3">
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${insight.type === "revenue" ? "bg-[#d4af37]/20" : insight.type === "alert" ? "bg-red-500/20" : insight.type === "recommendation" ? "bg-purple-500/20" : "bg-blue-500/20"}`}>
-                              {insight.type === "revenue" ? <DollarSign size={16} className="text-[#d4af37]" /> : insight.type === "alert" ? <AlertTriangle size={16} className="text-red-500" /> : insight.type === "recommendation" ? <Lightbulb size={16} className="text-purple-500" /> : <TrendingUp size={16} className="text-blue-500" />}
-                            </div>
-                            <div className="flex-1"><h4 className="text-sm font-medium">{insight.title}</h4><p className="text-xs text-[#888] mt-1">{insight.description}</p></div>
+                  <div className="glass-card rounded-2xl p-4 lg:p-6">
+                    <div className="flex items-center gap-3 mb-4 lg:mb-6"><div className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg lg:rounded-xl bg-gradient-to-br from-[#ff1744]/20 to-[#d4af37]/20 flex items-center justify-center shrink-0"><Brain size={16} className="text-[#ff1744] lg:w-5 lg:h-5" /></div><div><h3 className="text-sm lg:text-base font-semibold">AI Briefing</h3><p className="text-[10px] text-[#888]">Live intelligence</p></div></div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
+                      <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.1 }} className={`p-3 lg:p-4 rounded-xl border ${insight.priority === "critical" ? "border-red-500/30 bg-red-500/5" : insight.priority === "high" ? "border-yellow-500/30 bg-yellow-500/5" : "border-white/10 bg-white/5"}`}>
+                        <div className="flex items-start gap-3">
+                          <div className={`w-7 h-7 lg:w-8 lg:h-8 rounded-lg flex items-center justify-center shrink-0 ${insight.type === "revenue" ? "bg-[#d4af37]/20" : insight.type === "alert" ? "bg-red-500/20" : insight.type === "recommendation" ? "bg-purple-500/20" : "bg-blue-500/20"}`}>
+                            {insight.type === "revenue" ? <DollarSign size={14} className="text-[#d4af37]" /> : insight.type === "alert" ? <AlertTriangle size={14} className="text-red-500" /> : insight.type === "recommendation" ? <Lightbulb size={14} className="text-purple-500" /> : <TrendingUp size={14} className="text-blue-500" />}
                           </div>
-                        </motion.div>
-                      ))}
+                          <div className="flex-1 min-w-0"><h4 className="text-xs font-medium truncate">{insight.title}</h4><p className="text-[10px] text-[#888] mt-0.5 line-clamp-2">{insight.description}</p></div>
+                        </div>
+                      </motion.div>
                     </div>
                   </div>
                 )}
@@ -958,15 +956,15 @@ function AdminDashboardContent() {
                       <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="glass-card rounded-xl p-4 border border-white/5"
+                        className="glass-card rounded-xl p-3 sm:p-4 border border-white/5"
                       >
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                            <CheckCircle size={20} className="text-green-500" />
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-green-500/20 flex items-center justify-center shrink-0">
+                            <CheckCircle size={16} className="text-green-500 sm:w-5 sm:h-5" />
                           </div>
                           <div>
-                            <div className="text-xs text-[#888] uppercase">Completion</div>
-                            <div className="text-xl font-bold">{liveAnalytics.serviceCompletion.toFixed(1)}%</div>
+                            <div className="text-[10px] text-[#888] uppercase tracking-wider">Completion</div>
+                            <div className="text-lg sm:text-xl font-bold">{liveAnalytics.serviceCompletion.toFixed(1)}%</div>
                           </div>
                         </div>
                       </motion.div>
@@ -975,15 +973,15 @@ function AdminDashboardContent() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.1 }}
-                        className="glass-card rounded-xl p-4 border border-white/5"
+                        className="glass-card rounded-xl p-3 sm:p-4 border border-white/5"
                       >
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                            <Star size={20} className="text-blue-500" />
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
+                            <Star size={16} className="text-blue-500 sm:w-5 sm:h-5" />
                           </div>
                           <div>
-                            <div className="text-xs text-[#888] uppercase">Avg Rating</div>
-                            <div className="text-xl font-bold">{liveAnalytics.averageRating.toFixed(1)} ⭐</div>
+                            <div className="text-[10px] text-[#888] uppercase tracking-wider">Avg Rating</div>
+                            <div className="text-lg sm:text-xl font-bold">{liveAnalytics.averageRating.toFixed(1)} ⭐</div>
                           </div>
                         </div>
                       </motion.div>
@@ -992,15 +990,15 @@ function AdminDashboardContent() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="glass-card rounded-xl p-4 border border-white/5"
+                        className="glass-card rounded-xl p-3 sm:p-4 border border-white/5"
                       >
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${liveAnalytics.lowStockItems > 0 ? 'bg-red-500/20' : 'bg-green-500/20'}`}>
-                            <Package size={20} className={liveAnalytics.lowStockItems > 0 ? 'text-red-500' : 'text-green-500'} />
+                        <div className="flex items-center gap-3">
+                          <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shrink-0 ${liveAnalytics.lowStockItems > 0 ? 'bg-red-500/20' : 'bg-green-500/20'}`}>
+                            <Package size={16} className={`${liveAnalytics.lowStockItems > 0 ? 'text-red-500' : 'text-green-500'} sm:w-5 sm:h-5`} />
                           </div>
                           <div>
-                            <div className="text-xs text-[#888] uppercase">Low Stock</div>
-                            <div className="text-xl font-bold">{liveAnalytics.lowStockItems}</div>
+                            <div className="text-[10px] text-[#888] uppercase tracking-wider">Low Stock</div>
+                            <div className="text-lg sm:text-xl font-bold">{liveAnalytics.lowStockItems}</div>
                           </div>
                         </div>
                       </motion.div>
@@ -1009,14 +1007,14 @@ function AdminDashboardContent() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.3 }}
-                        className="glass-card rounded-xl p-4 border border-white/5"
+                        className="glass-card rounded-xl p-3 sm:p-4 border border-white/5"
                       >
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className="w-10 h-10 rounded-lg bg-[#d4af37]/20 flex items-center justify-center">
-                            <Package size={20} className="text-[#d4af37]" />
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-[#d4af37]/20 flex items-center justify-center shrink-0">
+                            <Package size={16} className="text-[#d4af37] sm:w-5 sm:h-5" />
                           </div>
                           <div>
-                            <div className="text-xs text-[#888] uppercase">Inventory</div>
+                            <div className="text-[10px] text-[#888] uppercase tracking-wider">Inventory</div>
                             <div className="text-lg font-bold">₹{(liveAnalytics.totalInventoryValue / 1000).toFixed(0)}K</div>
                           </div>
                         </div>
@@ -1026,15 +1024,15 @@ function AdminDashboardContent() {
                 )}
               </div>
 
-              <div className="space-y-6">
-                <div className="glass-card rounded-2xl p-6 h-[400px] flex flex-col relative overflow-hidden">
+              <div className="space-y-4 lg:space-y-6">
+                <div className="glass-card rounded-2xl p-4 lg:p-6 h-[300px] lg:h-[400px] flex flex-col relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-2">
                     <span className="flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ff1744] opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-[#ff1744]"></span>
                     </span>
                   </div>
-                  <h3 className="font-semibold mb-4 flex items-center gap-2"><Activity size={18} className="text-[#ff1744]" />Real-time Activity</h3>
+                  <h3 className="text-sm lg:text-base font-semibold mb-4 flex items-center gap-2"><Activity size={16} className="text-[#ff1744] lg:w-4.5 lg:h-4.5" />Real-time Activity</h3>
                   <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
                     {activities.length === 0 ? (
                       <div className="h-full flex flex-col items-center justify-center text-center p-6">
@@ -1101,24 +1099,24 @@ function AdminDashboardContent() {
               </div>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-6">
-              <div className="glass-card rounded-2xl p-6">
-                <h3 className="font-semibold mb-4 flex items-center gap-2"><Activity size={18} className="text-[#ff1744]" />Bookings Trend (7 Days)</h3>
-                <div className="h-48 flex items-end gap-2">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+              <div className="glass-card rounded-2xl p-4 lg:p-6">
+                <h3 className="text-sm lg:text-base font-semibold mb-4 flex items-center gap-2"><Activity size={16} className="text-[#ff1744]" />Bookings Trend (7 Days)</h3>
+                <div className="h-32 sm:h-48 flex items-end gap-1.5 sm:gap-2">
                   {analytics.bookingsByDay.map((day, i) => {
                     const maxValue = Math.max(...analytics.bookingsByDay.map(d => d.value), 1);
                     const height = (day.value / maxValue) * 100;
                     return (
-                      <motion.div key={day.date} initial={{ height: 0 }} animate={{ height: `${Math.max(height, 5)}%` }} transition={{ delay: i * 0.1 }} className="flex-1 rounded-t-lg bg-gradient-to-t from-[#ff1744] to-[#ff4569] relative group">
-                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/10 backdrop-blur-sm px-2 py-1 rounded text-xs whitespace-nowrap">{day.value} bookings</div>
-                        <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] text-[#888]">{new Date(day.date).toLocaleDateString("en-US", { weekday: "short" })}</span>
+                      <motion.div key={day.date} initial={{ height: 0 }} animate={{ height: `${Math.max(height, 5)}%` }} transition={{ delay: i * 0.1 }} className="flex-1 rounded-t-mg sm:rounded-t-lg bg-gradient-to-t from-[#ff1744] to-[#ff4569] relative group">
+                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/10 backdrop-blur-sm px-2 py-1 rounded text-[10px] whitespace-nowrap">{day.value}</div>
+                        <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[8px] sm:text-[10px] text-[#888]">{new Date(day.date).toLocaleDateString("en-US", { weekday: "narrow" })}</span>
                       </motion.div>
                     );
                   })}
                 </div>
               </div>
-              <div className="glass-card rounded-2xl p-6">
-                <h3 className="font-semibold mb-4 flex items-center gap-2"><PieChart size={18} className="text-[#d4af37]" />Service Popularity</h3>
+              <div className="glass-card rounded-2xl p-4 lg:p-6">
+                <h3 className="text-sm lg:text-base font-semibold mb-4 flex items-center gap-2"><PieChart size={16} className="text-[#d4af37]" />Service Popularity</h3>
                 <div className="space-y-3">
                   {analytics.servicePopularity.slice(0, 5).map((service, i) => {
                     const maxCount = Math.max(...analytics.servicePopularity.map(s => s.count), 1);

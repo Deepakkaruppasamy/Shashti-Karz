@@ -404,26 +404,26 @@ export function PriceCalculator({ services, onBookNow }: PriceCalculatorProps) {
         </div>
 
         {/* Mobile Sticky Bottom Bar */}
-        <div className="lg:hidden fixed bottom-24 left-0 right-0 z-40 px-4 pb-4 pointer-events-none">
+        <div className="lg:hidden fixed bottom-24 left-0 right-0 z-40 px-3 pb-3 pointer-events-none">
           <motion.div
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="bg-[#111]/90 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 shadow-2xl pointer-events-auto"
+            className="bg-[#111]/90 backdrop-blur-2xl border border-white/10 rounded-2xl p-3 shadow-2xl pointer-events-auto"
           >
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-[10px] text-[#888] font-bold uppercase tracking-wider">Total Est.</p>
-                <div className="text-xl font-bold text-gradient">
+                <p className="text-[9px] text-[#888] font-bold uppercase tracking-wider mb-0.5">Total Est.</p>
+                <div className="text-lg font-bold text-gradient">
                   {isCalculating ? "..." : `₹${totalPrice.toLocaleString()}`}
                 </div>
               </div>
               <button
                 onClick={handleBookNow}
                 disabled={!selectedService && selectedAddons.length === 0 && selectedPackages.length === 0}
-                className="flex-1 btn-premium py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 group disabled:opacity-50"
+                className="flex-1 btn-premium py-2.5 rounded-xl text-white font-bold text-xs flex items-center justify-center gap-2 group disabled:opacity-50"
               >
                 Book Now
-                <ArrowRight size={16} />
+                <ArrowRight size={14} />
               </button>
             </div>
           </motion.div>

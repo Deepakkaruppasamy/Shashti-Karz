@@ -8,23 +8,23 @@ import { businessInfo } from "@/lib/data";
 export function Footer() {
   return (
     <footer className="bg-[#0a0a0a] border-t border-white/5">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-<div>
-              <div className="flex items-center gap-3 mb-6">
-                  <Image
-                    src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Dec-8-2025-10_12_14-AM-1-1768823187171.png?width=200&height=200&resize=contain"
-                    alt="Shashti Karz Logo"
-                    width={48}
-                    height={48}
-                    className="w-12 h-12 object-contain"
-                    priority
-                  />
-                <div>
-                  <h3 className="text-xl font-bold font-display text-gradient">{businessInfo.name}</h3>
-                  <p className="text-xs text-[#888] tracking-widest uppercase">{businessInfo.tagline}</p>
-                </div>
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <Image
+                src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Dec-8-2025-10_12_14-AM-1-1768823187171.png?width=200&height=200&resize=contain"
+                alt="Shashti Karz Logo"
+                width={48}
+                height={48}
+                className="w-12 h-12 object-contain"
+                priority
+              />
+              <div>
+                <h3 className="text-xl font-bold font-display text-gradient">{businessInfo.name}</h3>
+                <p className="text-xs text-[#888] tracking-widest uppercase">{businessInfo.tagline}</p>
               </div>
+            </div>
             <p className="text-[#888] text-sm leading-relaxed">
               Premium car detailing services in Tirupur. We bring your car back to showroom condition with our expert services.
             </p>

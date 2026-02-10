@@ -148,7 +148,7 @@ function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1 }}
         >
-          <h1 className="text-4xl sm:text-6xl lg:text-8xl font-bold font-display mb-6 leading-[1.1] text-balance">
+          <h1 className="text-3xl sm:text-6xl lg:text-8xl font-bold font-display mb-6 leading-[1.1] text-balance">
             <span className="text-white">{t('hero_title_1')} </span>
             <NeonText color="#ff1744" className="font-display">{t('hero_title_2')}</NeonText>
             <br className="hidden sm:block" />
@@ -261,7 +261,7 @@ function HeroSection() {
 function ServiceIntroSection() {
   const { t } = useLanguage();
   return (
-    <section className="py-16 sm:py-32 relative overflow-hidden">
+    <section className="py-12 sm:py-32 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-[#111] to-[#0a0a0a]" />
       <motion.div
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px]"
@@ -502,7 +502,7 @@ function ReviewsSection({ reviews }: { reviews: Review[] }) {
 function CTASection() {
   const { t } = useLanguage();
   return (
-    <section className="py-12 sm:py-24 relative overflow-hidden">
+    <section className="py-8 sm:py-24 relative overflow-hidden">
       <motion.div
         animate={{
           background: [

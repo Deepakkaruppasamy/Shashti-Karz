@@ -651,7 +651,7 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             {!isOpen && (
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="fixed bottom-28 left-4 sm:left-6 z-50 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 flex items-center justify-center shadow-2xl shadow-purple-500/50 transition-all hover:scale-110 animate-pulse-slow group"
+                    className="fixed bottom-48 left-6 lg:bottom-28 lg:left-6 z-50 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 flex items-center justify-center shadow-2xl shadow-purple-500/50 transition-all hover:scale-110 animate-pulse-slow group"
                     title="Dinesh Voice Assistant"
                 >
                     <HeadphonesIcon size={24} className="text-white sm:hidden" />
