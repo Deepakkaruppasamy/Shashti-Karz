@@ -568,3 +568,265 @@ export interface AdminPulseEvent {
   priority?: string;
   status?: string;
 }
+
+// Digital Car Garage & Service Journal Types
+export interface ServiceJournalEntry {
+  id: string;
+  vehicle_id: string;
+  booking_id: string | null;
+  user_id: string;
+  service_name: string;
+  service_type: string | null;
+  service_category: string | null;
+  worker_notes: string | null;
+  customer_notes: string | null;
+  before_photos: string[];
+  after_photos: string[];
+  mileage: number | null;
+  service_date: string;
+  service_duration_hours: number | null;
+  products_used: string[];
+  quality_rating: number | null;
+  worker_id: string | null;
+  created_at: string;
+  updated_at: string;
+  worker?: Worker;
+}
+
+export interface MaintenanceReminder {
+  id: string;
+  vehicle_id: string;
+  user_id: string;
+  reminder_type: string;
+  title: string;
+  description: string | null;
+  due_date: string | null;
+  due_mileage: number | null;
+  recurrence_interval: string | null;
+  recurrence_interval_days: number | null;
+  status: 'active' | 'completed' | 'dismissed' | 'overdue';
+  completed_at: string | null;
+  dismissed_at: string | null;
+  notify_days_before: number;
+  last_notified_at: string | null;
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  estimated_cost: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ServiceCertificate {
+  id: string;
+  certificate_number: string;
+  vehicle_id: string;
+  booking_id: string | null;
+  user_id: string;
+  service_name: string;
+  service_type: string;
+  certificate_type: 'service_warranty' | 'quality_guarantee' | 'authenticity';
+  warranty_period_months: number | null;
+  warranty_start_date: string;
+  warranty_end_date: string;
+  warranty_terms: string | null;
+  products_applied: string[];
+  application_method: string | null;
+  curing_time_hours: number | null;
+  before_photos: string[];
+  after_photos: string[];
+  qr_code_url: string | null;
+  verification_hash: string | null;
+  digital_signature: string | null;
+  signed_by: string | null;
+  signed_at: string | null;
+  status: 'active' | 'expired' | 'voided';
+  voided_reason: string | null;
+  voided_at: string | null;
+  pdf_url: string | null;
+  pdf_generated_at: string | null;
+  created_at: string;
+  updated_at: string;
+  vehicle?: UserVehicle;
+}
+
+export interface VehicleHealthScore {
+  id: string;
+  vehicle_id: string;
+  overall_score: number;
+  exterior_score: number;
+  interior_score: number;
+  coating_health_score: number;
+  paint_protection_score: number;
+  maintenance_compliance_score: number;
+  days_since_last_service: number;
+  overdue_services: number;
+  total_services: number;
+  services_last_year: number;
+  average_service_interval_days: number | null;
+  total_spent: number;
+  spent_last_year: number;
+  recommendations: string[];
+  urgent_attention_needed: boolean;
+  calculated_at: string;
+  calculation_method: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Community Showroom Types
+export interface ShowroomPost {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  media_type: 'photo' | 'video' | 'reel';
+  media_url: string;
+  thumbnail_url: string | null;
+  additional_media: string[];
+  vehicle_id: string | null;
+  booking_id: string | null;
+  service_type: string | null;
+  car_model: string | null;
+  likes_count: number;
+  comments_count: number;
+  shares_count: number;
+  views_count: number;
+  contest_id: string | null;
+  contest_entry: boolean;
+  status: 'pending' | 'approved' | 'rejected' | 'flagged' | 'archived';
+  featured: boolean;
+  featured_at: string | null;
+  featured_order: number | null;
+  tags: string[];
+  hashtags: string[];
+  before_photo_url: string | null;
+  location: string | null;
+  visibility: 'public' | 'followers' | 'private';
+  created_at: string;
+  updated_at: string;
+  published_at: string | null;
+  user?: Profile;
+  vehicle?: UserVehicle;
+  is_liked?: boolean;
+  user_vote?: boolean;
+}
+
+export interface ShowroomContest {
+  id: string;
+  title: string;
+  description: string | null;
+  rules: string | null;
+  theme: string | null;
+  start_date: string;
+  end_date: string;
+  voting_start_date: string | null;
+  voting_end_date: string | null;
+  prizes: any;
+  winner_points: number;
+  runner_up_points: number;
+  participant_points: number;
+  min_entries: number;
+  max_entries_per_user: number;
+  entry_fee_points: number;
+  status: 'upcoming' | 'active' | 'voting' | 'ended' | 'cancelled';
+  total_entries: number;
+  total_votes: number;
+  total_participants: number;
+  winner_id: string | null;
+  winner_post_id: string | null;
+  runner_up_ids: string[];
+  winners_announced_at: string | null;
+  banner_image_url: string | null;
+  sponsor_name: string | null;
+  sponsor_logo_url: string | null;
+  created_at: string;
+  updated_at: string;
+  winner?: Profile;
+  winner_post?: ShowroomPost;
+}
+
+export interface ShowroomPostLike {
+  id: string;
+  post_id: string;
+  user_id: string;
+  created_at: string;
+  user?: Profile;
+}
+
+export interface ShowroomPostVote {
+  id: string;
+  post_id: string;
+  contest_id: string;
+  user_id: string;
+  vote_weight: number;
+  comment: string | null;
+  created_at: string;
+  user?: Profile;
+}
+
+export interface ShowroomComment {
+  id: string;
+  post_id: string;
+  user_id: string;
+  parent_comment_id: string | null;
+  comment: string;
+  edited: boolean;
+  edited_at: string | null;
+  likes_count: number;
+  status: 'active' | 'deleted' | 'flagged' | 'hidden';
+  created_at: string;
+  updated_at: string;
+  user?: Profile;
+  replies?: ShowroomComment[];
+}
+
+export interface ReferralLeaderboard {
+  id: string;
+  user_id: string;
+  total_referrals: number;
+  successful_referrals: number;
+  active_referrals: number;
+  total_revenue_generated: number;
+  total_rewards_earned: number;
+  current_rank: number | null;
+  previous_rank: number | null;
+  highest_rank: number | null;
+  rank_updated_at: string | null;
+  achievement_badges: string[];
+  milestone_reached: number | null;
+  monthly_referrals: number;
+  monthly_revenue: number;
+  last_month_reset: string;
+  created_at: string;
+  updated_at: string;
+  user?: Profile;
+}
+
+export interface ShowroomFollow {
+  id: string;
+  follower_id: string;
+  following_id: string;
+  created_at: string;
+  follower?: Profile;
+  following?: Profile;
+}
+
+export interface ShowroomUserStats {
+  id: string;
+  user_id: string;
+  total_posts: number;
+  total_likes_received: number;
+  total_comments_received: number;
+  total_shares: number;
+  followers_count: number;
+  following_count: number;
+  contests_entered: number;
+  contests_won: number;
+  total_votes_received: number;
+  engagement_score: number;
+  popularity_rank: number | null;
+  last_post_at: string | null;
+  calculated_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
