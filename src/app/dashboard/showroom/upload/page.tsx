@@ -141,12 +141,12 @@ function UploadForm() {
                     contest_id: formData.contest_id || null,
                     contest_entry: !!formData.contest_id,
                     hashtags: hashtagsArray,
-                    status: "pending" // Auto-approve could be enabled for trusted users
+                    status: "approved" // Auto-approved for immediate visibility
                 });
 
             if (dbError) throw dbError;
 
-            toast.success("Post uploaded successfully! Pending moderation.");
+            toast.success("Post uploaded successfully!");
             router.push("/showroom");
 
         } catch (error: any) {
