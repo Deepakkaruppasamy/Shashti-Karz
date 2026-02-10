@@ -351,6 +351,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Helper function to increment counters
+CREATE OR REPLACE FUNCTION increment(table_name text, column_name text, user_id uuid)
+RETURNS void AS $$
+BEGIN
+    EXECUTE format('UPDATE %I SET %I = %I + 1 WHERE user_id = %L', table_name, column_name, column_name, user_id);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- ============================================================================
 -- SUCCESS MESSAGE
 -- ============================================================================

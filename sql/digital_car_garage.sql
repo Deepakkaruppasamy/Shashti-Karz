@@ -131,7 +131,7 @@ CREATE TABLE IF NOT EXISTS service_certificates (
 -- AI-driven health scoring based on service history
 CREATE TABLE IF NOT EXISTS vehicle_health_scores (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    vehicle_id UUID NOT NULL REFERENCES user_vehicles(id) ON DELETE CASCADE,
+    vehicle_id UUID UNIQUE NOT NULL REFERENCES user_vehicles(id) ON DELETE CASCADE,
     
     -- Overall Health
     overall_score DECIMAL(5, 2) CHECK (overall_score >= 0 AND overall_score <= 100),
@@ -266,6 +266,26 @@ CREATE POLICY "Users can view their own vehicle health scores"
         EXISTS (
             SELECT 1 FROM user_vehicles
             WHERE user_vehicles.id = vehicle_health_scores.vehicle_id
+            AND user_vehicles.user_id = auth.uid()
+        )
+    );
+
+CREATE POLICY "Users can insert their own vehicle health scores"
+    ON vehicle_health_scores FOR INSERT
+    WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM user_vehicles
+            WHERE user_vehicles.id = vehicle_id
+            AND user_vehicles.user_id = auth.uid()
+        )
+    );
+
+CREATE POLICY "Users can update their own vehicle health scores"
+    ON vehicle_health_scores FOR UPDATE
+    USING (
+        EXISTS (
+            SELECT 1 FROM user_vehicles
+            WHERE user_vehicles.id = vehicle_id
             AND user_vehicles.user_id = auth.uid()
         )
     );

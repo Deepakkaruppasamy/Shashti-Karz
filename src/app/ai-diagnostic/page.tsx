@@ -13,7 +13,9 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { CarLoader } from "@/components/animations/CarLoader";
 import { useLanguage } from "@/lib/LanguageContext";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
+import { supabase } from "@/lib/supabase/client";
+import { Car, Plus, Save, Loader2 } from "lucide-react";
 
 type DiagnosticStep = "upload" | "scanning" | "analysis" | "results";
 
@@ -35,6 +37,59 @@ export default function AiDiagnosticPage() {
     const [detections, setDetections] = useState<Detection[]>([]);
     const videoRef = useRef<HTMLVideoElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const [vehicles, setVehicles] = useState<any[]>([]);
+    const [selectedVehicleId, setSelectedVehicleId] = useState<string>("");
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveSuccess, setSaveSuccess] = useState(false);
+
+    useEffect(() => {
+        const loadVehicles = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const res = await fetch(`/api/vehicles?user_id=${user.id}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setVehicles(data);
+                    if (data.length > 0) setSelectedVehicleId(data[0].id);
+                }
+            }
+        };
+        loadVehicles();
+    }, []);
+
+    const handleSaveResults = async () => {
+        if (!selectedVehicleId) {
+            toast.error("Please select a vehicle or add one first");
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            const res = await fetch("/api/ai/diagnostic", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    vehicle_id: selectedVehicleId,
+                    overall_score: 72, // Using the score from HUD
+                    recommendations: detections.map(d => d.recommendedService),
+                    detections: detections
+                })
+            });
+
+            if (res.ok) {
+                toast.success("Health score saved to Digital Garage!");
+                setSaveSuccess(true);
+            } else {
+                throw new Error("Failed to save");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to save diagnostic results");
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     const startScanning = () => {
         setStep("scanning");
@@ -132,10 +187,30 @@ export default function AiDiagnosticPage() {
                                         Upload a photo of your car's exterior or interior. Our neural network will detect imperfections and recommend the optimal treatment.
                                     </p>
 
+                                    <div className="w-full mb-8">
+                                        <label className="block text-xs font-black uppercase tracking-widest text-[#444] mb-3 text-left">Target Vehicle</label>
+                                        {vehicles.length > 0 ? (
+                                            <select
+                                                value={selectedVehicleId}
+                                                onChange={(e) => setSelectedVehicleId(e.target.value)}
+                                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-[#ff1744] outline-none transition-all appearance-none cursor-pointer"
+                                            >
+                                                {vehicles.map(v => (
+                                                    <option key={v.id} value={v.id} className="bg-[#111]">{v.brand} {v.model} ({v.number_plate})</option>
+                                                ))}
+                                            </select>
+                                        ) : (
+                                            <Link href="/dashboard" className="flex items-center justify-center gap-2 p-4 bg-white/5 border border-dashed border-white/20 rounded-2xl text-[#888] hover:text-white transition-all group">
+                                                <Plus size={16} /> Add a vehicle to your garage first
+                                            </Link>
+                                        )}
+                                    </div>
+
                                     <div className="flex flex-col sm:flex-row gap-4 w-full">
                                         <button
                                             onClick={() => fileInputRef.current?.click()}
-                                            className="flex-1 btn-premium py-5 rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 shadow-xl shadow-[#ff1744]/20 hover:scale-[1.02] transition-all"
+                                            disabled={!selectedVehicleId}
+                                            className="flex-1 btn-premium py-5 rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 shadow-xl shadow-[#ff1744]/20 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             <Upload size={18} /> Upload Media
                                         </button>
@@ -148,9 +223,11 @@ export default function AiDiagnosticPage() {
                                         />
 
                                         <button
-                                            className="flex-1 bg-white/5 border border-white/10 py-5 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-white/10 transition-all"
+                                            onClick={startScanning}
+                                            disabled={!selectedVehicleId}
+                                            className="flex-1 bg-white/5 border border-white/10 py-5 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-white/10 transition-all disabled:opacity-50"
                                         >
-                                            Try Sample Photo
+                                            Try AI Analysis
                                         </button>
                                     </div>
                                 </div>
@@ -376,11 +453,26 @@ export default function AiDiagnosticPage() {
                                             <div className="text-3xl font-black tracking-tighter text-white">₹18,500 <span className="text-sm line-through text-[#444] ml-2">₹24,000</span></div>
                                         </div>
 
+                                        {!saveSuccess ? (
+                                            <button
+                                                onClick={handleSaveResults}
+                                                disabled={isSaving}
+                                                className="w-full btn-premium py-5 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-[#d4af37]/20 border border-[#d4af37]/30"
+                                            >
+                                                {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                                                Save to Digital Garage
+                                            </button>
+                                        ) : (
+                                            <div className="w-full py-5 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest bg-green-500/10 border border-green-500/20 text-green-500">
+                                                <CheckCircle2 size={18} /> Results Synced
+                                            </div>
+                                        )}
+
                                         <Link
                                             href="/booking"
-                                            className="w-full btn-premium py-5 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-[#ff1744]/40"
+                                            className="w-full bg-white/5 border border-white/10 py-5 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all text-white"
                                         >
-                                            Instant Booking <ChevronRight size={18} />
+                                            Immediate Booking <ChevronRight size={18} />
                                         </Link>
                                     </div>
 
@@ -403,7 +495,7 @@ export default function AiDiagnosticPage() {
 
                                 <button
                                     onClick={() => setStep("upload")}
-                                    className="w-full py-4 text-[10px] font-black text-[#444] uppercase tracking-[0.3em] flex items-center justify-center gap-3 hover:text-white transition-all"
+                                    className="w-full py-4 text-[10px] font-black text-[#444] uppercase tracking-[0.3em] flex items-center justify-center gap-3 hover:text-white transition-all underline"
                                 >
                                     <ArrowLeft size={16} /> Scan Another Area
                                 </button>

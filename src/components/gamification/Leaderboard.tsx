@@ -28,9 +28,16 @@ export function Leaderboard() {
 
     const fetchLeaderboard = async () => {
         try {
-            const response = await fetch("/api/referrals/leaderboard");
+            const response = await fetch("/api/gamification/leaderboard");
             const data = await response.json();
-            setEntries(data.leaderboard || []);
+
+            // Normalize data in case of field name differences
+            const normalized = (data.leaderboard || []).map((entry: any) => ({
+                ...entry,
+                total_points: entry.total_points ?? entry.points ?? 0,
+            }));
+
+            setEntries(normalized);
         } catch (error) {
             console.error("Error fetching leaderboard:", error);
         } finally {

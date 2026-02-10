@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-// GET /api/referrals/leaderboard - Get referral leaderboard
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
     try {
         const supabase = await createClient();
         const searchParams = request.nextUrl.searchParams;
         const limit = parseInt(searchParams.get("limit") || "10");
 
-        // Try with join first
-        let { data, error } = await supabase
-            .from("referral_leaderboard")
+        // Try to fetch from customer_leaderboard which has points, bookings, etc.
+        const { data, error } = await supabase
+            .from("customer_leaderboard")
             .select(`
                 *,
                 user:profiles(id, full_name, avatar_url)
@@ -18,29 +19,21 @@ export async function GET(request: NextRequest) {
             .order("rank", { ascending: true })
             .limit(limit);
 
-        // If join fails, try without join
         if (error) {
-            console.error("Supabase Join Error [Referral Leaderboard]:", error);
+            console.error("Supabase Error [Customer Leaderboard]:", error);
 
-            // If it's a "relation does not exist" error, just return empty
-            if (error.code === '42P01') {
-                return NextResponse.json({ leaderboard: [] });
-            }
-
+            // Fallback to simpler select if profiles join fails
             const { data: simpleData, error: simpleError } = await supabase
-                .from("referral_leaderboard")
+                .from("customer_leaderboard")
                 .select("*")
                 .order("rank", { ascending: true })
                 .limit(limit);
 
             if (simpleError) {
-                console.error("Supabase Simple Error [Referral Leaderboard]:", simpleError);
-                return NextResponse.json({ leaderboard: [] });
+                return NextResponse.json({ error: simpleError.message }, { status: 500 });
             }
-            data = simpleData;
+            return NextResponse.json({ leaderboard: simpleData });
         }
-
-        if (!data) return NextResponse.json({ leaderboard: [] });
 
         return NextResponse.json({ leaderboard: data });
     } catch (error) {

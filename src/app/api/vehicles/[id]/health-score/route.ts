@@ -9,24 +9,39 @@ export async function GET(
     const { id } = await params;
     const supabase = await createClient();
 
-    const { data, error } = await supabase.rpc('calculate_vehicle_health_score', {
+    // 1. First, check if there's an existing health score calculated recently (especially if it was by AI)
+    const { data: existingScore } = await supabase
+        .from("vehicle_health_scores")
+        .select("*")
+        .eq("vehicle_id", id)
+        .single();
+
+    // If there is an AI diagnostic result from the last 24 hours, use it
+    if (existingScore && existingScore.calculation_method?.includes('ai_vision')) {
+        const lastCalc = new Date(existingScore.calculated_at);
+        const now = new Date();
+        const diffHours = (now.getTime() - lastCalc.getTime()) / (1000 * 60 * 60);
+
+        if (diffHours < 24) {
+            return NextResponse.json(existingScore);
+        }
+    }
+
+    // 2. Fallback to RPC calculation (based on service history)
+    const { data: rpcData, error: rpcError } = await supabase.rpc('calculate_vehicle_health_score', {
         p_vehicle_id: id
     });
 
-    if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    if (rpcError) {
+        console.error("RPC Health Score Error:", rpcError);
+        // If RPC fails but we have a score, just return it
+        if (existingScore) return NextResponse.json(existingScore);
+        return NextResponse.json({ error: rpcError.message }, { status: 500 });
     }
 
-    // Get or create health score record
-    const scoreData = data?.[0];
+    const scoreData = rpcData?.[0];
 
     if (scoreData) {
-        const { data: existingScore } = await supabase
-            .from("vehicle_health_scores")
-            .select("*")
-            .eq("vehicle_id", id)
-            .single();
-
         const healthScoreRecord = {
             vehicle_id: id,
             overall_score: scoreData.overall_score || 0,
@@ -37,6 +52,7 @@ export async function GET(
             maintenance_compliance_score: scoreData.maintenance_compliance || 0,
             total_services: scoreData.total_services || 0,
             total_spent: scoreData.total_spent || 0,
+            calculation_method: 'service_history',
             calculated_at: new Date().toISOString(),
         };
 
@@ -57,6 +73,6 @@ export async function GET(
     return NextResponse.json({
         vehicle_id: id,
         overall_score: 0,
-        message: "No service history found"
+        message: "No health data found"
     });
 }

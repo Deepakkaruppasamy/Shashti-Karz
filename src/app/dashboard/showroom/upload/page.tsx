@@ -82,9 +82,13 @@ function UploadForm() {
 
             if (uploadError) {
                 console.error("Storage upload error:", uploadError);
-                // Fallback for demo if storage isn't set up: use a placeholder or previous logic
-                // For now, we'll optimistically assume success or catch the error
-                throw new Error("Failed to upload media. Please try again.");
+
+                if (uploadError.message?.includes("Bucket not found")) {
+                    toast.error("Storage bucket 'showroom-media' not found. Please ensure it's created in Supabase.");
+                } else {
+                    toast.error(`Upload failed: ${uploadError.message}`);
+                }
+                throw uploadError;
             } else {
                 const { data: { publicUrl } } = supabase.storage
                     .from(bucket)
