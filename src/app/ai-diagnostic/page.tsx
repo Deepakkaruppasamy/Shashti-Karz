@@ -80,25 +80,29 @@ export default function AiDiagnosticPage() {
             const res = await fetch("/api/vehicles", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ...newVehicle,
-                    user_id: user.id
-                })
+                body: JSON.stringify(newVehicle)
             });
 
+            const responseData = await res.json();
+
             if (res.ok) {
-                const addedVehicle = await res.json();
-                setVehicles([...vehicles, addedVehicle]);
-                setSelectedVehicleId(addedVehicle.id);
+                setVehicles([...vehicles, responseData]);
+                setSelectedVehicleId(responseData.id);
                 setShowAddVehicle(false);
                 setNewVehicle({ brand: "", model: "", number_plate: "", year: new Date().getFullYear() });
                 toast.success("Vehicle added successfully!");
             } else {
-                throw new Error("Failed to add vehicle");
+                // Display detailed error from API
+                const errorMsg = responseData.error || responseData.message || "Failed to add vehicle";
+                console.error("API Error:", responseData);
+                toast.error(errorMsg);
+                throw new Error(errorMsg);
             }
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to add vehicle");
+        } catch (error: any) {
+            console.error("Error adding vehicle:", error);
+            if (!error.message.includes("Failed to add vehicle")) {
+                toast.error(error.message || "Failed to add vehicle");
+            }
         } finally {
             setIsAddingVehicle(false);
         }

@@ -33,17 +33,48 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const supabase = await createClient();
-  const body = await request.json();
 
-  const { data, error } = await supabase
-    .from("user_vehicles")
-    .insert(body)
-    .select()
-    .single();
+  // Verify authentication
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (authError || !user) {
+    console.error("Authentication error:", authError);
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  return NextResponse.json(data);
+  try {
+    const body = await request.json();
+
+    // Ensure user_id is set to authenticated user
+    const vehicleData = {
+      ...body,
+      user_id: user.id
+    };
+
+    console.log("Attempting to insert vehicle:", vehicleData);
+
+    const { data, error } = await supabase
+      .from("user_vehicles")
+      .insert(vehicleData)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Database error inserting vehicle:", error);
+      return NextResponse.json({
+        error: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      }, { status: 500 });
+    }
+
+    return NextResponse.json(data);
+  } catch (error: any) {
+    console.error("Unexpected error:", error);
+    return NextResponse.json({
+      error: "Internal server error",
+      message: error.message
+    }, { status: 500 });
+  }
 }
