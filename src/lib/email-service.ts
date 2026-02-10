@@ -59,7 +59,7 @@ export function generateWelcomeEmail(data: { customerName: string }): string {
   <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
     <div style="text-align: center; margin-bottom: 40px;">
       <h1 style="color: #ff1744; margin: 0; font-size: 32px;">Shashti Karz</h1>
-      <p style="color: #888; margin: 8px 0 0;">Welcome to the Elite Detailing Suite</p>
+      <p style="color: #888; margin: 8px 0 0;">Welcome to the Shashti Karz Community</p>
     </div>
     
     <div style="background: linear-gradient(135deg, #1a1a1a 0%, #111 100%); border-radius: 16px; padding: 32px; border: 1px solid #333;">

@@ -327,7 +327,7 @@ export function LoyaltyProgram({ userId, showDemo = false }: LoyaltyProgramProps
               <div className="w-20 h-20 bg-gradient-to-br from-[#d4af37]/20 to-transparent rounded-full flex items-center justify-center mx-auto mb-6 border border-[#d4af37]/20">
                 <Trophy size={40} className="text-[#d4af37]" />
               </div>
-              <h3 className="text-2xl font-bold mb-3">Join The Elite</h3>
+              <h3 className="text-2xl font-bold mb-3">Join Our Loyalty Program</h3>
               <p className="text-[#888] mb-8 leading-relaxed">Sign up today to start earning points and unlock exclusive Detailing Benefits.</p>
               <a href="/login" className="btn-premium px-10 py-4 rounded-2xl inline-flex items-center gap-2 font-bold transition-transform active:scale-95">
                 Join Now <ArrowRight size={18} />

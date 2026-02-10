@@ -171,7 +171,7 @@ Contest rewards integrate with loyalty system:
   - Leaderboard tab
 
 ### Upload Flows
-- `/dashboard/showroom/upload` - Post upload (to be created)
+- ✅ `/dashboard/showroom/upload` - Post upload (COMPLETED)
 - Media upload to Supabase Storage
 - Auto-moderation queue
 

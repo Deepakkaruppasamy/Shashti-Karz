@@ -37,7 +37,6 @@ export function Navbar() {
   const navLinks = [
     { href: "/", label: t('home') },
     { href: "/ai-diagnostic", label: "Diagnostic" },
-    { href: "/memberships", label: "Elite" },
     { href: "/services", label: t('services') },
     { href: "/booking", label: t('book_now') },
     { href: "/gallery", label: t('gallery') },
