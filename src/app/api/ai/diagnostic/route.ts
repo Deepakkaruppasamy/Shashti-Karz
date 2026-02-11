@@ -5,7 +5,7 @@ export async function POST(request: Request) {
     try {
         const supabase = await createClient();
         const body = await request.json();
-        const { vehicle_id, overall_score, recommendations, detections } = body;
+        const { vehicle_id, overall_score, recommendations, detections, diagnostic_image } = body;
 
         if (!vehicle_id) {
             return NextResponse.json({ error: "Vehicle ID is required" }, { status: 400 });
@@ -26,6 +26,8 @@ export async function POST(request: Request) {
                     overall_score,
                     exterior_score: overall_score,
                     recommendations,
+                    detections,
+                    diagnostic_image,
                     calculation_method: 'ai_vision_v2.4',
                     calculated_at: new Date().toISOString()
                 })
@@ -40,6 +42,8 @@ export async function POST(request: Request) {
                     overall_score,
                     exterior_score: overall_score,
                     recommendations,
+                    detections,
+                    diagnostic_image,
                     calculation_method: 'ai_vision_v2.4',
                     calculated_at: new Date().toISOString()
                 })

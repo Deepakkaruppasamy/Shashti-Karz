@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, Calendar, Award, Bell, FileText, TrendingUp,
   CheckCircle2, AlertTriangle, Image as ImageIcon, Edit3, Plus,
-  X, Upload, Star, Package, Clock, DollarSign, Sparkles
+  X, Upload, Star, Package, Clock, DollarSign, Sparkles, Brain
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { Navbar } from "@/components/Navbar";
@@ -558,6 +558,11 @@ export default function VehicleGaragePage({
                             <span className="text-[#888]">Valid Until</span>
                             <span className="font-medium">{new Date(cert.warranty_end_date).toLocaleDateString("en-IN")}</span>
                           </div>
+                          {cert.warranty_terms && (
+                            <div className="pt-2 mt-2 border-t border-white/5">
+                              <p className="text-[10px] text-[#555] italic leading-tight">{cert.warranty_terms}</p>
+                            </div>
+                          )}
                           {cert.status === 'active' && (
                             <div className="flex justify-between">
                               <span className="text-[#888]">Status</span>
@@ -694,6 +699,54 @@ export default function VehicleGaragePage({
                             </li>
                           ))}
                         </ul>
+                      </div>
+                    )}
+
+                    {/* AI Detections Detail */}
+                    {vehicle.health_score.detections && (vehicle.health_score.detections as any[]).length > 0 && (
+                      <div className="glass-card rounded-xl p-6">
+                        <h3 className="font-semibold mb-4 flex items-center gap-2">
+                          <Brain size={18} className="text-[#ff1744]" />
+                          AI Visual Analysis Detections
+                        </h3>
+                        <div className="space-y-4">
+                          {(vehicle.health_score.detections as any[]).map((det, i) => (
+                            <div key={i} className="p-4 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
+                              <div className="flex items-center gap-4">
+                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${det.severity === 'high' ? 'bg-red-500/10 text-red-500' :
+                                  det.severity === 'medium' ? 'bg-orange-500/10 text-orange-500' : 'bg-yellow-500/10 text-yellow-500'
+                                  }`}>
+                                  <AlertTriangle size={20} />
+                                </div>
+                                <div>
+                                  <p className="font-bold text-sm uppercase tracking-wider">{det.type} @ {det.location}</p>
+                                  <p className="text-xs text-[#888]">{det.description}</p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-[10px] text-[#444] uppercase font-black">Plan</p>
+                                <p className="text-xs font-bold text-white">{det.recommendedService}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Diagnostic Image Reference */}
+                    {vehicle.health_score.diagnostic_image && (
+                      <div className="glass-card rounded-xl p-6">
+                        <h3 className="font-semibold mb-4">Diagnostic Scan Reference</h3>
+                        <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10">
+                          <img
+                            src={vehicle.health_score.diagnostic_image}
+                            alt="AI Diagnostic Scan"
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+                            <p className="text-xs text-white/60">Source scan used for health calculation</p>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>

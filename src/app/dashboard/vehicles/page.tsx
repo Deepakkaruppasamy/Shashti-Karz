@@ -315,8 +315,15 @@ export default function VehiclesPage() {
 
                     <div className="mt-6 flex gap-3">
                       <Link
-                        href={`/booking?vehicle=${selectedVehicle.id}`}
+                        href={`/dashboard/vehicles/${selectedVehicle.id}`}
                         className="btn-premium px-6 py-3 rounded-xl text-sm font-semibold text-white flex items-center gap-2"
+                      >
+                        <FileText size={18} />
+                        View Full Digital Garage
+                      </Link>
+                      <Link
+                        href={`/booking?vehicle=${selectedVehicle.id}`}
+                        className="px-6 py-3 rounded-xl text-sm font-semibold bg-white/5 hover:bg-white/10 transition-colors flex items-center gap-2 border border-white/10"
                       >
                         <Calendar size={18} />
                         Book Service

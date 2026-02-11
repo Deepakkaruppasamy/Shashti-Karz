@@ -669,6 +669,8 @@ export interface VehicleHealthScore {
   urgent_attention_needed: boolean;
   calculated_at: string;
   calculation_method: string;
+  detections?: any[];
+  diagnostic_image?: string | null;
   created_at: string;
   updated_at: string;
 }

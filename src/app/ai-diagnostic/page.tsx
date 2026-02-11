@@ -34,6 +34,7 @@ export default function AiDiagnosticPage() {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [isCapturing, setIsCapturing] = useState(false);
     const [progress, setProgress] = useState(0);
+    const [overallScore, setOverallScore] = useState(100);
     const [detections, setDetections] = useState<Detection[]>([]);
     const videoRef = useRef<HTMLVideoElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -122,7 +123,7 @@ export default function AiDiagnosticPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     vehicle_id: selectedVehicleId,
-                    overall_score: 72, // Using the score from HUD
+                    overall_score: overallScore,
                     recommendations: detections.map(d => d.recommendedService),
                     detections: detections,
                     diagnostic_image: selectedImage // Include the uploaded image
@@ -194,16 +195,40 @@ export default function AiDiagnosticPage() {
         }
     };
 
-    const mockDetections: Detection[] = [
-        { id: "1", type: "swirl", severity: "medium", location: "Hood & Doors", description: "Micro-scratches detected in clear coat layer.", recommendedService: "Paint Correction" },
-        { id: "2", type: "oxidation", severity: "low", location: "Roof", description: "Early signs of paint fading due to UV exposure.", recommendedService: "Ceramic Coating" },
-        { id: "3", type: "scratch", severity: "high", location: "Rear Bumper", description: "Deep scratch penetrating the primer layer.", recommendedService: "Premium Detailing" },
+    const possibleDetections: Omit<Detection, "id">[] = [
+        { type: "swirl", severity: "medium", location: "Hood & Doors", description: "Micro-scratches detected in clear coat layer.", recommendedService: "Paint Correction" },
+        { type: "oxidation", severity: "low", location: "Roof", description: "Early signs of paint fading due to UV exposure.", recommendedService: "Ceramic Coating" },
+        { type: "scratch", severity: "high", location: "Rear Bumper", description: "Deep scratch penetrating the primer layer.", recommendedService: "Premium Detailing" },
+        { type: "oxidation", severity: "medium", location: "Trunk Lid", description: "Surface oxidation starting to dull the paint finish.", recommendedService: "Paint Correction" },
+        { type: "stain", severity: "low", location: "Lower Panels", description: "Hard water spots and mineral deposits detected.", recommendedService: "Deep Wash & Decontamination" },
+        { type: "swirl", severity: "high", location: "Quarter Panels", description: "Heavy spider-webbing from improper wash techniques.", recommendedService: "Multi-stage Correction" },
+        { type: "dent", severity: "medium", location: "Driver Side Door", description: "Minor surface depression without paint loss.", recommendedService: "Paintless Dent Removal" },
     ];
 
     useEffect(() => {
         if (step === "analysis") {
             setTimeout(() => {
-                setDetections(mockDetections);
+                // Generate 2-4 random detections
+                const count = Math.floor(Math.random() * 3) + 2;
+                const shuffled = [...possibleDetections].sort(() => 0.5 - Math.random());
+                const selected = shuffled.slice(0, count).map((d, i) => ({
+                    ...d,
+                    id: (i + 1).toString()
+                })) as Detection[];
+
+                // Calculate score
+                let score = 100;
+                selected.forEach(d => {
+                    if (d.severity === "high") score -= 15;
+                    else if (d.severity === "medium") score -= 8;
+                    else score -= 4;
+                });
+
+                // Add some randomness to score
+                score = Math.max(30, Math.min(98, score - Math.floor(Math.random() * 5)));
+
+                setDetections(selected);
+                setOverallScore(score);
                 setStep("results");
             }, 3000);
         }
@@ -569,15 +594,23 @@ export default function AiDiagnosticPage() {
                                     <div className="glass-card rounded-[2.5rem] p-8 border border-white/10">
                                         <h3 className="text-[10px] font-black text-[#444] uppercase tracking-[0.3em] mb-6">Visual Health Score</h3>
                                         <div className="flex items-end gap-3">
-                                            <span className="text-6xl font-black italic tracking-tighter">72</span>
+                                            <span className="text-6xl font-black italic tracking-tighter">{overallScore}</span>
                                             <span className="text-2xl font-bold text-[#444] mb-2">/ 100</span>
                                         </div>
-                                        <p className="text-sm text-[#888] mt-4">Structural integrity is strong, but surface protection has reached critical depletion levels.</p>
+                                        <p className="text-sm text-[#888] mt-4">
+                                            {overallScore >= 85 ? "Your vehicle is in exceptional condition. Minor preventative maintenance is recommended." :
+                                                overallScore >= 70 ? "Structural integrity is strong, but surface protection has reached critical depletion levels." :
+                                                    "Significant surface damage detected. Immediate professional intervention required to prevent base coat failure."}
+                                        </p>
                                     </div>
                                     <div className="glass-card rounded-[2.5rem] p-8 border border-white/10 flex flex-col justify-between">
                                         <div>
                                             <h3 className="text-[10px] font-black text-[#444] uppercase tracking-[0.3em] mb-6">Expert Verdict</h3>
-                                            <p className="text-sm font-medium leading-relaxed italic text-white/90">"The current level of clear-coat oxidation suggests immediate intervention with Ceramic Pro to prevent permanent UV-induced base-coat damage."</p>
+                                            <p className="text-sm font-medium leading-relaxed italic text-white/90">
+                                                {overallScore >= 85 ? "\"The factory finish is well-maintained. A ceramic top-up would solidify its long-term integrity.\"" :
+                                                    overallScore >= 70 ? "\"The current level of clear-coat oxidation suggests immediate intervention with Ceramic Pro to prevent permanent UV-induced base-coat damage.\"" :
+                                                        "\"Severe contamination and structural swirl marks detected. Requires multi-stage correction before any protection can be applied.\""}
+                                            </p>
                                         </div>
                                         <div className="flex items-center gap-3 mt-6">
                                             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ff1744] to-[#d4af37]" />
@@ -620,8 +653,16 @@ export default function AiDiagnosticPage() {
                                                 Save to Digital Garage
                                             </button>
                                         ) : (
-                                            <div className="w-full py-5 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest bg-green-500/10 border border-green-500/20 text-green-500">
-                                                <CheckCircle2 size={18} /> Results Synced
+                                            <div className="space-y-3">
+                                                <div className="w-full py-5 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest bg-green-500/10 border border-green-500/20 text-green-500">
+                                                    <CheckCircle2 size={18} /> Results Synced
+                                                </div>
+                                                <Link
+                                                    href={`/dashboard/vehicles/${selectedVehicleId}`}
+                                                    className="w-full bg-[#ff1744]/10 border border-[#ff1744]/30 py-5 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest hover:bg-[#ff1744]/20 transition-all text-[#ff1744]"
+                                                >
+                                                    View in Digital Garage <ChevronRight size={18} />
+                                                </Link>
                                             </div>
                                         )}
 
