@@ -45,6 +45,7 @@ export default function AiDiagnosticPage() {
     const [showAddVehicle, setShowAddVehicle] = useState(false);
     const [isAddingVehicle, setIsAddingVehicle] = useState(false);
     const [newVehicle, setNewVehicle] = useState({
+        name: "",
         brand: "",
         model: "",
         number_plate: "",
@@ -67,8 +68,8 @@ export default function AiDiagnosticPage() {
     }, []);
 
     const handleAddVehicle = async () => {
-        if (!newVehicle.brand || !newVehicle.model || !newVehicle.number_plate) {
-            toast.error("Please fill in all vehicle details");
+        if (!newVehicle.name || !newVehicle.brand || !newVehicle.model || !newVehicle.number_plate) {
+            toast.error("Please fill in all required vehicle details");
             return;
         }
 
@@ -89,7 +90,7 @@ export default function AiDiagnosticPage() {
                 setVehicles([...vehicles, responseData]);
                 setSelectedVehicleId(responseData.id);
                 setShowAddVehicle(false);
-                setNewVehicle({ brand: "", model: "", number_plate: "", year: new Date().getFullYear() });
+                setNewVehicle({ name: "", brand: "", model: "", number_plate: "", year: new Date().getFullYear() });
                 toast.success("Vehicle added successfully!");
             } else {
                 // Display detailed error from API
@@ -123,7 +124,8 @@ export default function AiDiagnosticPage() {
                     vehicle_id: selectedVehicleId,
                     overall_score: 72, // Using the score from HUD
                     recommendations: detections.map(d => d.recommendedService),
-                    detections: detections
+                    detections: detections,
+                    diagnostic_image: selectedImage // Include the uploaded image
                 })
             });
 
@@ -131,11 +133,12 @@ export default function AiDiagnosticPage() {
                 toast.success("Health score saved to Digital Garage!");
                 setSaveSuccess(true);
             } else {
-                throw new Error("Failed to save");
+                const errorData = await res.json();
+                throw new Error(errorData.error || "Failed to save");
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            toast.error("Failed to save diagnostic results");
+            toast.error(error.message || "Failed to save diagnostic results");
         } finally {
             setIsSaving(false);
         }
@@ -154,15 +157,40 @@ export default function AiDiagnosticPage() {
         }, 40);
     };
 
-    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            // Show preview immediately
             const reader = new FileReader();
             reader.onloadend = () => {
                 setSelectedImage(reader.result as string);
-                startScanning();
             };
             reader.readAsDataURL(file);
+
+            // Start scanning animation
+            startScanning();
+
+            // Upload to Supabase Storage in background
+            try {
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("folder", "diagnostic-images");
+
+                const uploadRes = await fetch("/api/upload/image", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (uploadRes.ok) {
+                    const { url } = await uploadRes.json();
+                    console.log("Image uploaded:", url);
+                    // Store the URL for later use when saving results
+                    setSelectedImage(url);
+                }
+            } catch (error) {
+                console.error("Failed to upload image:", error);
+                // Continue with local preview even if upload fails
+            }
         }
     };
 
@@ -262,7 +290,17 @@ export default function AiDiagnosticPage() {
                                             <div className="space-y-4">
                                                 <div className="p-6 bg-white/5 border border-white/10 rounded-2xl space-y-4">
                                                     <div>
-                                                        <label className="block text-xs text-[#888] mb-2">Brand</label>
+                                                        <label className="block text-xs text-[#888] mb-2">Vehicle Name *</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="e.g., My BMW, Daily Driver"
+                                                            value={newVehicle.name}
+                                                            onChange={(e) => setNewVehicle({ ...newVehicle, name: e.target.value })}
+                                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#ff1744] outline-none transition-all"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs text-[#888] mb-2">Brand *</label>
                                                         <input
                                                             type="text"
                                                             placeholder="e.g., BMW, Mercedes"
@@ -272,7 +310,7 @@ export default function AiDiagnosticPage() {
                                                         />
                                                     </div>
                                                     <div>
-                                                        <label className="block text-xs text-[#888] mb-2">Model</label>
+                                                        <label className="block text-xs text-[#888] mb-2">Model *</label>
                                                         <input
                                                             type="text"
                                                             placeholder="e.g., M4, S-Class"
@@ -283,7 +321,7 @@ export default function AiDiagnosticPage() {
                                                     </div>
                                                     <div className="grid grid-cols-2 gap-3">
                                                         <div>
-                                                            <label className="block text-xs text-[#888] mb-2">Number Plate</label>
+                                                            <label className="block text-xs text-[#888] mb-2">Number Plate *</label>
                                                             <input
                                                                 type="text"
                                                                 placeholder="TN01AB1234"

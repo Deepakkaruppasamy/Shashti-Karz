@@ -44,14 +44,12 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-
-    // Ensure user_id is set to authenticated user
+    // Ensure user_id is set to authenticated user and provide fallback name
     const vehicleData = {
       ...body,
-      user_id: user.id
+      user_id: user.id,
+      name: body.name || `${body.brand || "My"} ${body.model || "Vehicle"}`.trim()
     };
-
-    console.log("Attempting to insert vehicle:", vehicleData);
 
     const { data, error } = await supabase
       .from("user_vehicles")

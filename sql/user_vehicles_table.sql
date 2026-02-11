@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS public.user_vehicles (
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     
     -- Vehicle Information
+    name TEXT NOT NULL, -- Custom name for the vehicle (e.g., "My BMW", "Daily Driver")
     brand TEXT NOT NULL,
     model TEXT NOT NULL,
     year INTEGER NOT NULL,
@@ -14,14 +15,21 @@ CREATE TABLE IF NOT EXISTS public.user_vehicles (
     vin TEXT, -- Vehicle Identification Number
     
     -- Additional Details
+    car_type TEXT, -- sedan, suv, hatchback, etc.
     purchase_date DATE,
     mileage INTEGER,
-    fuel_type TEXT CHECK (fuel_type IN ('petrol', 'diesel', 'electric', 'hybrid')),
+    fuel_type TEXT CHECK (fuel_type IN ('petrol', 'diesel', 'electric', 'hybrid', 'cng')),
     transmission TEXT CHECK (transmission IN ('manual', 'automatic', 'cvt')),
     
+    -- Service Tracking
+    last_service_at TIMESTAMPTZ,
+    next_service_at TIMESTAMPTZ,
+    
     -- Metadata
+    image_url TEXT,
     photo_url TEXT,
     notes TEXT,
+    fleet_id UUID, -- For fleet management
     is_active BOOLEAN DEFAULT true,
     
     -- Timestamps

@@ -57,7 +57,30 @@ WITH CHECK (
 );
 
 -- ============================================================================
--- 3. SERVICE JOURNAL (service-media)
+-- 3. VEHICLE IMAGES (vehicle-images) - for AI diagnostics
+-- ============================================================================
+-- Create bucket for diagnostic and vehicle images
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('vehicle-images', 'vehicle-images', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Public read access
+DROP POLICY IF EXISTS "Vehicle Images Public Access" ON storage.objects;
+CREATE POLICY "Vehicle Images Public Access"
+ON storage.objects FOR SELECT
+USING ( bucket_id = 'vehicle-images' );
+
+-- Authenticated users can upload diagnostic images
+DROP POLICY IF EXISTS "Vehicle Images Authenticated Upload" ON storage.objects;
+CREATE POLICY "Vehicle Images Authenticated Upload"
+ON storage.objects FOR INSERT
+WITH CHECK (
+    bucket_id = 'vehicle-images' AND 
+    auth.role() = 'authenticated'
+);
+
+-- ============================================================================
+-- 4. SERVICE JOURNAL (service-media)
 -- ============================================================================
 -- Create bucket for service before/after photos
 INSERT INTO storage.buckets (id, name, public)
@@ -80,7 +103,7 @@ WITH CHECK (
 );
 
 -- ============================================================================
--- 4. AD ASSETS (ad-assets) - from ads_system.sql
+-- 5. AD ASSETS (ad-assets) - from ads_system.sql
 -- ============================================================================
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('ad-assets', 'ad-assets', true)
@@ -107,6 +130,6 @@ WITH CHECK (
 DO $$ 
 BEGIN
     RAISE NOTICE '✅ Supabase Storage Buckets configured!';
-    RAISE NOTICE '📦 Buckets created: showroom-media, vehicle-media, service-media, ad-assets';
+    RAISE NOTICE '📦 Buckets created: showroom-media, vehicle-media, vehicle-images, service-media, ad-assets';
     RAISE NOTICE '🔐 Policies set: Public Read, Authenticated Upload';
 END $$;

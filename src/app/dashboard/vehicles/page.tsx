@@ -21,6 +21,8 @@ export default function VehiclesPage() {
   const [editingVehicle, setEditingVehicle] = useState<UserVehicle | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<UserVehicle | null>(null);
   const [vehicleHistory, setVehicleHistory] = useState<any>(null);
+  const [healthScore, setHealthScore] = useState<any>(null);
+  const [loadingHealthScore, setLoadingHealthScore] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -70,6 +72,21 @@ export default function VehiclesPage() {
       }
     } catch (error) {
       console.error("Error loading vehicle history:", error);
+    }
+  };
+
+  const loadHealthScore = async (vehicleId: string) => {
+    setLoadingHealthScore(true);
+    try {
+      const response = await fetch(`/api/vehicles/${vehicleId}/health-score`);
+      if (response.ok) {
+        const data = await response.json();
+        setHealthScore(data);
+      }
+    } catch (error) {
+      console.error("Error loading health score:", error);
+    } finally {
+      setLoadingHealthScore(false);
     }
   };
 
@@ -155,6 +172,7 @@ export default function VehiclesPage() {
   const selectVehicle = (vehicle: UserVehicle) => {
     setSelectedVehicle(vehicle);
     loadVehicleHistory(vehicle.id);
+    loadHealthScore(vehicle.id);
   };
 
   if (authLoading || !user) {
@@ -168,7 +186,7 @@ export default function VehiclesPage() {
   return (
     <main className="min-h-screen bg-[#0a0a0a]">
       <Navbar />
-      
+
       <div className="pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
@@ -211,11 +229,10 @@ export default function VehiclesPage() {
                     key={vehicle.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={`glass-card rounded-xl p-4 cursor-pointer transition-all ${
-                      selectedVehicle?.id === vehicle.id
-                        ? "border-2 border-[#ff1744]"
-                        : "border border-white/10 hover:border-[#ff1744]/50"
-                    }`}
+                    className={`glass-card rounded-xl p-4 cursor-pointer transition-all ${selectedVehicle?.id === vehicle.id
+                      ? "border-2 border-[#ff1744]"
+                      : "border border-white/10 hover:border-[#ff1744]/50"
+                      }`}
                     onClick={() => selectVehicle(vehicle)}
                   >
                     <div className="flex items-center gap-4">
@@ -304,8 +321,58 @@ export default function VehiclesPage() {
                         <Calendar size={18} />
                         Book Service
                       </Link>
+                      <Link
+                        href="/ai-diagnostic"
+                        className="px-6 py-3 rounded-xl text-sm font-semibold bg-white/5 hover:bg-white/10 transition-colors flex items-center gap-2"
+                      >
+                        AI Diagnosis
+                      </Link>
                     </div>
                   </div>
+
+                  {/* Health Score Card */}
+                  {healthScore && (
+                    <div className="glass-card rounded-2xl p-6 border border-[#ff1744]/20 bg-gradient-to-br from-[#ff1744]/5 to-transparent">
+                      <h3 className="font-semibold mb-4 flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-[#ff1744]/10 flex items-center justify-center">
+                          <Wrench size={18} className="text-[#ff1744]" />
+                        </div>
+                        Vehicle Health Score
+                        {healthScore.calculation_method?.includes('ai_vision') && (
+                          <span className="ml-auto text-xs px-2 py-1 rounded-full bg-[#ff1744]/10 text-[#ff1744] font-bold">
+                            AI ANALYZED
+                          </span>
+                        )}
+                      </h3>
+
+                      <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                        <div className="p-4 rounded-xl bg-white/5 text-center">
+                          <div className="text-4xl font-black mb-1">
+                            {Math.round(healthScore.overall_score || 0)}
+                          </div>
+                          <div className="text-xs text-[#888] uppercase tracking-wider">Overall Score</div>
+                        </div>
+                        <div className="p-4 rounded-xl bg-white/5 text-center">
+                          <div className="text-4xl font-black mb-1 text-[#d4af37]">
+                            {healthScore.total_services || 0}
+                          </div>
+                          <div className="text-xs text-[#888] uppercase tracking-wider">Total Services</div>
+                        </div>
+                      </div>
+
+                      {healthScore.recommendations && healthScore.recommendations.length > 0 && (
+                        <div className="space-y-2">
+                          <p className="text-xs text-[#666] uppercase tracking-wider font-bold mb-2">Recommendations</p>
+                          {healthScore.recommendations.map((rec: string, i: number) => (
+                            <div key={i} className="flex items-start gap-2 text-sm">
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#ff1744] mt-1.5" />
+                              <span className="text-[#888]">{rec}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   <div className="glass-card rounded-2xl p-6">
                     <h3 className="font-semibold mb-4 flex items-center gap-2">
@@ -340,9 +407,8 @@ export default function VehiclesPage() {
                               </div>
                               <div className="text-right">
                                 <span className="font-semibold text-[#d4af37]">₹{booking.price}</span>
-                                <span className={`block text-xs capitalize ${
-                                  booking.status === "completed" ? "text-green-500" : "text-yellow-500"
-                                }`}>
+                                <span className={`block text-xs capitalize ${booking.status === "completed" ? "text-green-500" : "text-yellow-500"
+                                  }`}>
                                   {booking.status}
                                 </span>
                               </div>
