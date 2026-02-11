@@ -583,6 +583,7 @@ export interface ServiceJournalEntry {
   before_photos: string[];
   after_photos: string[];
   mileage: number | null;
+  price: number;
   service_date: string;
   service_duration_hours: number | null;
   products_used: string[];

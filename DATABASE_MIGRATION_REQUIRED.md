@@ -11,14 +11,16 @@ The TypeScript code expects a `name` field in the `user_vehicles` table, but you
 ## Quick Fix (Choose ONE option)
 
 ### ⚡ Option 1: Run Migration (RECOMMENDED)
-This will add all missing columns to your existing database without losing data.
+This will add all missing columns and initialize missing features without losing data.
 
 **Steps:**
 1. Go to your Supabase Dashboard
 2. Navigate to **SQL Editor**
-3. Copy and paste the contents of: `sql/migrations/add_missing_vehicle_columns.sql`
-4. Click **Run**
-5. Refresh your browser and try adding a vehicle again
+3. **Vehicle Fix**: Run `sql/migrations/add_missing_vehicle_columns.sql`
+4. **Garage Fix**: Run `sql/migrations/fix_garage_health_score.sql`
+5. **Showroom Fix**: Run `sql/community_showroom.sql` (Creates the social tables)
+6. **Showroom Demo Data**: Run `sql/migrations/seed_showroom_data.sql` (Fixes "Empty Contest" and "Empty Leaderboard")
+7. Refresh your browser and try the features again!
 
 ### 🔄 Option 2: Recreate Table (If you have no data)
 If you haven't added any vehicles yet and don't mind starting fresh:

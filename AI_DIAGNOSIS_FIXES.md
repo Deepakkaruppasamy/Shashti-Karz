@@ -11,9 +11,10 @@ Error: null value in column "name" of relation "user_vehicles" violates not-null
 
 **Quick Fix:**
 1. Open Supabase Dashboard → SQL Editor
-2. Run the migration file: `sql/migrations/add_missing_vehicle_columns.sql`
-3. Also run: `sql/storage_buckets.sql`
-4. Refresh your browser
+2. Run migration: `sql/migrations/add_missing_vehicle_columns.sql`
+3. Run fixed garage RPC: `sql/migrations/fix_garage_health_score.sql`
+4. Also run: `sql/storage_buckets.sql`
+5. Refresh your browser
 
 See `DATABASE_MIGRATION_REQUIRED.md` for detailed instructions.
 

@@ -28,15 +28,24 @@ export async function GET(
     }
 
     // 2. Fallback to RPC calculation (based on service history)
+    console.log(`DEBUG: Calling RPC calculate_vehicle_health_score for vehicle ${id}`);
     const { data: rpcData, error: rpcError } = await supabase.rpc('calculate_vehicle_health_score', {
         p_vehicle_id: id
     });
 
     if (rpcError) {
-        console.error("RPC Health Score Error:", rpcError);
+        console.error("DEBUG: RPC Health Score Error:", rpcError);
         // If RPC fails but we have a score, just return it
-        if (existingScore) return NextResponse.json(existingScore);
-        return NextResponse.json({ error: rpcError.message }, { status: 500 });
+        if (existingScore) {
+            console.log("DEBUG: Using existing score as fallback");
+            return NextResponse.json(existingScore);
+        }
+        return NextResponse.json({
+            error: rpcError.message,
+            details: rpcError.details,
+            hint: rpcError.hint,
+            code: rpcError.code
+        }, { status: 500 });
     }
 
     const scoreData = rpcData?.[0];

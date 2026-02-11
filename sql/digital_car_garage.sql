@@ -30,7 +30,8 @@ CREATE TABLE IF NOT EXISTS service_journal_entries (
     
     -- Quality Metrics
     quality_rating DECIMAL(3, 2) CHECK (quality_rating >= 0 AND quality_rating <= 5),
-    worker_id UUID REFERENCES workers(id),
+    price DECIMAL(10, 2) DEFAULT 0,
+    worker_id UUID REFERENCES profiles(id),
     
     -- Timestamps
     created_at TIMESTAMPTZ DEFAULT NOW(),

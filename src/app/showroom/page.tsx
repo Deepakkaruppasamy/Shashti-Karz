@@ -267,16 +267,23 @@ export default function ShowroomPage() {
                                                 onClick={() => router.push(`/showroom/${post.id}`)}
                                             >
                                                 {/* Media */}
-                                                <div className="relative aspect-square bg-white/5">
+                                                <div className="relative aspect-square bg-white/5 overflow-hidden">
+                                                    {post.media_url && (
+                                                        <img
+                                                            src={post.media_url}
+                                                            alt={post.title}
+                                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                                        />
+                                                    )}
                                                     {post.media_type === "video" || post.media_type === "reel" ? (
-                                                        <div className="absolute inset-0 flex items-center justify-center">
+                                                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                                                             <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/20 transition-colors">
                                                                 <Play size={28} className="text-white ml-1" />
                                                             </div>
                                                         </div>
                                                     ) : null}
                                                     {post.featured && (
-                                                        <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[#d4af37] text-black text-xs font-bold flex items-center gap-1">
+                                                        <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[#d4af37] text-black text-xs font-bold flex items-center gap-1 shadow-lg">
                                                             <Star size={12} fill="currentColor" />
                                                             Featured
                                                         </div>

@@ -142,6 +142,24 @@ export default function VehicleGaragePage({
     }
   };
 
+  const handleDeleteJournalEntry = async (entryId: string) => {
+    if (!confirm("Are you sure you want to delete this service record?")) return;
+
+    try {
+      const { error } = await fetch(`/api/service-journal/${entryId}`, {
+        method: "DELETE",
+      }).then(res => res.json());
+
+      if (error) throw new Error(error);
+
+      toast.success("Entry deleted successfully");
+      loadVehicleData();
+    } catch (error) {
+      console.error("Error deleting entry:", error);
+      toast.error("Failed to delete entry");
+    }
+  };
+
   if (authLoading || !user || isLoading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
@@ -323,12 +341,36 @@ export default function VehicleGaragePage({
                               })}
                             </p>
                           </div>
-                          {entry.quality_rating && (
-                            <div className="flex items-center gap-1">
-                              <Star size={16} className="text-[#d4af37] fill-[#d4af37]" />
-                              <span className="font-semibold">{entry.quality_rating.toFixed(1)}</span>
+                          <div className="flex items-center gap-4">
+                            {entry.price > 0 && (
+                              <div className="text-sm font-semibold text-green-500">
+                                ₹{entry.price.toLocaleString()}
+                              </div>
+                            )}
+                            {entry.quality_rating && (
+                              <div className="flex items-center gap-1">
+                                <Star size={16} className="text-[#d4af37] fill-[#d4af37]" />
+                                <span className="font-semibold">{entry.quality_rating.toFixed(1)}</span>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-2 ml-2">
+                              <button
+                                onClick={() => {
+                                  setEditingEntry(entry);
+                                  setShowJournalModal(true);
+                                }}
+                                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-[#888] hover:text-white transition-colors"
+                              >
+                                <Edit3 size={16} />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteJournalEntry(entry.id)}
+                                className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-colors"
+                              >
+                                <X size={16} />
+                              </button>
                             </div>
-                          )}
+                          </div>
                         </div>
 
                         {entry.worker_notes && (
@@ -529,7 +571,7 @@ export default function VehicleGaragePage({
 
                         {cert.pdf_url && (
                           <button
-                            onClick={() => window.open(cert.pdf_url, '_blank')}
+                            onClick={() => window.open(cert.pdf_url || '', '_blank')}
                             className="w-full btn-premium py-3 rounded-xl text-sm font-semibold"
                           >
                             Download Certificate
@@ -670,9 +712,13 @@ export default function VehicleGaragePage({
 
       <ServiceJournalModal
         isOpen={showJournalModal}
-        onClose={() => setShowJournalModal(false)}
+        onClose={() => {
+          setShowJournalModal(false);
+          setEditingEntry(null);
+        }}
         vehicleId={vehicleId}
         onSuccess={loadVehicleData}
+        initialData={editingEntry}
       />
 
       <MaintenanceReminderModal
