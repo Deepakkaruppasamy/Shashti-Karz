@@ -313,25 +313,26 @@ export default function VehiclesPage() {
                       </div>
                     )}
 
-                    <div className="mt-6 flex gap-3">
+                    <div className="mt-6 flex flex-col sm:flex-row gap-3">
                       <Link
                         href={`/dashboard/vehicles/${selectedVehicle.id}`}
-                        className="btn-premium px-6 py-3 rounded-xl text-sm font-semibold text-white flex items-center gap-2"
+                        className="flex-1 btn-premium px-6 py-3 rounded-xl text-xs font-semibold text-white flex items-center justify-center gap-2"
                       >
-                        <FileText size={18} />
+                        <FileText size={16} />
                         View Full Digital Garage
                       </Link>
                       <Link
                         href={`/booking?vehicle=${selectedVehicle.id}`}
-                        className="px-6 py-3 rounded-xl text-sm font-semibold bg-white/5 hover:bg-white/10 transition-colors flex items-center gap-2 border border-white/10"
+                        className="flex-1 px-6 py-3 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center gap-2 border border-white/10"
                       >
-                        <Calendar size={18} />
+                        <Calendar size={16} />
                         Book Service
                       </Link>
                       <Link
                         href="/ai-diagnostic"
-                        className="px-6 py-3 rounded-xl text-sm font-semibold bg-white/5 hover:bg-white/10 transition-colors flex items-center gap-2"
+                        className="flex-1 px-6 py-3 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center gap-2 border border-white/10"
                       >
+                        <Brain size={16} />
                         AI Diagnosis
                       </Link>
                     </div>

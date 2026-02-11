@@ -212,18 +212,19 @@ export default function VehicleGaragePage({
               Back to Vehicles
             </button>
 
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-6">
-                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-[#ff1744] to-[#d4af37] flex items-center justify-center">
-                  <FileText size={48} className="text-white" />
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div className="flex items-center gap-4 md:gap-6">
+                <div className="w-16 h-16 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#ff1744] to-[#d4af37] flex items-center justify-center shrink-0">
+                  <FileText size={32} className="text-white md:hidden" />
+                  <FileText size={48} className="text-white hidden md:block" />
                 </div>
-                <div>
-                  <h1 className="text-3xl font-bold font-display">{vehicle.vehicle.name}</h1>
-                  <p className="text-[#888] mt-1">
+                <div className="min-w-0">
+                  <h1 className="text-2xl md:text-3xl font-bold font-display truncate">{vehicle.vehicle.name}</h1>
+                  <p className="text-[#888] text-sm md:text-base mt-1">
                     {vehicle.vehicle.brand} {vehicle.vehicle.model} • {vehicle.vehicle.year}
                   </p>
                   {vehicle.vehicle.number_plate && (
-                    <span className="inline-block mt-2 px-3 py-1 rounded-lg bg-white/5 text-sm font-mono border border-white/10">
+                    <span className="inline-block mt-2 px-3 py-1 rounded-lg bg-white/5 text-xs md:text-sm font-mono border border-white/10">
                       {vehicle.vehicle.number_plate}
                     </span>
                   )}
@@ -232,15 +233,15 @@ export default function VehicleGaragePage({
 
               {/* Health Score Badge */}
               {vehicle.health_score && (
-                <div className="glass-card rounded-2xl p-6 text-center min-w-[200px]">
+                <div className="glass-card rounded-2xl p-4 md:p-6 text-center w-full md:w-auto md:min-w-[200px]">
                   <div className="flex items-center justify-center gap-2 mb-2">
-                    <Sparkles size={20} className={getHealthScoreColor(vehicle.health_score.overall_score)} />
-                    <span className="text-sm text-[#888]">Health Score</span>
+                    <Sparkles size={16} className={getHealthScoreColor(vehicle.health_score.overall_score)} />
+                    <span className="text-xs md:text-sm text-[#888]">Health Score</span>
                   </div>
-                  <div className={`text-4xl font-bold ${getHealthScoreColor(vehicle.health_score.overall_score)}`}>
+                  <div className={`text-3xl md:text-4xl font-bold ${getHealthScoreColor(vehicle.health_score.overall_score)}`}>
                     {Math.round(vehicle.health_score.overall_score)}
                   </div>
-                  <div className="text-xs text-[#666] mt-1">
+                  <div className="text-[10px] md:text-xs text-[#666] mt-1 uppercase tracking-widest">
                     {getHealthScoreLabel(vehicle.health_score.overall_score)}
                   </div>
                 </div>
@@ -711,21 +712,21 @@ export default function VehicleGaragePage({
                         </h3>
                         <div className="space-y-4">
                           {(vehicle.health_score.detections as any[]).map((det, i) => (
-                            <div key={i} className="p-4 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
+                            <div key={i} className="p-4 rounded-lg bg-white/5 border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                               <div className="flex items-center gap-4">
-                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${det.severity === 'high' ? 'bg-red-500/10 text-red-500' :
+                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${det.severity === 'high' ? 'bg-red-500/10 text-red-500' :
                                   det.severity === 'medium' ? 'bg-orange-500/10 text-orange-500' : 'bg-yellow-500/10 text-yellow-500'
                                   }`}>
                                   <AlertTriangle size={20} />
                                 </div>
-                                <div>
-                                  <p className="font-bold text-sm uppercase tracking-wider">{det.type} @ {det.location}</p>
-                                  <p className="text-xs text-[#888]">{det.description}</p>
+                                <div className="min-w-0">
+                                  <p className="font-bold text-xs uppercase tracking-wider truncate">{det.type} @ {det.location}</p>
+                                  <p className="text-[10px] md:text-xs text-[#888]">{det.description}</p>
                                 </div>
                               </div>
-                              <div className="text-right">
-                                <p className="text-[10px] text-[#444] uppercase font-black">Plan</p>
-                                <p className="text-xs font-bold text-white">{det.recommendedService}</p>
+                              <div className="text-left sm:text-right w-full sm:w-auto border-t sm:border-t-0 border-white/5 pt-2 sm:pt-0">
+                                <p className="text-[8px] md:text-[10px] text-[#444] uppercase font-black">Recommended Action</p>
+                                <p className="text-[10px] md:text-xs font-bold text-white whitespace-nowrap">{det.recommendedService}</p>
                               </div>
                             </div>
                           ))}

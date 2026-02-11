@@ -257,17 +257,19 @@ export default function AiDiagnosticPage() {
                         </p>
                     </motion.div>
 
-                    <div className="flex bg-white/5 border border-white/10 rounded-2xl p-1">
-                        {(["upload", "scanning", "analysis", "results"] as const).map((s, i) => (
-                            <div
-                                key={s}
-                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${step === s ? "bg-[#ff1744] text-white" : "text-[#444]"
-                                    }`}
-                            >
-                                {i + 1}. {s}
-                            </div>
-                        ))}
-                    </div>
+                    <AnimatePresence mode="wait">
+                        <div className="flex bg-white/5 border border-white/10 rounded-2xl p-1 overflow-x-auto scrollbar-hide max-w-full">
+                            {(["upload", "scanning", "analysis", "results"] as const).map((s, i) => (
+                                <div
+                                    key={s}
+                                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${step === s ? "bg-[#ff1744] text-white" : "text-[#444]"
+                                        }`}
+                                >
+                                    {i + 1}. {s}
+                                </div>
+                            ))}
+                        </div>
+                    </AnimatePresence>
                 </div>
 
                 <AnimatePresence mode="wait">
@@ -612,7 +614,7 @@ export default function AiDiagnosticPage() {
                                                         "\"Severe contamination and structural swirl marks detected. Requires multi-stage correction before any protection can be applied.\""}
                                             </p>
                                         </div>
-                                        <div className="flex items-center gap-3 mt-6">
+                                        <div className="flex items-center gap-3 mt-6 border-t border-white/5 pt-4">
                                             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ff1744] to-[#d4af37]" />
                                             <p className="text-[10px] font-black text-[#444] uppercase tracking-widest">Dinesh • Lead Inspector</p>
                                         </div>

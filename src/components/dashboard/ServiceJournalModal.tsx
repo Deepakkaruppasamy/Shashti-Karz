@@ -190,63 +190,8 @@ export function ServiceJournalModal({ isOpen, onClose, vehicleId, onSuccess, ini
                             />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-[#888] mb-1">
-                                    Date
-                                </label>
-                                <div className="relative">
-                                    <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#888]" />
-                                    <input
-                                        type="date"
-                                        required
-                                        value={formData.service_date}
-                                        onChange={(e) => setFormData({ ...formData, service_date: e.target.value })}
-                                        className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2 focus:border-[#d4af37] focus:outline-none transition-colors [color-scheme:dark]"
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-[#888] mb-1">
-                                    Mileage (km)
-                                </label>
-                                <input
-                                    type="number"
-                                    placeholder="Optional"
-                                    value={formData.mileage}
-                                    onChange={(e) => setFormData({ ...formData, mileage: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 focus:border-[#d4af37] focus:outline-none transition-colors"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-[#888] mb-1">
-                                    Price (₹)
-                                </label>
-                                <input
-                                    type="number"
-                                    placeholder="Service Cost"
-                                    value={formData.price}
-                                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 focus:border-[#d4af37] focus:outline-none transition-colors"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-[#888] mb-1">
-                                Notes
-                            </label>
-                            <textarea
-                                rows={3}
-                                placeholder="Any observations or details..."
-                                value={formData.customer_notes}
-                                onChange={(e) => setFormData({ ...formData, customer_notes: e.target.value })}
-                                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 focus:border-[#d4af37] focus:outline-none transition-colors resize-none"
-                            />
-                        </div>
-
-                        <div className="flex items-center gap-4 mb-4">
-                            <div className="flex-1">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="sm:col-span-2">
                                 <label className="block text-sm font-medium text-[#888] mb-1">
                                     Service Type
                                 </label>
@@ -262,25 +207,83 @@ export function ServiceJournalModal({ isOpen, onClose, vehicleId, onSuccess, ini
                                     <option value="interior">Interior Deep Clean</option>
                                 </select>
                             </div>
-                            {!initialData && (
-                                <div className="pt-6">
-                                    <label className="flex items-center gap-2 cursor-pointer group">
-                                        <div className="relative">
-                                            <input
-                                                type="checkbox"
-                                                checked={formData.issue_certificate}
-                                                onChange={(e) => setFormData({ ...formData, issue_certificate: e.target.checked })}
-                                                className="sr-only"
-                                            />
-                                            <div className={`w-10 h-6 rounded-full transition-colors ${formData.issue_certificate ? 'bg-[#d4af37]' : 'bg-white/10'}`} />
-                                            <div className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform ${formData.issue_certificate ? 'translate-x-4' : ''}`} />
-                                        </div>
-                                        <span className="text-sm font-medium text-[#888] group-hover:text-white transition-colors">
+                            <div>
+                                <label className="block text-sm font-medium text-[#888] mb-1">
+                                    Date
+                                </label>
+                                <div className="relative">
+                                    <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#888]" />
+                                    <input
+                                        type="date"
+                                        required
+                                        value={formData.service_date}
+                                        onChange={(e) => setFormData({ ...formData, service_date: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2 focus:border-[#d4af37] focus:outline-none transition-colors [color-scheme:dark]"
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-sm font-medium text-[#888] mb-1">
+                                        Mileage
+                                    </label>
+                                    <input
+                                        type="number"
+                                        placeholder="km"
+                                        value={formData.mileage}
+                                        onChange={(e) => setFormData({ ...formData, mileage: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 focus:border-[#d4af37] focus:outline-none transition-colors text-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-[#888] mb-1">
+                                        Price
+                                    </label>
+                                    <input
+                                        type="number"
+                                        placeholder="₹"
+                                        value={formData.price}
+                                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 focus:border-[#d4af37] focus:outline-none transition-colors text-sm"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {!initialData && (
+                            <div className="pt-2">
+                                <label className="flex items-center gap-3 cursor-pointer group bg-white/5 p-4 rounded-xl border border-white/10">
+                                    <div className="relative shrink-0">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.issue_certificate}
+                                            onChange={(e) => setFormData({ ...formData, issue_certificate: e.target.checked })}
+                                            className="sr-only"
+                                        />
+                                        <div className={`w-10 h-6 rounded-full transition-colors ${formData.issue_certificate ? 'bg-[#d4af37]' : 'bg-white/10'}`} />
+                                        <div className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform ${formData.issue_certificate ? 'translate-x-4' : ''}`} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <span className="text-sm font-bold text-white group-hover:text-[#d4af37] transition-colors">
                                             Issue Digital Certificate
                                         </span>
-                                    </label>
-                                </div>
-                            )}
+                                        <p className="text-[10px] text-[#666]">Official warranty & service record</p>
+                                    </div>
+                                </label>
+                            </div>
+                        )}
+
+                        <div>
+                            <label className="block text-sm font-medium text-[#888] mb-1">
+                                Notes
+                            </label>
+                            <textarea
+                                rows={3}
+                                placeholder="Any observations or details..."
+                                value={formData.customer_notes}
+                                onChange={(e) => setFormData({ ...formData, customer_notes: e.target.value })}
+                                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 focus:border-[#d4af37] focus:outline-none transition-colors resize-none"
+                            />
                         </div>
 
                         <div>
