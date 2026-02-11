@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 export const dynamic = 'force-dynamic';
 
@@ -8,6 +8,12 @@ export async function GET(
 ) {
     const { id } = await params;
     const supabase = await createClient();
+
+    // 0. Verify Authentication
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     // 1. First, check if there's an existing health score calculated recently (especially if it was by AI)
     const { data: existingScore } = await supabase
@@ -28,22 +34,18 @@ export async function GET(
     }
 
     // 2. Fallback to RPC calculation (based on service history)
-    console.log(`DEBUG: Calling RPC calculate_vehicle_health_score for vehicle ${id}`);
     const { data: rpcData, error: rpcError } = await supabase.rpc('calculate_vehicle_health_score', {
         p_vehicle_id: id
     });
 
     if (rpcError) {
-        console.error("DEBUG: RPC Health Score Error:", rpcError);
+        console.error("RPC Health Score Error:", rpcError);
         // If RPC fails but we have a score, just return it
         if (existingScore) {
-            console.log("DEBUG: Using existing score as fallback");
             return NextResponse.json(existingScore);
         }
         return NextResponse.json({
             error: rpcError.message,
-            details: rpcError.details,
-            hint: rpcError.hint,
             code: rpcError.code
         }, { status: 500 });
     }
@@ -51,6 +53,18 @@ export async function GET(
     const scoreData = rpcData?.[0];
 
     if (scoreData) {
+        // 3. Verify Vehicle Ownership before allowing any system-level updates
+        const { data: vehicleOwnership } = await supabase
+            .from("user_vehicles")
+            .select("id")
+            .eq("id", id)
+            .eq("user_id", user.id)
+            .single();
+
+        if (!vehicleOwnership) {
+            return NextResponse.json({ error: "Access denied" }, { status: 403 });
+        }
+
         const healthScoreRecord = {
             vehicle_id: id,
             overall_score: scoreData.overall_score || 0,
@@ -65,13 +79,15 @@ export async function GET(
             calculated_at: new Date().toISOString(),
         };
 
+        const adminSupabase = await createServiceClient();
+
         if (existingScore) {
-            await supabase
+            await adminSupabase
                 .from("vehicle_health_scores")
                 .update(healthScoreRecord)
                 .eq("vehicle_id", id);
         } else {
-            await supabase
+            await adminSupabase
                 .from("vehicle_health_scores")
                 .insert(healthScoreRecord);
         }
