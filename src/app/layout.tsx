@@ -17,11 +17,12 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "Shashti Karz",
     startupImage: [
-      "/icons/icon-512x512.png",
+      "/logo.png",
     ],
   },
   icons: {
-    apple: "/icons/icon-192x192.png",
+    icon: "/logo.png",
+    apple: "/logo.png",
   },
   formatDetection: {
     telephone: true,
