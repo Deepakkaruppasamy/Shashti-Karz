@@ -18,6 +18,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { BrandedLoader } from "@/components/animations/BrandedLoader";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 export default function ShowroomAdminPage() {
     const [loading, setLoading] = useState(true);
@@ -79,6 +80,20 @@ export default function ShowroomAdminPage() {
             setLoading(false);
         }
     };
+
+    useRealtimeSubscription({
+        table: 'showroom_posts',
+        onInsert: (newItem) => {
+            setPosts(prev => [newItem, ...prev]);
+            toast.success('New showroom post submitted');
+        },
+        onUpdate: (updatedItem) => {
+            setPosts(prev => prev.map(p => p.id === updatedItem.id ? updatedItem : p));
+        },
+        onDelete: (deletedItem) => {
+            setPosts(prev => prev.filter(p => p.id !== deletedItem.old.id));
+        }
+    });
 
     const handleAction = (id: string, action: 'approve' | 'reject' | 'delete') => {
         toast.success(`Post ${action}d successfully`);

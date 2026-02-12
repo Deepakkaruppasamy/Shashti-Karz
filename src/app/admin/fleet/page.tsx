@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { BrandedLoader } from "@/components/animations/BrandedLoader";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 interface WorkerRoute {
     id: string;
@@ -43,24 +44,11 @@ export default function FleetPage() {
 
     useEffect(() => {
         fetchData();
-
-        // Simulate real-time updates
-        const interval = setInterval(() => {
-            setRoutes(prev => prev.map(r => ({ ...r, eta: updateEta(r.eta) })));
-        }, 60000);
-
-        return () => clearInterval(interval);
     }, []);
-
-    const updateEta = (eta: string) => {
-        // Logic to update ETA time
-        return eta;
-    };
 
     const fetchData = async () => {
         try {
             // Fetch Active Routes
-            // This is a complex query, simplified for demo
             const { data: routesData } = await supabase
                 .from('worker_routes')
                 .select(`
@@ -115,6 +103,26 @@ export default function FleetPage() {
             setLoading(false);
         }
     };
+
+    // Real-time updates for routes
+    useRealtimeSubscription({
+        table: 'worker_routes',
+        onUpdate: (updatedRoute) => {
+            setRoutes(prev => prev.map(r => r.id === updatedRoute.id ? { ...r, status: updatedRoute.status, eta: updatedRoute.estimated_duration_minutes + " mins" } : r));
+            toast.info(`Route update for vehicle ${updatedRoute.id.slice(0, 4)}`);
+        }
+    });
+
+    // Real-time updates for stops
+    useRealtimeSubscription({
+        table: 'route_stops',
+        onUpdate: (updatedStop) => {
+            setRoutes(prev => prev.map(r => ({
+                ...r,
+                stops: r.stops.map(s => s.id === updatedStop.id ? { ...s, status: updatedStop.status } : s)
+            })));
+        }
+    });
 
     const handleOptimize = async () => {
         toast.promise(

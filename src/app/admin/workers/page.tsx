@@ -19,6 +19,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { BrandedLoader } from "@/components/animations/BrandedLoader";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 interface WorkerProfile {
     id: string;
@@ -26,6 +27,7 @@ interface WorkerProfile {
     role: string;
     status: string;
     avatar_url?: string;
+    performance?: WorkerPerformance[];
 }
 
 interface WorkerPerformance {
@@ -38,6 +40,7 @@ interface WorkerPerformance {
     efficiency_score: number;
     customer_satisfaction_score: number;
     total_revenue: number;
+    total_reviews?: number;
 }
 
 interface TrainingNeed {
@@ -47,11 +50,12 @@ interface TrainingNeed {
     priority: string;
     status: string;
     identified_reason: string;
+    worker?: { name: string };
 }
 
 export default function WorkersPage() {
     const [loading, setLoading] = useState(true);
-    const [workers, setWorkers] = useState<any[]>([]);
+    const [workers, setWorkers] = useState<WorkerProfile[]>([]);
     const [trainingNeeds, setTrainingNeeds] = useState<TrainingNeed[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [activeTab, setActiveTab] = useState<"overview" | "training" | "bonuses">("overview");
@@ -91,6 +95,46 @@ export default function WorkersPage() {
             setLoading(false);
         }
     };
+
+    // Real-time Performance Updates
+    useRealtimeSubscription({
+        table: 'worker_performance',
+        onUpdate: (updatedPerf) => {
+            setWorkers(prev => prev.map(w =>
+                w.id === updatedPerf.worker_id
+                    ? { ...w, performance: [updatedPerf] }
+                    : w
+            ));
+        }
+    });
+
+    // Real-time Worker Status Updates
+    useRealtimeSubscription({
+        table: 'workers',
+        onInsert: (newWorker) => {
+            setWorkers(prev => [newWorker, ...prev]);
+            toast.success(`New worker added: ${newWorker.name}`);
+        },
+        onUpdate: (updatedWorker) => {
+            setWorkers(prev => prev.map(w => w.id === updatedWorker.id ? { ...w, ...updatedWorker } : w));
+        }
+    });
+
+    // Real-time Training Needs
+    useRealtimeSubscription({
+        table: 'worker_training_needs',
+        onInsert: (newNeed) => {
+            // Need to fetch worker name separately or invalidate query, but for now just add
+            // Ideally we invalidate or refetch, but here we optimistically add if we have worker info in context
+            // For simplicity, we trigger a refetch or toast
+            toast.warning(`New training need identified: ${newNeed.training_area}`);
+            fetchData();
+        },
+        onUpdate: (updatedNeed) => {
+            setTrainingNeeds(prev => prev.map(n => n.id === updatedNeed.id ? { ...n, ...updatedNeed } : n));
+        }
+    });
+
 
     const getScoreColor = (score: number) => {
         if (score >= 90) return "text-green-500";

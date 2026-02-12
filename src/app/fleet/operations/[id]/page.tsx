@@ -30,6 +30,7 @@ import { MorphingCard } from "@/components/animations/MorphingCard";
 import { ShimmerCard } from "@/components/animations/AdvancedShimmer";
 import { toast } from "sonner";
 import Link from "next/link";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 type Tab = "overview" | "inventory" | "operations" | "billing";
 
@@ -66,6 +67,17 @@ export default function FleetOperationsPage() {
     useEffect(() => {
         fetchData();
     }, [id]);
+
+    useRealtimeSubscription({
+        table: 'user_vehicles',
+        onUpdate: () => fetchData() // Update vehicle health/status
+    });
+
+    useRealtimeSubscription({
+        table: 'bookings',
+        onInsert: () => fetchData(),
+        onUpdate: () => fetchData()
+    });
 
     const handleBulkBooking = async () => {
         try {

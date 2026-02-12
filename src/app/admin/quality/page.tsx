@@ -18,6 +18,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { BrandedLoader } from "@/components/animations/BrandedLoader";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 export default function QualityAdminPage() {
     const [loading, setLoading] = useState(true);
@@ -61,6 +62,35 @@ export default function QualityAdminPage() {
         }
     };
 
+    useRealtimeSubscription({
+        table: 'quality_checklists',
+        onInsert: (newItem) => {
+            setChecklists(prev => [newItem, ...prev]);
+            toast.success('New checklist SOP added');
+        },
+        onUpdate: (updatedItem) => {
+            setChecklists(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item));
+        },
+        onDelete: (deletedItem) => {
+            setChecklists(prev => prev.filter(item => item.id !== deletedItem.old.id));
+        }
+    });
+
+    useRealtimeSubscription({
+        table: 'completed_checklists',
+        onInsert: (newItem) => {
+            setInspections(prev => [newItem, ...prev]);
+            if (newItem.status === 'failed') {
+                toast.error(`QC Failed: ${newItem.booking_id}`);
+            } else {
+                toast.success(`New Inspection Logged: ${newItem.booking_id}`);
+            }
+        },
+        onUpdate: (updatedItem) => {
+            setInspections(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item));
+        }
+    });
+
     if (loading) return <BrandedLoader fullPage />;
 
     return (
@@ -78,8 +108,8 @@ export default function QualityAdminPage() {
                     <button
                         onClick={() => setActiveTab("checklists")}
                         className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "checklists"
-                                ? 'bg-green-500 text-black font-bold shadow-lg shadow-green-500/25'
-                                : 'text-[#888] hover:text-white hover:bg-white/5'
+                            ? 'bg-green-500 text-black font-bold shadow-lg shadow-green-500/25'
+                            : 'text-[#888] hover:text-white hover:bg-white/5'
                             }`}
                     >
                         SOP Checklists
@@ -87,8 +117,8 @@ export default function QualityAdminPage() {
                     <button
                         onClick={() => setActiveTab("inspections")}
                         className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "inspections"
-                                ? 'bg-green-500 text-black font-bold shadow-lg shadow-green-500/25'
-                                : 'text-[#888] hover:text-white hover:bg-white/5'
+                            ? 'bg-green-500 text-black font-bold shadow-lg shadow-green-500/25'
+                            : 'text-[#888] hover:text-white hover:bg-white/5'
                             }`}
                     >
                         Inspection Reports

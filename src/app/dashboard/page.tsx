@@ -21,6 +21,7 @@ import Link from "next/link";
 import type { LoyaltyPoints, LoyaltyTransaction, ServiceTracking, Booking, Worker, Service, UserVehicle, VehicleHealthScore } from "@/lib/types";
 import { BrandedLoader } from "@/components/animations/CarLoader";
 import dynamic from "next/dynamic";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 function PayNowButton({ bookingId }: { bookingId: string }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -257,6 +258,46 @@ export default function DashboardPage() {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [user]);
+
+  // Real-time Service Tracking
+  useRealtimeSubscription({
+    table: 'service_tracking',
+    onInsert: (newTracking) => {
+      setTrackingData(prev => {
+        const bookingId = newTracking.booking_id;
+        const currentTracking = prev[bookingId] || [];
+        return { ...prev, [bookingId]: [...currentTracking, newTracking] };
+      });
+      toast.custom((t) => (
+        <div className="bg-[#111] border border-[#d4af37] text-white p-4 rounded-xl shadow-2xl flex items-center gap-4">
+          <div className="p-2 bg-[#d4af37]/20 rounded-full text-[#d4af37]"><Sparkles size={20} /></div>
+          <div>
+            <p className="font-bold text-sm">Service Update</p>
+            <p className="text-xs text-[#888]">Your car has moved to the next stage!</p>
+          </div>
+        </div>
+      ), { duration: 4000 });
+    },
+    onUpdate: (updatedTracking) => {
+      setTrackingData(prev => {
+        const bookingId = updatedTracking.booking_id;
+        const currentTracking = prev[bookingId] || [];
+        return { ...prev, [bookingId]: currentTracking.map(t => t.id === updatedTracking.id ? updatedTracking : t) };
+      });
+    }
+  });
+
+  // Real-time Booking Status
+  useRealtimeSubscription({
+    table: 'bookings',
+    onUpdate: (updatedBooking) => {
+      setBookings(prev => prev.map(b => b.id === updatedBooking.id ? { ...b, ...updatedBooking } : b));
+      if (updatedBooking.status === 'completed') {
+        toast.success("Service Completed! Your car is ready.");
+        refreshBookings(); // Fetch full details to be safe
+      }
+    }
+  });
 
   const handleSaveProfile = async () => {
     if (!user) return;

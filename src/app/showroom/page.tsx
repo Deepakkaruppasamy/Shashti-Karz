@@ -17,6 +17,7 @@ import type {
     ShowroomContest,
     ReferralLeaderboard
 } from "@/lib/types";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 export default function ShowroomPage() {
     const router = useRouter();
@@ -74,6 +75,28 @@ export default function ShowroomPage() {
             setIsLoading(false);
         }
     };
+
+    useRealtimeSubscription({
+        table: 'showroom_posts',
+        onInsert: (newPost) => {
+            if (newPost.status === 'approved') {
+                setPosts(prev => [newPost, ...prev]);
+                if (activeTab === 'feed') toast.success('New post in showroom!');
+            }
+        },
+        onUpdate: (updatedPost) => {
+            setPosts(prev => prev.map(p => p.id === updatedPost.id ? { ...p, ...updatedPost } : p));
+        },
+        onDelete: (deletedPost) => {
+            setPosts(prev => prev.filter(p => p.id !== deletedPost.old.id));
+        }
+    });
+
+    useRealtimeSubscription({
+        table: 'showroom_contests',
+        onInsert: () => loadData(),
+        onUpdate: () => loadData()
+    });
 
     const handleLike = async (postId: string) => {
         if (!user) {

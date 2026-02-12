@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { BrandedLoader } from "@/components/animations/BrandedLoader";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 export default function SubscriptionsAdminPage() {
     const [loading, setLoading] = useState(true);
@@ -75,6 +76,23 @@ export default function SubscriptionsAdminPage() {
         }
     };
 
+    // Real-time Subscriptions
+    useRealtimeSubscription({
+        table: 'user_subscriptions',
+        onInsert: (newSub) => {
+            // Re-fetch to get joined data (profile, plan)
+            fetchData();
+            toast.success('New subscription started!');
+        },
+        onUpdate: (updatedSub) => {
+            // Re-fetch to ensure stats and list are correct
+            fetchData();
+            if (updatedSub.status === 'cancelled') {
+                toast.warning('Subscription cancelled');
+            }
+        }
+    });
+
     const handleTogglePlan = async (id: string, active: boolean) => {
         try {
             await supabase.from('subscription_plans').update({ active }).eq('id', id);
@@ -110,8 +128,8 @@ export default function SubscriptionsAdminPage() {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`px-6 py-2 rounded-lg text-sm font-medium transition-all capitalize ${activeTab === tab
-                                    ? 'bg-[#d4af37] text-black font-bold shadow-lg shadow-[#d4af37]/25'
-                                    : 'text-[#888] hover:text-white hover:bg-white/5'
+                                ? 'bg-[#d4af37] text-black font-bold shadow-lg shadow-[#d4af37]/25'
+                                : 'text-[#888] hover:text-white hover:bg-white/5'
                                 }`}
                         >
                             {tab}

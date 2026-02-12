@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Trophy, Award, Target, Crown, TrendingUp, Star, Gift } from "lucide-react";
 import { AchievementsDisplay } from "@/components/gamification/AchievementsDisplay";
 import { Leaderboard } from "@/components/gamification/Leaderboard";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 interface UserPoints {
     total_points: number;
@@ -33,6 +34,16 @@ export default function RewardsPage() {
             console.error("Error fetching points:", error);
         }
     };
+
+    useRealtimeSubscription({
+        table: 'achievements',
+        onInsert: () => fetchUserPoints()
+    });
+
+    useRealtimeSubscription({
+        table: 'points_transactions',
+        onInsert: () => fetchUserPoints()
+    });
 
     if (!user) {
         return (
@@ -134,8 +145,8 @@ export default function RewardsPage() {
                     <button
                         onClick={() => setActiveTab("achievements")}
                         className={`px-8 py-3 rounded-xl font-semibold transition-all ${activeTab === "achievements"
-                                ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg"
-                                : "text-gray-600 hover:bg-gray-100"
+                            ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg"
+                            : "text-gray-600 hover:bg-gray-100"
                             }`}
                     >
                         <Award className="inline mr-2" size={20} />
@@ -144,8 +155,8 @@ export default function RewardsPage() {
                     <button
                         onClick={() => setActiveTab("leaderboard")}
                         className={`px-8 py-3 rounded-xl font-semibold transition-all ${activeTab === "leaderboard"
-                                ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg"
-                                : "text-gray-600 hover:bg-gray-100"
+                            ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg"
+                            : "text-gray-600 hover:bg-gray-100"
                             }`}
                     >
                         <Trophy className="inline mr-2" size={20} />

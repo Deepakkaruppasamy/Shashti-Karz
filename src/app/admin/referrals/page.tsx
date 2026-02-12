@@ -13,12 +13,14 @@ import {
     Share2,
     Building2,
     Medal,
-    ChevronRight
+    ChevronRight,
+    Plus
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { BrandedLoader } from "@/components/animations/BrandedLoader";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 export default function ReferralsAdminPage() {
     const [loading, setLoading] = useState(true);
@@ -65,6 +67,29 @@ export default function ReferralsAdminPage() {
         }
     };
 
+    // Real-time Leaderboard Updates
+    useRealtimeSubscription({
+        table: 'referral_leaderboard',
+        onUpdate: (updatedUser) => {
+            // In a perfect world we would sort again, but updating the specific user record is a good start
+            // Or we just re-fetch the leaderboard to keep ranking correct
+            fetchData();
+        },
+        onInsert: () => fetchData() // New user joined leaderboard
+    });
+
+    // Real-time Corporate Requests
+    useRealtimeSubscription({
+        table: 'corporate_referrals',
+        onInsert: (newReq) => {
+            setCorporateRequests(prev => [newReq, ...prev]);
+            toast.info(`New Corporate Partnership Request: ${newReq.company_name}`);
+        },
+        onUpdate: (updatedReq) => {
+            setCorporateRequests(prev => prev.map(c => c.id === updatedReq.id ? updatedReq : c));
+        }
+    });
+
     const handleCorporateAction = async (id: string, status: 'active' | 'rejected') => {
         try {
             const { error } = await supabase
@@ -74,7 +99,8 @@ export default function ReferralsAdminPage() {
 
             if (error) throw error;
             toast.success(`Corporate request ${status}`);
-            fetchData();
+            // Optimistic update handled by realtime subscription usually, but good to have fallback
+            // fetchData(); 
         } catch (error) {
             toast.error('Failed to update status');
         }
@@ -97,8 +123,8 @@ export default function ReferralsAdminPage() {
                     <button
                         onClick={() => setActiveTab("overview")}
                         className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "overview"
-                                ? 'bg-[#d4af37] text-black font-bold shadow-lg shadow-[#d4af37]/25'
-                                : 'text-[#888] hover:text-white hover:bg-white/5'
+                            ? 'bg-[#d4af37] text-black font-bold shadow-lg shadow-[#d4af37]/25'
+                            : 'text-[#888] hover:text-white hover:bg-white/5'
                             }`}
                     >
                         Program Overview
@@ -106,8 +132,8 @@ export default function ReferralsAdminPage() {
                     <button
                         onClick={() => setActiveTab("corporate")}
                         className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "corporate"
-                                ? 'bg-[#d4af37] text-black font-bold shadow-lg shadow-[#d4af37]/25'
-                                : 'text-[#888] hover:text-white hover:bg-white/5'
+                            ? 'bg-[#d4af37] text-black font-bold shadow-lg shadow-[#d4af37]/25'
+                            : 'text-[#888] hover:text-white hover:bg-white/5'
                             }`}
                     >
                         Corporate Partners
@@ -128,7 +154,7 @@ export default function ReferralsAdminPage() {
                                     <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-${tier.tier_name === 'Diamond' ? 'blue' : tier.tier_name === 'Gold' ? 'yellow' : 'gray'}-500/10 rounded-full blur-2xl -mr-10 -mt-10`} />
                                     <div className="relative z-10">
                                         <h3 className="text-lg font-black uppercase text-[#d4af37]">{tier.tier_name}</h3>
-                                        <p className="text-xs text-[#888] font-bold tracking-wider mb-4">LEVER {tier.tier_level}</p>
+                                        <p className="text-xs text-[#888] font-bold tracking-wider mb-4">LEVEL {tier.tier_level}</p>
 
                                         <div className="space-y-2 mb-4">
                                             <div className="flex justify-between text-sm">
@@ -180,9 +206,9 @@ export default function ReferralsAdminPage() {
                                     <tr key={user.user_id} className="hover:bg-white/5 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${user.rank === 1 ? 'bg-yellow-500/20 text-yellow-500' :
-                                                    user.rank === 2 ? 'bg-gray-400/20 text-gray-400' :
-                                                        user.rank === 3 ? 'bg-orange-700/20 text-orange-700' :
-                                                            'bg-white/5 text-[#888]'
+                                                user.rank === 2 ? 'bg-gray-400/20 text-gray-400' :
+                                                    user.rank === 3 ? 'bg-orange-700/20 text-orange-700' :
+                                                        'bg-white/5 text-[#888]'
                                                 }`}>
                                                 {user.rank}
                                             </div>
@@ -223,8 +249,8 @@ export default function ReferralsAdminPage() {
                                             <div className="flex items-center gap-3 mb-1">
                                                 <h3 className="font-bold text-lg">{corp.company_name}</h3>
                                                 <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold ${corp.status === 'active' ? 'bg-green-500/10 text-green-500' :
-                                                        corp.status === 'pending' ? 'bg-yellow-500/10 text-yellow-500' :
-                                                            'bg-red-500/10 text-red-500'
+                                                    corp.status === 'pending' ? 'bg-yellow-500/10 text-yellow-500' :
+                                                        'bg-red-500/10 text-red-500'
                                                     }`}>{corp.status}</span>
                                             </div>
                                             <div className="text-sm text-[#888] space-y-1">

@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { BrandedLoader } from "@/components/animations/BrandedLoader";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 export default function GamificationAdminPage() {
     const [loading, setLoading] = useState(true);
@@ -57,13 +58,54 @@ export default function GamificationAdminPage() {
         }
     };
 
+    // Real-time Achievements
+    useRealtimeSubscription({
+        table: 'achievements',
+        onInsert: (newItem) => {
+            setAchievements(prev => [newItem, ...prev]);
+            toast.success('New achievement created!');
+        },
+        onUpdate: (updatedItem) => {
+            setAchievements(prev => prev.map(a => a.id === updatedItem.id ? updatedItem : a));
+        },
+        onDelete: (deletedItem) => {
+            setAchievements(prev => prev.filter(a => a.id !== deletedItem.old.id));
+        }
+    });
+
+    // Real-time Leaderboard
+    useRealtimeSubscription({
+        table: 'customer_leaderboard',
+        onUpdate: (updatedUser) => {
+            // Ideally we re-fetch to maintain sort order, but for now we update in place or trigger fetch
+            fetchData();
+        }
+    });
+
+    // Real-time Transactions
+    useRealtimeSubscription({
+        table: 'points_transactions',
+        onInsert: (newTx) => {
+            // We need joined data (profile name), so simplistic insert might miss name. 
+            // We can either fetch the single row with join, or just trigger full refresh
+            // For simplicity, let's just refresh transactions
+            fetchTransactions();
+            toast.info(`New points transaction: ${newTx.points} pts`);
+        }
+    });
+
+    const fetchTransactions = async () => {
+        const { data } = await supabase.from('points_transactions').select('*, profile:user_id(full_name)').order('created_at', { ascending: false }).limit(50);
+        if (data) setTransactions(data);
+    };
+
+
     const handleDeleteAchievement = async (id: string) => {
         if (!confirm("Are you sure? This will hide the achievement.")) return;
         const { error } = await supabase.from('achievements').update({ active: false }).eq('id', id);
         if (error) toast.error("Failed to delete");
         else {
             toast.success("Achievement deactivated");
-            fetchData();
         }
     };
 
@@ -92,7 +134,6 @@ export default function GamificationAdminPage() {
             }
             setShowModal(false);
             setEditingAchievement(null);
-            fetchData();
         } catch (error) {
             toast.error("Failed to save achievement");
         }
@@ -117,8 +158,8 @@ export default function GamificationAdminPage() {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`px-6 py-2 rounded-lg text-sm font-medium transition-all capitalize ${activeTab === tab
-                                    ? 'bg-[#d4af37] text-black font-bold shadow-lg shadow-[#d4af37]/25'
-                                    : 'text-[#888] hover:text-white hover:bg-white/5'
+                                ? 'bg-[#d4af37] text-black font-bold shadow-lg shadow-[#d4af37]/25'
+                                : 'text-[#888] hover:text-white hover:bg-white/5'
                                 }`}
                         >
                             {tab}
@@ -182,33 +223,7 @@ export default function GamificationAdminPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
-                            {leaderboard.map((user) => (
-                                <tr key={user.user_id} className="hover:bg-white/5 transition-colors">
-                                    <td className="px-6 py-4">
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${user.rank === 1 ? 'bg-yellow-500/20 text-yellow-500' :
-                                                user.rank <= 3 ? 'bg-white/10 text-white' :
-                                                    'text-[#666]'
-                                            }`}>
-                                            {user.rank}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white">
-                                                {user.profile?.full_name?.charAt(0) || '?'}
-                                            </div>
-                                            <div>
-                                                <p className="font-bold text-white">{user.profile?.full_name || 'Anonymous'}</p>
-                                                <p className="text-[10px] text-[#666] uppercase tracking-wider">{user.tier}</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 font-mono text-[#d4af37] font-bold">{user.total_points}</td>
-                                    <td className="px-6 py-4 text-[#888]">{user.total_bookings}</td>
-                                    <td className="px-6 py-4 text-[#888]">₹{user.total_spent}</td>
-                                    <td className="px-6 py-4 text-[#888]">{user.achievement_count}</td>
-                                </tr>
-                            ))}
+                            {user_leaderboard_rows(leaderboard)}
                         </tbody>
                     </table>
                 </div>
@@ -220,8 +235,8 @@ export default function GamificationAdminPage() {
                         <div key={tx.id} className="glass-card p-4 rounded-xl border border-white/5 flex items-center justify-between">
                             <div className="flex items-center gap-4">
                                 <div className={`p-3 rounded-full ${tx.transaction_type === 'earned' ? 'bg-green-500/10 text-green-500' :
-                                        tx.transaction_type === 'redeemed' ? 'bg-red-500/10 text-red-500' :
-                                            'bg-blue-500/10 text-blue-500'
+                                    tx.transaction_type === 'redeemed' ? 'bg-red-500/10 text-red-500' :
+                                        'bg-blue-500/10 text-blue-500'
                                     }`}>
                                     {tx.transaction_type === 'earned' ? <Plus size={18} /> :
                                         tx.transaction_type === 'redeemed' ? <TrendingUp size={18} className="rotate-180" /> :
@@ -299,4 +314,34 @@ export default function GamificationAdminPage() {
             </AnimatePresence>
         </div>
     );
+}
+
+function user_leaderboard_rows(leaderboard: any[]) {
+    return leaderboard.map((user) => (
+        <tr key={user.user_id} className="hover:bg-white/5 transition-colors">
+            <td className="px-6 py-4">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${user.rank === 1 ? 'bg-yellow-500/20 text-yellow-500' :
+                    user.rank <= 3 ? 'bg-white/10 text-white' :
+                        'text-[#666]'
+                    }`}>
+                    {user.rank}
+                </div>
+            </td>
+            <td className="px-6 py-4">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white">
+                        {user.profile?.full_name?.charAt(0) || '?'}
+                    </div>
+                    <div>
+                        <p className="font-bold text-white">{user.profile?.full_name || 'Anonymous'}</p>
+                        <p className="text-[10px] text-[#666] uppercase tracking-wider">{user.tier}</p>
+                    </div>
+                </div>
+            </td>
+            <td className="px-6 py-4 font-mono text-[#d4af37] font-bold">{user.total_points}</td>
+            <td className="px-6 py-4 text-[#888]">{user.total_bookings}</td>
+            <td className="px-6 py-4 text-[#888]">₹{user.total_spent}</td>
+            <td className="px-6 py-4 text-[#888]">{user.achievement_count}</td>
+        </tr>
+    ));
 }
