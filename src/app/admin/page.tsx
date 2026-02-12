@@ -30,6 +30,7 @@ import { RevenueChart } from "@/components/admin/charts/RevenueChart";
 import { BookingTrendsChart } from "@/components/admin/charts/BookingTrendsChart";
 import { ServicePopularityChart } from "@/components/admin/charts/ServicePopularityChart";
 import { AnimatedMetricCard } from "@/components/admin/AnimatedMetricCard";
+import { LiveActivityFeed } from "@/components/admin/LiveActivityFeed";
 import { BrandedLoader } from "@/components/animations/BrandedLoader";
 
 const statusColors: Record<string, string> = {
@@ -141,7 +142,7 @@ function AdminDashboardContent() {
     onInsert: (booking) => {
       setBookings(prev => [booking, ...prev]);
       toast.success(`New booking from ${booking.customer_name}!`, {
-        description: `${booking.service_type || 'Service'} on ${booking.date}`
+        description: `Service on ${booking.date}`
       });
       playSound('success');
       setShowConfetti(true);

@@ -9,6 +9,7 @@ export interface AIContext {
   recentBookings?: any[];
   loyaltyData?: any;
   analyticsData?: any;
+  language?: string;
 }
 
 export interface AIMessage {
