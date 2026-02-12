@@ -151,9 +151,7 @@ export function ShashtiAI() {
   }
 
   function formatMessage(content: string) {
-    return content
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
-      .replace(/\n/g, '<br />');
+    return content; // No longer needed for HTML
   }
 
   const currentQuickActions = quickActions[userRole] || quickActions.guest;
@@ -251,10 +249,17 @@ export function ShashtiAI() {
                 {messages.map((msg, i) => (
                   <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                     <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${msg.role === "user"
-                        ? "bg-gradient-to-br from-[#ff1744] to-[#d32f2f] text-white rounded-br-sm"
-                        : "bg-white/5 text-white/90 rounded-bl-sm border border-white/5"
+                      ? "bg-gradient-to-br from-[#ff1744] to-[#d32f2f] text-white rounded-br-sm"
+                      : "bg-white/5 text-white/90 rounded-bl-sm border border-white/5"
                       }`}>
-                      <div dangerouslySetInnerHTML={{ __html: formatMessage(msg.content) }} />
+                      <div className="whitespace-pre-line">
+                        {msg.content.split(/(\*\*.*?\*\*)/g).map((part, index) => {
+                          if (part.startsWith('**') && part.endsWith('**')) {
+                            return <strong key={index} className="text-white">{part.slice(2, -2)}</strong>;
+                          }
+                          return part;
+                        })}
+                      </div>
                       <span className="block text-[9px] text-white/30 mt-1">
                         {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>

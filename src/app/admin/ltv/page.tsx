@@ -187,7 +187,9 @@ export default function LTVAdminPage() {
                                         <span className="text-xs uppercase tracking-widest">Processing behavioral data...</span>
                                     </div>
                                 ) : aiInsight ? (
-                                    <div className="prose prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: aiInsight.replace(/\n/g, '<br/>') }} />
+                                    <div className="text-sm text-[#ccc] whitespace-pre-line leading-relaxed">
+                                        {aiInsight}
+                                    </div>
                                 ) : (
                                     "Ready to analyze customer value and predict churn risks."
                                 )}

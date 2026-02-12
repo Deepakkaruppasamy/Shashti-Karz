@@ -141,7 +141,7 @@ function AdminDashboardContent() {
     onInsert: (booking) => {
       setBookings(prev => [booking, ...prev]);
       toast.success(`New booking from ${booking.customer_name}!`, {
-        description: `${booking.service_name} on ${booking.date}`
+        description: `${booking.service_type || 'Service'} on ${booking.date}`
       });
       playSound('success');
       setShowConfetti(true);
@@ -170,9 +170,8 @@ function AdminDashboardContent() {
     event: 'INSERT',
     onInsert: (review: any) => {
       const stars = '⭐'.repeat(review.rating);
-      toast(review.rating <= 2 ? 'warning' : 'success', {
-        title: `New ${review.rating}-star review`,
-        description: `${stars} from ${review.customer_name}`
+      toast(review.rating <= 2 ? 'Warning: Low Rating' : 'New Positive Review', {
+        description: `${stars} ${review.rating}-stars from ${review.customer_name}`
       });
       if (review.rating <= 2) {
         playSound('alert');
@@ -206,9 +205,9 @@ function AdminDashboardContent() {
   // Update online presence
   useEffect(() => {
     if (user && profile) {
-      updatePresence(user.id, profile.role || 'admin', '/admin');
+      updatePresence(user.id, (profile as any).role || 'admin', '/admin');
       const interval = setInterval(() => {
-        updatePresence(user.id, profile.role || 'admin', '/admin');
+        updatePresence(user.id, (profile as any).role || 'admin', '/admin');
       }, 60000); // Update every minute
       return () => clearInterval(interval);
     }
@@ -853,14 +852,16 @@ function AdminDashboardContent() {
                   <div className="glass-card rounded-2xl p-4 lg:p-6">
                     <div className="flex items-center gap-3 mb-4 lg:mb-6"><div className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg lg:rounded-xl bg-gradient-to-br from-[#ff1744]/20 to-[#d4af37]/20 flex items-center justify-center shrink-0"><Brain size={16} className="text-[#ff1744] lg:w-5 lg:h-5" /></div><div><h3 className="text-sm lg:text-base font-semibold">AI Briefing</h3><p className="text-[10px] text-[#888]">Live intelligence</p></div></div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
-                      <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.1 }} className={`p-3 lg:p-4 rounded-xl border ${insight.priority === "critical" ? "border-red-500/30 bg-red-500/5" : insight.priority === "high" ? "border-yellow-500/30 bg-yellow-500/5" : "border-white/10 bg-white/5"}`}>
-                        <div className="flex items-start gap-3">
-                          <div className={`w-7 h-7 lg:w-8 lg:h-8 rounded-lg flex items-center justify-center shrink-0 ${insight.type === "revenue" ? "bg-[#d4af37]/20" : insight.type === "alert" ? "bg-red-500/20" : insight.type === "recommendation" ? "bg-purple-500/20" : "bg-blue-500/20"}`}>
-                            {insight.type === "revenue" ? <DollarSign size={14} className="text-[#d4af37]" /> : insight.type === "alert" ? <AlertTriangle size={14} className="text-red-500" /> : insight.type === "recommendation" ? <Lightbulb size={14} className="text-purple-500" /> : <TrendingUp size={14} className="text-blue-500" />}
+                      {analytics.insights.map((insight, i) => (
+                        <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.1 }} className={`p-3 lg:p-4 rounded-xl border ${insight.priority === "critical" ? "border-red-500/30 bg-red-500/5" : insight.priority === "high" ? "border-yellow-500/30 bg-yellow-500/5" : "border-white/10 bg-white/5"}`}>
+                          <div className="flex items-start gap-3">
+                            <div className={`w-7 h-7 lg:w-8 lg:h-8 rounded-lg flex items-center justify-center shrink-0 ${insight.type === "revenue" ? "bg-[#d4af37]/20" : insight.type === "alert" ? "bg-red-500/20" : insight.type === "recommendation" ? "bg-purple-500/20" : "bg-blue-500/20"}`}>
+                              {insight.type === "revenue" ? <DollarSign size={14} className="text-[#d4af37]" /> : insight.type === "alert" ? <AlertTriangle size={14} className="text-red-500" /> : insight.type === "recommendation" ? <Lightbulb size={14} className="text-purple-500" /> : <TrendingUp size={14} className="text-blue-500" />}
+                            </div>
+                            <div className="flex-1 min-w-0"><h4 className="text-xs font-medium truncate">{insight.title}</h4><p className="text-[10px] text-[#888] mt-0.5 line-clamp-2">{insight.description}</p></div>
                           </div>
-                          <div className="flex-1 min-w-0"><h4 className="text-xs font-medium truncate">{insight.title}</h4><p className="text-[10px] text-[#888] mt-0.5 line-clamp-2">{insight.description}</p></div>
-                        </div>
-                      </motion.div>
+                        </motion.div>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -1143,7 +1144,18 @@ function AdminDashboardContent() {
                     <input type="text" value={aiQuery} onChange={(e) => setAiQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleAIQuery()} placeholder="Ask anything about your business..." className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
                     <button onClick={handleAIQuery} disabled={aiLoading || !aiQuery.trim()} className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#ff1744] to-[#d4af37] text-white font-medium disabled:opacity-50 flex items-center gap-2">{aiLoading ? <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity }}><Brain size={18} /></motion.div> : <Brain size={18} />}Analyze</button>
                   </div>
-                  {aiResponse && <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 p-4 rounded-xl bg-white/5 border border-white/10"><div className="flex items-start gap-3"><div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff1744] to-[#d4af37] flex items-center justify-center flex-shrink-0"><Brain size={16} className="text-white" /></div><div className="flex-1 prose prose-invert prose-sm max-w-none"><div dangerouslySetInnerHTML={{ __html: aiResponse.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br/>') }} /></div></div></motion.div>}
+                  {aiResponse && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 p-4 rounded-xl bg-white/5 border border-white/10">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff1744] to-[#d4af37] flex items-center justify-center flex-shrink-0">
+                          <Brain size={16} className="text-white" />
+                        </div>
+                        <div className="flex-1 text-sm text-[#ccc] whitespace-pre-line">
+                          {aiResponse}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-4">

@@ -502,9 +502,9 @@ export default function ReviewsAdminPage() {
                       </div>
 
                       <div className="space-y-6">
-                        <div className="p-4 lg:p-6 rounded-2xl lg:rounded-[2rem] bg-white/[0.03] border border-white/5 min-h-[140px] text-xs lg:text-sm leading-relaxed text-[#ccc] italic transition-all overflow-y-auto max-h-[300px]"
-                          dangerouslySetInnerHTML={{ __html: isAiLoading ? "Processing data matrix..." : (aiAnswer ? aiAnswer.replace(/\n/g, '<br/>') : "Query the artificial intelligence about reputation trends...") }}
-                        />
+                        <div className="p-4 lg:p-6 rounded-2xl lg:rounded-[2rem] bg-white/[0.03] border border-white/5 min-h-[140px] text-xs lg:text-sm leading-relaxed text-[#ccc] italic transition-all overflow-y-auto max-h-[300px] whitespace-pre-line">
+                          {isAiLoading ? "Processing data matrix..." : (aiAnswer || "Query the artificial intelligence about reputation trends...")}
+                        </div>
 
                         <div className="flex gap-2">
                           <input

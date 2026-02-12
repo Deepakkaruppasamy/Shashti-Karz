@@ -342,9 +342,9 @@ export default function InventoryPage() {
                 </div>
 
                 <div className="space-y-6">
-                  <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/5 min-h-[160px] text-xs lg:text-sm leading-relaxed text-[#ccc] italic max-h-[300px] overflow-y-auto"
-                    dangerouslySetInnerHTML={{ __html: isAiLoading ? "Synchronizing inventory matrix..." : (aiInsight ? aiInsight.replace(/\n/g, '<br/>') : "Initiating deep stock analysis...") }}
-                  />
+                  <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/5 min-h-[160px] text-xs lg:text-sm leading-relaxed text-[#ccc] italic max-h-[300px] overflow-y-auto whitespace-pre-line">
+                    {isAiLoading ? "Synchronizing inventory matrix..." : (aiInsight || "Initiating deep stock analysis...")}
+                  </div>
 
                   <button
                     onClick={generateAiInsight}

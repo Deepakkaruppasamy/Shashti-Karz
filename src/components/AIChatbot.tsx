@@ -132,9 +132,7 @@ How can I help you today?`
   };
 
   const formatMessage = (content: string) => {
-    return content
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\n/g, '<br />');
+    return content;
   };
 
   return (
@@ -277,8 +275,8 @@ How can I help you today?`
                           >
                             <div
                               className={`relative max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed ${msg.role === "user"
-                                  ? "bg-gradient-to-r from-[#ff1744] to-[#ff4569] text-white rounded-br-sm"
-                                  : "bg-white/5 text-white/90 rounded-bl-sm border border-white/5"
+                                ? "bg-gradient-to-r from-[#ff1744] to-[#ff4569] text-white rounded-br-sm"
+                                : "bg-white/5 text-white/90 rounded-bl-sm border border-white/5"
                                 }`}
                             >
                               {msg.role === "assistant" && (
@@ -286,10 +284,14 @@ How can I help you today?`
                                   <Bot size={12} className="text-white" />
                                 </div>
                               )}
-                              <div
-                                dangerouslySetInnerHTML={{ __html: formatMessage(msg.content) }}
-                                className={msg.role === "assistant" ? "pl-4" : ""}
-                              />
+                              <div className={`whitespace-pre-line ${msg.role === "assistant" ? "pl-4" : ""}`}>
+                                {msg.content.split(/(\*\*.*?\*\*)/g).map((part, index) => {
+                                  if (part.startsWith('**') && part.endsWith('**')) {
+                                    return <strong key={index}>{part.slice(2, -2)}</strong>;
+                                  }
+                                  return part;
+                                })}
+                              </div>
                             </div>
                           </motion.div>
                         ))}
