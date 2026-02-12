@@ -222,6 +222,9 @@ export default function AdminBillingPage() {
   const generatePDF = (invoice: Invoice) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const contentWidth = pageWidth - (margin * 2);
+
     const LOGO_URL = "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/ChatGPT-Image-Dec-8-2025-10_12_14-AM-1-1768823187171.png";
     const QR_CODE_BASE = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=";
     const qrData = encodeURIComponent(`Invoice: ${invoice.invoice_number} | Amount: Rs.${invoice.total_amount}`);
@@ -236,208 +239,210 @@ export default function AdminBillingPage() {
       }
     };
 
-    // 1. Header & Identity
-    // Add Logo first
-    addImageFromUrl(LOGO_URL, 20, 15, 25, 25);
+    // 1. Header Section - 3 Column Grid
+    addImageFromUrl(LOGO_URL, margin, 15, 25, 25);
 
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(26);
-    doc.setTextColor(255, 23, 68); // Red color
-    doc.text(COMPANY_INFO.name.toUpperCase(), 50, 28);
-
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.setFont("helvetica", "normal");
-    doc.text(COMPANY_INFO.tagline.toUpperCase(), 50, 34);
-
-    // Header Line
-    doc.setDrawColor(220, 220, 220);
-    doc.setLineWidth(0.5);
-    doc.line(20, 42, pageWidth - 20, 42);
-
-    // 2. Invoice Meta (Top Right)
     doc.setFontSize(24);
-    doc.setTextColor(240, 240, 240);
-    doc.text("OFFICIAL INVOICE", pageWidth - 20, 30, { align: "right" });
+    doc.setTextColor(229, 57, 53); // Premium Red
+    doc.text(COMPANY_INFO.name, 50, 27);
 
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(66, 66, 66); // Dark Gray
+    doc.text(COMPANY_INFO.tagline, 50, 33);
+
+    // Official Invoice (Right Column) with low opacity
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(230, 230, 230); // 10-15% Opacity feel
+    doc.text("OFFICIAL INVOICE", pageWidth - margin, 28, { align: "right" });
+
+    // Header Red Line
+    doc.setDrawColor(229, 57, 53);
+    doc.setLineWidth(0.7);
+    doc.line(margin, 43, pageWidth - margin, 43);
+
+    // 2. Invoice Meta Block
+    let yMeta = 52;
     doc.setFontSize(9);
-    doc.setTextColor(0, 0, 0);
+    doc.setTextColor(97, 97, 97);
     doc.setFont("helvetica", "bold");
-    doc.text("INVOICE NO:", pageWidth - 70, 48);
+    doc.text("INVOICE NO :", pageWidth - 75, yMeta);
+    doc.text("DATE       :", pageWidth - 75, yMeta + 6);
+
     doc.setFont("helvetica", "normal");
-    doc.text(invoice.invoice_number, pageWidth - 20, 48, { align: "right" });
+    doc.setTextColor(33, 33, 33);
+    doc.text(invoice.invoice_number, pageWidth - margin, yMeta, { align: "right" });
+    doc.text(new Date(invoice.invoice_date).toLocaleDateString(), pageWidth - margin, yMeta + 6, { align: "right" });
 
-    doc.setFont("helvetica", "bold");
-    doc.text("DATE:", pageWidth - 70, 53);
-    doc.setFont("helvetica", "normal");
-    doc.text(new Date(invoice.invoice_date).toLocaleDateString(), pageWidth - 20, 53, { align: "right" });
-
-    // 3. Billing Context
-    doc.setFillColor(252, 252, 252);
-    doc.rect(20, 60, pageWidth - 40, 35, "F");
-
-    // From Detail
+    // 3. Billing Context Section (50/50 Split)
+    let yBill = 75;
     doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.text("SERVICE PROVIDER:", 25, 68);
+    doc.setTextColor(158, 158, 158);
+    doc.setFont("helvetica", "bold");
+    doc.text("SERVICE PROVIDER", margin, yBill);
+    doc.text("BILL TO / CUSTOMER", margin + (contentWidth / 2), yBill);
+
+    yBill += 5;
     doc.setFontSize(9);
-    doc.setTextColor(0, 0, 0);
+    doc.setTextColor(33, 33, 33);
     doc.setFont("helvetica", "bold");
-    doc.text(COMPANY_INFO.name, 25, 73);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    doc.text(COMPANY_INFO.address, 25, 78, { maxWidth: 70 });
-    doc.text(`GSTIN: ${COMPANY_INFO.gst}`, 25, 88);
+    doc.text(COMPANY_INFO.name, margin, yBill);
+    doc.text(invoice.customer_name, margin + (contentWidth / 2), yBill);
 
-    // To Detail
+    yBill += 5;
     doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.text("BILL TO / CUSTOMER:", 115, 68);
-    doc.setFontSize(9);
-    doc.setTextColor(0, 0, 0);
-    doc.setFont("helvetica", "bold");
-    doc.text(invoice.customer_name, 115, 73);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    doc.text(`Phone: ${invoice.customer_phone}`, 115, 78);
-    doc.setTextColor(255, 23, 68);
-    doc.setFont("helvetica", "bold");
-    doc.text(`VEHICLE: ${invoice.vehicle_number || "N/A"}`, 115, 88);
+    doc.setTextColor(66, 66, 66);
+    doc.text(COMPANY_INFO.address, margin, yBill, { maxWidth: contentWidth / 2 - 10 });
+    doc.text(`Phone: ${invoice.customer_phone}`, margin + (contentWidth / 2), yBill);
 
-    // 4. Table Design
-    let y = 105;
-    doc.setFillColor(40, 40, 40); // Darker header
-    doc.rect(20, y, pageWidth - 40, 10, "F");
+    yBill += 10;
+    doc.setFont("helvetica", "bold");
+    doc.text(`GSTIN: ${COMPANY_INFO.gst}`, margin, yBill);
+    doc.setTextColor(229, 57, 53);
+    doc.text(`VEHICLE NO: ${invoice.vehicle_number || "N/A"}`, margin + (contentWidth / 2), yBill);
+
+    // 4. Line Items Table
+    let yTable = 110;
+    doc.setFillColor(33, 33, 33); // Dark Gray / Black
+    doc.rect(margin, yTable, contentWidth, 10, "F");
+
+    doc.setFontSize(8);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(8);
-    doc.text("#", 25, y + 6.5);
-    doc.text("DESCRIPTION", 35, y + 6.5);
-    doc.text("QTY", 120, y + 6.5, { align: "center" });
-    doc.text("RATE", 145, y + 6.5, { align: "center" });
-    doc.text("TOTAL", pageWidth - 25, y + 6.5, { align: "right" });
+    doc.text("#", margin + 3, yTable + 6.5);
+    doc.text("DESCRIPTION", margin + 12, yTable + 6.5);
+    doc.text("QTY", margin + 105, yTable + 6.5, { align: "center" });
+    doc.text("RATE", margin + 135, yTable + 6.5, { align: "right" });
+    doc.text("TOTAL", margin + contentWidth - 3, yTable + 6.5, { align: "right" });
 
-    y += 10;
+    yTable += 10;
     invoice.invoice_items.forEach((item, idx) => {
-      // Background for alternate rows
+      // Stripe background
       if (idx % 2 === 0) {
         doc.setFillColor(250, 250, 250);
-        doc.rect(20, y, pageWidth - 40, 15, "F");
+        doc.rect(margin, yTable, contentWidth, 12, "F");
       }
 
       doc.setFontSize(8);
       doc.setFont("helvetica", "normal");
-      doc.setTextColor(100, 100, 100);
-      doc.text(String(idx + 1).padStart(2, '0'), 25, y + 9);
+      doc.setTextColor(97, 97, 97);
+      doc.text(String(idx + 1).padStart(2, '0'), margin + 3, yTable + 7.5);
 
       doc.setFont("helvetica", "bold");
-      doc.setTextColor(0, 0, 0);
-      doc.text(item.service_name, 35, y + 7);
+      doc.setTextColor(33, 33, 33);
+      doc.text(item.service_name, margin + 12, yTable + 6);
 
-      doc.setFont("helvetica", "normal");
       doc.setFontSize(7);
-      doc.setTextColor(120, 120, 120);
-      doc.text(item.description || "N/A", 35, y + 11);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(117, 117, 117);
+      doc.text(item.description || "-", margin + 12, yTable + 10);
 
       doc.setFontSize(8);
-      doc.setTextColor(0, 0, 0);
-      doc.text(item.quantity.toString(), 120, y + 9, { align: "center" });
-      doc.text(`Rs.${item.rate.toLocaleString()}`, 145, y + 9, { align: "center" });
+      doc.setTextColor(33, 33, 33);
+      doc.text(item.quantity.toString(), margin + 105, yTable + 7.5, { align: "center" });
+      doc.text(`${item.rate.toLocaleString()}`, margin + 135, yTable + 7.5, { align: "right" });
       doc.setFont("helvetica", "bold");
-      doc.text(`Rs.${item.amount.toLocaleString()}`, pageWidth - 25, y + 9, { align: "right" });
+      doc.text(`${item.amount.toLocaleString()}`, margin + contentWidth - 3, yTable + 7.5, { align: "right" });
 
-      y += 15;
+      doc.setDrawColor(245, 245, 245);
+      doc.setLineWidth(0.1);
+      doc.line(margin, yTable + 12, margin + contentWidth, yTable + 12);
+      yTable += 12;
     });
 
-    // 5. Calculations Block
-    y += 5;
-    const calcXLabel = pageWidth - 80;
-    const calcXValue = pageWidth - 25;
+    // 5. Price Summary Block
+    yTable += 10;
+    const summaryLabelX = margin + 110;
+    const summaryValueX = margin + contentWidth - 3;
 
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(100, 100, 100);
-    doc.text("SUBTOTAL", calcXLabel, y);
-    doc.text(`Rs.${invoice.subtotal.toLocaleString()}`, calcXValue, y, { align: "right" });
+    doc.setTextColor(117, 117, 117);
+    doc.text("SUBTOTAL", summaryLabelX, yTable);
+    doc.text(`${invoice.subtotal.toLocaleString()}`, summaryValueX, yTable, { align: "right" });
 
     if (invoice.discount_amount > 0) {
-      y += 6;
-      doc.setTextColor(255, 0, 0);
-      doc.text(`DISCOUNT (${invoice.discount_percent}%)`, calcXLabel, y);
-      doc.text(`-Rs.${invoice.discount_amount.toLocaleString()}`, calcXValue, y, { align: "right" });
+      yTable += 6;
+      doc.setTextColor(229, 57, 53);
+      doc.text(`DISCOUNT (${invoice.discount_percent}%)`, summaryLabelX, yTable);
+      doc.text(`-${invoice.discount_amount.toLocaleString()}`, summaryValueX, yTable, { align: "right" });
     }
 
-    y += 6;
-    doc.setTextColor(100, 100, 100);
-    doc.text(`GST (${invoice.tax_percent}%)`, calcXLabel, y);
-    doc.text(`Rs.${invoice.tax_amount.toLocaleString()}`, calcXValue, y, { align: "right" });
+    yTable += 6;
+    doc.setTextColor(117, 117, 117);
+    doc.text(`GST (${invoice.tax_percent}%)`, summaryLabelX, yTable);
+    doc.text(`${invoice.tax_amount.toLocaleString()}`, summaryValueX, yTable, { align: "right" });
 
-    y += 4;
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.8);
-    doc.line(calcXLabel, y, pageWidth - 20, y);
-
-    y += 8;
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(0, 0, 0);
-    doc.text("TOTAL PAYABLE", calcXLabel, y);
-    doc.setTextColor(255, 23, 68);
-    doc.setFontSize(14);
-    doc.text(`Rs.${invoice.total_amount.toLocaleString()}`, calcXValue, y, { align: "right" });
-
-    // 6. QR Code & Payments
-    y += 15;
-    doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.text("SCAN TO VERIFY / PAY", 20, y);
-    addImageFromUrl(qrUrl, 20, y + 5, 25, 25);
-
-    doc.setFontSize(7);
-    doc.setTextColor(100, 100, 100);
-    doc.text("Scan this code to verify authenticity", 50, y + 15);
-    doc.text("or secure digital payment.", 50, y + 19);
-
-    // 7. Terms & Signature
-    y = 230;
-    doc.setDrawColor(240, 240, 240);
+    yTable += 4;
+    doc.setDrawColor(224, 224, 224);
     doc.setLineWidth(0.5);
-    doc.line(20, y, pageWidth - 20, y);
+    doc.line(summaryLabelX, yTable, summaryValueX, yTable);
 
-    y += 10;
+    yTable += 8;
+    // Total Payable Highlight
+    doc.setFillColor(255, 235, 238); // Very light red tint
+    doc.rect(summaryLabelX - 5, yTable - 6, (summaryValueX - summaryLabelX) + 10, 10, "F");
+
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(33, 33, 33);
+    doc.text("TOTAL PAYABLE", summaryLabelX, yTable);
+    doc.setTextColor(229, 57, 53);
+    doc.setFontSize(13);
+    doc.text(`Rs.${invoice.total_amount.toLocaleString()}`, summaryValueX, yTable, { align: "right" });
+
+    yTable += 4;
+    doc.setFontSize(7);
+    doc.setTextColor(158, 158, 158);
+    doc.text("(Inclusive of all taxes)", summaryLabelX, yTable);
+
+    // 6. QR Code Section (Aligned Left)
+    let yQR = yTable + 15;
+    doc.setDrawColor(245, 245, 245);
+    doc.rect(margin, yQR, 60, 45); // QR Box
+
     doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
     doc.setFont("helvetica", "bold");
-    doc.text("TERMS & CONDITIONS:", 20, y);
+    doc.setTextColor(33, 33, 33);
+    doc.text("SCAN TO VERIFY & PAY", margin + 30, yQR + 8, { align: "center" });
+
+    addImageFromUrl(qrUrl, margin + 17.5, yQR + 12, 25, 25);
+
+    doc.setFontSize(7);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(7);
-    const terms = [
-      "1. Works carried out on owner's risk. Company not liable for loss or theft.",
-      "2. Complaints regarding quality should be reported within 24 hours.",
-      "3. Warranty applicable only if maintenance schedule is strictly followed."
-    ];
-    terms.forEach((term, idx) => {
-      doc.text(term, 20, y + 5 + (idx * 4));
-    });
+    doc.setTextColor(117, 117, 117);
+    doc.text("UPI / Fast Verification", margin + 30, yQR + 41, { align: "center" });
 
-    // Signature - Better Alignment
+    // 7. Jurisdictions & Signature
+    let yBottom = 245;
+    doc.setFontSize(7);
+    doc.setTextColor(189, 189, 189);
+    doc.text("Subject to Tirupur jurisdiction. This is a system-generated invoice.", pageWidth / 2, yBottom, { align: "center" });
+
+    yBottom += 15;
+    doc.setDrawColor(224, 224, 224);
+    doc.line(pageWidth - margin - 50, yBottom, pageWidth - margin, yBottom);
+
     doc.setFontSize(9);
-    doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "bold");
-    doc.text("SHASHTI KARZ", pageWidth - 35, y + 25, { align: "center" });
-    doc.setFontSize(7);
-    doc.setTextColor(150, 150, 150);
-    doc.text("AUTHORIZED SIGNATORY", pageWidth - 35, y + 33, { align: "center" });
-    doc.setDrawColor(200, 200, 200);
-    doc.line(pageWidth - 55, y + 30, pageWidth - 15, y + 30);
+    doc.setTextColor(33, 33, 33);
+    doc.text("SHASHTI KARZ", pageWidth - margin - 25, yBottom + 5, { align: "center" });
 
-    // 8. Official Badge
-    doc.setFillColor(0, 0, 0);
-    doc.rect(20, 280, pageWidth - 40, 10, "F");
+    doc.setFontSize(7);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(158, 158, 158);
+    doc.text("AUTHORIZED SIGNATORY", pageWidth - margin - 25, yBottom + 10, { align: "center" });
+
+    // 8. Footer Bar
+    doc.setFillColor(33, 33, 33);
+    doc.rect(0, 282, pageWidth, 15, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
-    doc.text("THIS IS A COMPUTER GENERATED OFFICIAL INVOICE", pageWidth / 2, 286.5, { align: "center" });
+    doc.text("THANK YOU FOR YOUR BUSINESS - DRIVE SAFE", pageWidth / 2, 291, { align: "center" });
 
     return doc;
   };
