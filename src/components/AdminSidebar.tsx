@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Calendar, Users, Package, Settings, LogOut, Bell,
   DollarSign, Play, Sparkles, Brain, Receipt, ImageIcon, Menu, X, Hammer,
   MessageCircle, TrendingUp, Wrench, Send, Star, Box, Tag, Clock, Headphones,
-  Activity, RefreshCw
+  Activity, RefreshCw, Share2, Trophy, Crown, Map
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
@@ -33,6 +33,7 @@ const navItems: NavItem[] = [
   // Financial
   { id: "finance", label: "Finance", icon: DollarSign, href: "/admin?tab=finance" },
   { id: "billing", label: "Billing", icon: Receipt, href: "/admin/billing" },
+  { id: "subscriptions", label: "Subscriptions", icon: Crown, href: "/admin/subscriptions", badge: "VIP", badgeColor: "bg-[#d4af37]/20 text-[#d4af37]" },
 
   // Services & Products
   { id: "services", label: "Services", icon: Package, href: "/admin?tab=services" },
@@ -45,17 +46,20 @@ const navItems: NavItem[] = [
   { id: "users", label: "Customers", icon: Users, href: "/admin?tab=users" },
   { id: "reviews", label: "Reviews", icon: Star, href: "/admin/reviews", badge: "New", badgeColor: "bg-yellow-500/20 text-yellow-500" },
   { id: "ltv", label: "Customer LTV", icon: TrendingUp, href: "/admin/ltv", badge: "New", badgeColor: "bg-green-500/20 text-green-500" },
+  { id: "gamification", label: "Gamification", icon: Trophy, href: "/admin/gamification", badge: "New", badgeColor: "bg-purple-500/20 text-purple-500" },
   { id: "dinesh-support", label: "Dinesh Support", icon: Headphones, href: "/admin/dinesh-support", badge: "Voice", badgeColor: "bg-purple-500/20 text-purple-500" },
   { id: "pulse", label: "Admin Pulse", icon: Activity, href: "/admin/pulse", badge: "Live", badgeColor: "bg-red-500/20 text-red-500" },
 
   // Marketing & Communication
   { id: "campaigns", label: "Ad Campaigns", icon: Play, href: "/admin/ads", badge: "Video", badgeColor: "bg-blue-500/20 text-blue-500" },
   { id: "marketing", label: "Marketing", icon: Send, href: "/admin/campaigns" },
+  { id: "referrals", label: "Referrals", icon: Share2, href: "/admin/referrals", badge: "New", badgeColor: "bg-green-500/20 text-green-500" },
   { id: "whatsapp", label: "WhatsApp", icon: MessageCircle, href: "/admin/whatsapp", badge: "New", badgeColor: "bg-green-500/20 text-green-500" },
   { id: "notifications", label: "Notifications", icon: Bell, href: "/admin/notifications", badge: "Send", badgeColor: "bg-orange-500/20 text-orange-500" },
 
   // Operations
-  { id: "workers", label: "Workers", icon: Users, href: "/admin?tab=workers" },
+  { id: "workers", label: "Workers", icon: Users, href: "/admin/workers" },
+  { id: "fleet", label: "Fleet & Routes", icon: Map, href: "/admin/fleet" },
   { id: "worker-portal", label: "Worker Portal", icon: Hammer, href: "/worker", badge: "Live", badgeColor: "bg-[#ff1744]/20 text-[#ff1744]" },
   { id: "equipment", label: "Equipment", icon: Wrench, href: "/admin/equipment", badge: "New", badgeColor: "bg-orange-500/20 text-orange-500" },
   { id: "inventory", label: "Inventory", icon: Package, href: "/admin/inventory" },
