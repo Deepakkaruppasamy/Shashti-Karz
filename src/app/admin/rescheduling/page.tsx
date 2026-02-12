@@ -83,7 +83,7 @@ export default function ReschedulingAdminPage() {
                 .from('reschedule_requests')
                 .select(`
           *,
-          user:profiles(full_name, email, phone),
+          user:profiles!reschedule_requests_user_id_fkey(full_name, email, phone),
           booking:bookings(car_model, service:services(name))
         `)
                 .order('created_at', { ascending: false });
@@ -182,8 +182,8 @@ export default function ReschedulingAdminPage() {
                             key={tab}
                             onClick={() => setFilter(tab)}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === tab
-                                    ? 'bg-[#ff1744] text-white shadow-lg shadow-[#ff1744]/25'
-                                    : 'text-[#888] hover:text-white hover:bg-white/5'
+                                ? 'bg-[#ff1744] text-white shadow-lg shadow-[#ff1744]/25'
+                                : 'text-[#888] hover:text-white hover:bg-white/5'
                                 }`}
                         >
                             {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -303,7 +303,7 @@ export default function ReschedulingAdminPage() {
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-2">
                                             {getReasonIcon(req.reason)}
-                                            <span className="text-sm capitalize">{req.reason.replace('_', ' ')}</span>
+                                            <span className="text-sm capitalize">{(req.reason || 'unknown').replace('_', ' ')}</span>
                                         </div>
                                         {req.reason_details && (
                                             <p className="text-xs text-[#666] mt-1 max-w-[200px] truncate">{req.reason_details}</p>
@@ -311,8 +311,8 @@ export default function ReschedulingAdminPage() {
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide border ${req.status === 'approved' || req.status === 'auto_approved' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
-                                                req.status === 'rejected' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
-                                                    'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+                                            req.status === 'rejected' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
+                                                'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
                                             }`}>
                                             {req.status === 'approved' || req.status === 'auto_approved' ? <CheckCircle size={12} /> :
                                                 req.status === 'rejected' ? <XCircle size={12} /> :

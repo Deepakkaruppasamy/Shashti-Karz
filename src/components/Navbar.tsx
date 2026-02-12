@@ -124,7 +124,7 @@ export function Navbar() {
                   className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors"
                 >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ff1744] to-[#d4af37] flex items-center justify-center">
-                    <span className="text-white font-bold text-xs">{displayName.charAt(0).toUpperCase()}</span>
+                    <span className="text-white font-bold text-xs">{(displayName || "U").charAt(0).toUpperCase()}</span>
                   </div>
                   {displayName}
                 </Link>

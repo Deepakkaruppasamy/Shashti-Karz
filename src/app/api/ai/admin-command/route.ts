@@ -77,8 +77,11 @@ export async function POST(req: Request) {
     const aiData = jsonMatch ? JSON.parse(jsonMatch[0]) : { message: text, response: text };
 
     return NextResponse.json(aiData);
-  } catch (error) {
-    console.error("Admin Command Error:", error);
-    return NextResponse.json({ error: "Failed to process command" }, { status: 500 });
+  } catch (error: any) {
+    console.error("Admin Command Error:", error?.message || error);
+    return NextResponse.json(
+      { error: "Failed to process command", details: error?.message },
+      { status: 500 }
+    );
   }
 }
