@@ -16,7 +16,7 @@ import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { GlowingBorder, PulsingDot } from "@/components/animations/GlowingBorder";
 import { MagneticButton, TiltCard } from "@/components/animations/MagneticButton";
 import { AnimatedCounter } from "@/components/animations/AnimatedCounter";
-import { ProgressLoader } from "@/components/animations/CarLoader";
+import { ProgressLoader, BrandedLoader } from "@/components/animations/CarLoader";
 import { SuccessConfetti } from "@/components/animations/ConfettiEffect";
 
 const timeSlots = [
@@ -203,19 +203,8 @@ function BookingForm() {
 
   if (isLoadingData) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-12 h-12 border-2 border-[#ff1744] border-t-transparent rounded-full"
-        />
-        <motion.p
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="text-[#888] text-sm"
-        >
-          Loading services...
-        </motion.p>
+      <div className="flex flex-col items-center justify-center py-20">
+        <BrandedLoader size={100} />
       </div>
     );
   }

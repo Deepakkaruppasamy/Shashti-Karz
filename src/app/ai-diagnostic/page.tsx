@@ -11,7 +11,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { CarLoader } from "@/components/animations/CarLoader";
+import { CarLoader, BrandedLoader } from "@/components/animations/CarLoader";
 import { useLanguage } from "@/lib/LanguageContext";
 import { toast } from "react-hot-toast";
 import { supabase } from "@/lib/supabase/client";
@@ -523,7 +523,7 @@ export default function AiDiagnosticPage() {
                             className="flex flex-col items-center justify-center py-20"
                         >
                             <div className="w-32 h-32 mb-12">
-                                <CarLoader />
+                                <BrandedLoader size={120} />
                             </div>
                             <h2 className="text-3xl font-bold mb-2">Compiling Intelligence</h2>
                             <p className="text-[#888] font-mono text-sm">Identifying clear-coat anomalies and structural integrity...</p>

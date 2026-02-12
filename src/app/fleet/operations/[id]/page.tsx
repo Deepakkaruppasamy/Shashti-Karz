@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { CarLoader, ProgressLoader } from "@/components/animations/CarLoader";
+import { CarLoader, ProgressLoader, BrandedLoader } from "@/components/animations/CarLoader";
 import { MorphingCard } from "@/components/animations/MorphingCard";
 import { ShimmerCard } from "@/components/animations/AdvancedShimmer";
 import { toast } from "sonner";
@@ -91,7 +91,7 @@ export default function FleetOperationsPage() {
         }
     };
 
-    if (loading) return <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center"><CarLoader /></div>;
+    if (loading) return <BrandedLoader fullPage />;
     if (!data?.fleet) return <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-white">Fleet Not Found</div>;
 
     return (
@@ -140,8 +140,8 @@ export default function FleetOperationsPage() {
                             key={item.id}
                             onClick={() => setActiveTab(item.id as Tab)}
                             className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === item.id
-                                    ? "bg-white/10 text-white border border-white/20"
-                                    : "text-[#444] hover:text-[#888]"
+                                ? "bg-white/10 text-white border border-white/20"
+                                : "text-[#444] hover:text-[#888]"
                                 }`}
                         >
                             <item.icon size={14} />
@@ -302,8 +302,8 @@ export default function FleetOperationsPage() {
                                                                 );
                                                             }}
                                                             className={`p-4 rounded-2xl border transition-all text-left flex justify-between items-center ${selectedVehicles.includes(v.id)
-                                                                    ? 'border-[#ff1744] bg-[#ff1744]/5'
-                                                                    : 'border-white/5 bg-white/[0.02] hover:bg-white/5'
+                                                                ? 'border-[#ff1744] bg-[#ff1744]/5'
+                                                                : 'border-white/5 bg-white/[0.02] hover:bg-white/5'
                                                                 }`}
                                                         >
                                                             <div>
@@ -330,8 +330,8 @@ export default function FleetOperationsPage() {
                                                             key={s.id}
                                                             onClick={() => setBulkForm({ ...bulkForm, service_id: s.id })}
                                                             className={`p-6 rounded-3xl border transition-all text-left flex justify-between items-center ${bulkForm.service_id === s.id
-                                                                    ? 'border-[#ff1744] bg-[#ff1744]/5'
-                                                                    : 'border-white/5 bg-white/[0.02] hover:bg-white/5'
+                                                                ? 'border-[#ff1744] bg-[#ff1744]/5'
+                                                                : 'border-white/5 bg-white/[0.02] hover:bg-white/5'
                                                                 }`}
                                                         >
                                                             <div>

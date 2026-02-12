@@ -2,6 +2,9 @@
 
 import { motion } from "framer-motion";
 import { useReducedMotion } from "./useReducedMotion";
+import { BrandedLoader } from "./BrandedLoader";
+
+export { BrandedLoader };
 
 interface CarLoaderProps {
   size?: number;
@@ -82,7 +85,7 @@ export function CarLoader({ size = 120, className = "" }: CarLoaderProps) {
           transition={{ duration: 1, delay: 0.5, repeat: Infinity, ease: "easeInOut" }}
         />
       </motion.svg>
-      
+
       <motion.div
         className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#ff1744]/50 to-transparent"
         initial={{ scaleX: 0 }}
@@ -179,18 +182,7 @@ export function SprayLoader({ className = "" }: { className?: string }) {
 }
 
 export function FullPageLoader() {
-  return (
-    <div className="fixed inset-0 bg-[#0a0a0a] flex flex-col items-center justify-center z-50">
-      <CarLoader size={160} />
-      <motion.p
-        className="mt-8 text-[#888] text-sm tracking-widest uppercase"
-        animate={{ opacity: [0.5, 1, 0.5] }}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-      >
-        Loading Premium Experience
-      </motion.p>
-    </div>
-  );
+  return <BrandedLoader fullPage />;
 }
 
 interface ProgressLoaderProps {

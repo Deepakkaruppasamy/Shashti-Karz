@@ -7,6 +7,7 @@ export * from './MagneticButton';
 export * from './TextReveal';
 export * from './GlowingBorder';
 export * from './CarLoader';
+export * from './BrandedLoader';
 export * from './useReducedMotion';
 
 // New animation components
