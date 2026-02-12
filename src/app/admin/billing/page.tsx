@@ -185,9 +185,95 @@ export default function AdminBillingPage() {
 
   const generatePDF = (invoice: Invoice) => {
     const doc = new jsPDF();
-    doc.setFontSize(20); doc.text("TAX INVOICE", 105, 20, { align: "center" });
-    doc.setFontSize(10); doc.text(COMPANY_INFO.name, 20, 30);
-    doc.text(`Invoice: ${invoice.invoice_number}`, 140, 30);
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    // Header
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(255, 23, 68); // Red color
+    doc.text(COMPANY_INFO.name, 20, 25);
+
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.setFont("helvetica", "normal");
+    doc.text(COMPANY_INFO.tagline, 20, 30);
+
+    doc.setFontSize(18);
+    doc.setTextColor(0);
+    doc.text("TAX INVOICE", pageWidth - 20, 25, { align: "right" });
+
+    doc.setFontSize(9);
+    doc.text(`Invoice #: ${invoice.invoice_number}`, pageWidth - 20, 32, { align: "right" });
+    doc.text(`Date: ${new Date(invoice.invoice_date).toLocaleDateString()}`, pageWidth - 20, 37, { align: "right" });
+
+    // Company & Customer Details
+    doc.setFont("helvetica", "bold");
+    doc.text("FROM:", 20, 50);
+    doc.setFont("helvetica", "normal");
+    doc.text(COMPANY_INFO.address, 20, 55);
+    doc.text(`Phone: ${COMPANY_INFO.phone}`, 20, 60);
+    doc.text(`GST: ${COMPANY_INFO.gst}`, 20, 65);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("BILL TO:", 110, 50);
+    doc.setFont("helvetica", "normal");
+    doc.text(invoice.customer_name, 110, 55);
+    doc.text(`Phone: ${invoice.customer_phone}`, 110, 60);
+    doc.text(`Vehicle: ${invoice.vehicle_number}`, 110, 65);
+
+    // Table Header
+    doc.setFillColor(245, 245, 245);
+    doc.rect(20, 80, pageWidth - 40, 8, "F");
+    doc.setFont("helvetica", "bold");
+    doc.text("Description", 25, 85);
+    doc.text("Qty", 120, 85);
+    doc.text("Rate", 145, 85);
+    doc.text("Amount", pageWidth - 25, 85, { align: "right" });
+
+    // Table Rows
+    let y = 95;
+    invoice.invoice_items.forEach((item) => {
+      doc.setFont("helvetica", "normal");
+      doc.text(item.service_name, 25, y);
+      doc.text(item.quantity.toString(), 120, y);
+      doc.text(`₹${item.rate.toLocaleString()}`, 145, y);
+      doc.text(`₹${item.amount.toLocaleString()}`, pageWidth - 25, y, { align: "right" });
+      y += 8;
+    });
+
+    // Totals
+    y += 10;
+    doc.line(120, y, pageWidth - 20, y);
+    y += 10;
+    doc.text("Subtotal:", 120, y);
+    doc.text(`₹${invoice.subtotal.toLocaleString()}`, pageWidth - 25, y, { align: "right" });
+
+    if (invoice.discount_amount > 0) {
+      y += 7;
+      doc.setTextColor(255, 0, 0);
+      doc.text(`Discount (${invoice.discount_percent}%):`, 120, y);
+      doc.text(`-₹${invoice.discount_amount.toLocaleString()}`, pageWidth - 25, y, { align: "right" });
+      doc.setTextColor(0);
+    }
+
+    y += 7;
+    doc.text(`GST (${invoice.tax_percent}%):`, 120, y);
+    doc.text(`₹${invoice.tax_amount.toLocaleString()}`, pageWidth - 25, y, { align: "right" });
+
+    y += 10;
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(255, 23, 68);
+    doc.text("Total Amount:", 120, y);
+    doc.text(`₹${invoice.total_amount.toLocaleString()}`, pageWidth - 25, y, { align: "right" });
+
+    // Footer
+    y = 260;
+    doc.setFontSize(8);
+    doc.setTextColor(150);
+    doc.setFont("helvetica", "italic");
+    doc.text("Thank you for your business! This is a computer generated invoice.", pageWidth / 2, y, { align: "center" });
+
     return doc;
   };
 
@@ -447,74 +533,166 @@ export default function AdminBillingPage() {
           {/* Core Invoice Inspector Overlay */}
           <AnimatePresence>
             {showPreview && selectedInvoice && (
-              <div className="fixed inset-0 z-[150] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/95 backdrop-blur-xl" onClick={() => setShowPreview(false)}>
-                <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className="w-full max-w-2xl bg-[#0d0d0d] rounded-t-[3rem] sm:rounded-[3rem] p-8 lg:p-12 relative overflow-hidden max-h-[92vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-                  <div className="flex items-center justify-between mb-10">
-                    <div>
-                      <h2 className="text-3xl font-black tracking-tighter">Receipt Matrix</h2>
-                      <p className="text-[10px] font-black text-[#555] uppercase tracking-widest mt-1">Ref: {selectedInvoice.invoice_number}</p>
+              <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-8 bg-black/90 backdrop-blur-md" onClick={() => setShowPreview(false)}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="w-full max-w-4xl bg-[#f8f9fa] rounded-3xl relative overflow-hidden flex flex-col max-h-[90vh]"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Action Bar */}
+                  <div className="bg-white border-b border-gray-200 p-4 flex items-center justify-between sticky top-0 z-20">
+                    <div className="flex items-center gap-4">
+                      <span className="text-gray-900 font-bold ml-2">Invoice Review</span>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => handlePrint(selectedInvoice)} className="p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-colors flex items-center gap-2 text-xs font-bold">
+                          <Printer size={16} /> Print
+                        </button>
+                        <button onClick={() => handleDownloadPDF(selectedInvoice)} className="p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-colors flex items-center gap-2 text-xs font-bold">
+                          <Download size={16} /> Download
+                        </button>
+                        <button onClick={() => handleSendWhatsApp(selectedInvoice)} className="p-2.5 bg-green-50 text-green-700 hover:bg-green-100 rounded-xl transition-colors flex items-center gap-2 text-xs font-bold">
+                          <MessageCircle size={16} /> WhatsApp
+                        </button>
+                      </div>
                     </div>
-                    <button onClick={() => setShowPreview(false)} className="p-3 bg-white/5 border border-white/5 rounded-2xl"><X size={24} /></button>
+                    <button onClick={() => setShowPreview(false)} className="p-2 text-gray-400 hover:text-gray-600">
+                      <X size={24} />
+                    </button>
                   </div>
 
-                  <div className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-6 lg:p-8 mb-8 space-y-6">
-                    <div className="grid grid-cols-2 gap-8 text-[12px]">
-                      <div>
-                        <span className="text-[8px] font-black text-[#333] uppercase tracking-widest block mb-2">Subject</span>
-                        <div className="font-black text-white">{selectedInvoice.customer_name}</div>
-                        <div className="text-[#666]">{selectedInvoice.customer_phone}</div>
-                        <div className="text-[#666]">{selectedInvoice.vehicle_number}</div>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-[8px] font-black text-[#333] uppercase tracking-widest block mb-2">Metadata</span>
-                        <div className="font-black text-white">{new Date(selectedInvoice.invoice_date).toLocaleDateString()}</div>
-                        <div className="text-[#666] uppercase">{selectedInvoice.payment_mode}</div>
-                      </div>
-                    </div>
+                  {/* The Actual Bill Container */}
+                  <div className="flex-1 overflow-y-auto p-8 lg:p-12">
+                    <div className="bg-white shadow-2xl rounded-2xl p-8 lg:p-14 text-gray-800 font-sans border border-gray-100 min-h-[1056px] w-full max-w-[800px] mx-auto">
 
-                    <div className="h-px bg-white/5" />
-
-                    <div className="space-y-4">
-                      {selectedInvoice.invoice_items.map((item, idx) => (
-                        <div key={idx} className="flex justify-between items-center text-sm">
-                          <div className="min-w-0 pr-4">
-                            <div className="font-black text-white truncate">{item.service_name}</div>
-                            <div className="text-[10px] text-[#444] uppercase tracking-widest">{item.quantity} Unit x ₹{item.rate}</div>
+                      {/* Bill Header */}
+                      <div className="flex justify-between items-start mb-12">
+                        <div>
+                          <div className="text-3xl font-black text-[#ff1744] tracking-tighter mb-1 uppercase">Shashti Karz</div>
+                          <div className="text-xs text-gray-400 font-bold uppercase tracking-widest">{COMPANY_INFO.tagline}</div>
+                          <div className="mt-6 text-xs leading-relaxed text-gray-500 max-w-[200px]">
+                            {COMPANY_INFO.address}<br />
+                            {COMPANY_INFO.phone}<br />
+                            {COMPANY_INFO.email}
                           </div>
-                          <div className="font-black text-white text-right">₹{item.amount.toLocaleString()}</div>
                         </div>
-                      ))}
-                    </div>
-
-                    <div className="h-px bg-white/5" />
-
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-xs text-[#444]">
-                        <span>Designate Subtotal</span>
-                        <span>₹{selectedInvoice.subtotal.toLocaleString()}</span>
-                      </div>
-                      {selectedInvoice.discount_amount > 0 && (
-                        <div className="flex justify-between text-xs text-red-500/40">
-                          <span>Offset ({selectedInvoice.discount_percent}%)</span>
-                          <span>-₹{selectedInvoice.discount_amount.toLocaleString()}</span>
+                        <div className="text-right">
+                          <h1 className="text-4xl font-black text-gray-200 mb-6 uppercase tracking-tight">Invoice</h1>
+                          <div className="space-y-1">
+                            <div className="text-[10px] text-gray-400 uppercase font-black">Invoice Number</div>
+                            <div className="text-sm font-bold text-gray-900">{selectedInvoice.invoice_number}</div>
+                          </div>
+                          <div className="mt-4 space-y-1">
+                            <div className="text-[10px] text-gray-400 uppercase font-black">Date of Issue</div>
+                            <div className="text-sm font-bold text-gray-900">{new Date(selectedInvoice.invoice_date).toLocaleDateString()}</div>
+                          </div>
                         </div>
-                      )}
-                      <div className="flex justify-between text-xs text-[#444]">
-                        <span>Regulatory Pool ({selectedInvoice.tax_percent}%)</span>
-                        <span>₹{selectedInvoice.tax_amount.toLocaleString()}</span>
                       </div>
-                      <div className="flex justify-between text-xl font-black tracking-tighter pt-4 text-[#ff1744]">
-                        <span>NET TOTAL</span>
-                        <span>₹{selectedInvoice.total_amount.toLocaleString()}</span>
-                      </div>
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <button onClick={() => handlePrint(selectedInvoice)} className="col-span-1 py-4 bg-white/5 border border-white/5 rounded-2xl flex flex-col items-center justify-center gap-2 group"><Printer size={20} className="group-hover:text-[#ff1744] transition-colors" /><span className="text-[8px] font-black uppercase">Print</span></button>
-                    <button onClick={() => handleDownloadPDF(selectedInvoice)} className="col-span-1 py-4 bg-white/5 border border-white/5 rounded-2xl flex flex-col items-center justify-center gap-2 group"><Download size={20} className="group-hover:text-[#ff1744] transition-colors" /><span className="text-[8px] font-black uppercase">PDF</span></button>
-                    <button onClick={() => handleSendWhatsApp(selectedInvoice)} className="col-span-1 py-4 bg-green-500/10 border border-green-500/20 rounded-2xl flex flex-col items-center justify-center gap-2 text-green-500"><MessageCircle size={20} /><span className="text-[8px] font-black uppercase">WA Stream</span></button>
-                    <button onClick={() => toast.success("Comm system engaged")} className="col-span-1 py-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex flex-col items-center justify-center gap-2 text-blue-500"><Mail size={20} /><span className="text-[8px] font-black uppercase">Digital Mail</span></button>
+                      {/* Billing Info */}
+                      <div className="grid grid-cols-2 gap-12 mb-12">
+                        <div>
+                          <p className="text-[10px] text-gray-400 uppercase font-black mb-3 border-b border-gray-100 pb-2">Billed To</p>
+                          <div className="text-base font-bold text-gray-900">{selectedInvoice.customer_name}</div>
+                          <div className="text-xs text-gray-500 mt-1">{selectedInvoice.customer_phone}</div>
+                          <div className="text-xs text-gray-500">{selectedInvoice.customer_email}</div>
+                          {selectedInvoice.vehicle_number && (
+                            <div className="mt-3 inline-block px-3 py-1 bg-gray-100 rounded-lg text-[10px] font-black text-gray-600 uppercase">
+                              {selectedInvoice.vehicle_number}
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-gray-400 uppercase font-black mb-3 border-b border-gray-100 pb-2">Company Registry</p>
+                          <div className="text-xs text-gray-500 font-medium">GSTIN: <span className="text-gray-900 font-bold">{COMPANY_INFO.gst}</span></div>
+                          <div className="text-xs text-gray-500 font-medium mt-1">Status: <span className="text-green-600 font-bold">Verified Operator</span></div>
+                          <div className="text-xs text-gray-500 font-medium mt-1">Payment: <span className="text-gray-900 font-bold uppercase">{selectedInvoice.payment_mode}</span></div>
+                        </div>
+                      </div>
+
+                      {/* Line Items Table */}
+                      <div className="mb-12">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b-2 border-gray-900">
+                              <th className="py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest w-12">#</th>
+                              <th className="py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Description</th>
+                              <th className="py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest w-16">Qty</th>
+                              <th className="py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest w-24">Rate</th>
+                              <th className="py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest w-32">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-100">
+                            {selectedInvoice.invoice_items.map((item, idx) => (
+                              <tr key={idx}>
+                                <td className="py-5 text-xs text-gray-400 font-mono">{String(idx + 1).padStart(2, '0')}</td>
+                                <td className="py-5">
+                                  <div className="text-sm font-bold text-gray-900">{item.service_name}</div>
+                                  <div className="text-[10px] text-gray-400 italic line-clamp-1">{item.description}</div>
+                                </td>
+                                <td className="py-5 text-center text-sm font-bold text-gray-600">{item.quantity}</td>
+                                <td className="py-5 text-right text-sm text-gray-600">₹{item.rate.toLocaleString()}</td>
+                                <td className="py-5 text-right text-sm font-black text-gray-900">₹{item.amount.toLocaleString()}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Calculations */}
+                      <div className="flex justify-end">
+                        <div className="w-full max-w-[300px] space-y-3">
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-gray-400 font-bold uppercase">Subtotal</span>
+                            <span className="text-gray-900 font-bold">₹{selectedInvoice.subtotal.toLocaleString()}</span>
+                          </div>
+                          {selectedInvoice.discount_amount > 0 && (
+                            <div className="flex justify-between items-center text-xs">
+                              <span className="text-red-500 font-bold uppercase">Discount ({selectedInvoice.discount_percent}%)</span>
+                              <span className="text-red-500 font-bold">-₹{selectedInvoice.discount_amount.toLocaleString()}</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-gray-400 font-bold uppercase">GST ({selectedInvoice.tax_percent}%)</span>
+                            <span className="text-gray-900 font-bold">₹{selectedInvoice.tax_amount.toLocaleString()}</span>
+                          </div>
+                          <div className="pt-4 border-t-4 border-gray-900 flex justify-between items-start">
+                            <div>
+                              <span className="text-[10px] font-black text-gray-400 uppercase block mb-1">Total Payable</span>
+                              <span className="text-sm font-bold text-gray-400 italic">Inclusive of all taxes</span>
+                            </div>
+                            <span className="text-3xl font-black text-gray-900">₹{selectedInvoice.total_amount.toLocaleString()}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Bill Footer */}
+                      <div className="mt-24 pt-12 border-t border-gray-100">
+                        <div className="grid grid-cols-2 gap-12">
+                          <div>
+                            <div className="text-[10px] text-gray-400 font-black uppercase mb-4 tracking-[0.2em]">Terms & Conditions</div>
+                            <ol className="text-[9px] text-gray-400 leading-relaxed font-medium list-decimal pl-4 space-y-1">
+                              <li>Works carried out on owner's risk. Company not liable for loss/theft of items left in car.</li>
+                              <li>Complaints regarding quality should be reported within 24 hours of delivery.</li>
+                              <li>Warranty on coatings applicable only if maintenance schedule is strictly followed.</li>
+                            </ol>
+                          </div>
+                          <div className="text-right flex flex-col items-end">
+                            <div className="mt-8 mb-2">
+                              <div className="w-32 h-px bg-gray-200 mb-2"></div>
+                              <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Authorized Signatory</div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mt-12 text-center">
+                          <div className="inline-block px-10 py-3 bg-gray-900 text-white rounded-full text-[10px] font-black uppercase tracking-[0.4em]">
+                            Official Document
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
                   </div>
                 </motion.div>
               </div>
