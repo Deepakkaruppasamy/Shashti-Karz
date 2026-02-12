@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Calendar, Users, Package, Settings, LogOut, Bell,
   DollarSign, Play, Sparkles, Brain, Receipt, ImageIcon, Menu, X, Hammer,
   MessageCircle, TrendingUp, Wrench, Send, Star, Box, Tag, Clock, Headphones,
-  Activity
+  Activity, RefreshCw
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
@@ -39,6 +39,7 @@ const navItems: NavItem[] = [
   { id: "packages", label: "Packages", icon: Box, href: "/admin/packages", badge: "New", badgeColor: "bg-purple-500/20 text-purple-500" },
   { id: "pricing", label: "Pricing Rules", icon: Tag, href: "/admin/pricing", badge: "New", badgeColor: "bg-purple-500/20 text-purple-500" },
   { id: "slots", label: "Time Slots", icon: Clock, href: "/admin/slots", badge: "New", badgeColor: "bg-purple-500/20 text-purple-500" },
+  { id: "rescheduling", label: "Smart Rescheduling", icon: RefreshCw, href: "/admin/rescheduling", badge: "AI", badgeColor: "bg-blue-500/20 text-blue-500" },
 
   // Customer Management
   { id: "users", label: "Customers", icon: Users, href: "/admin?tab=users" },
