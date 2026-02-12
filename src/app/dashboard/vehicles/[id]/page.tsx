@@ -21,6 +21,7 @@ import type {
 } from "@/lib/types";
 import { ServiceJournalModal } from "@/components/dashboard/ServiceJournalModal";
 import { MaintenanceReminderModal } from "@/components/dashboard/MaintenanceReminderModal";
+import { FullPageLoader } from "@/components/animations/CarLoader";
 
 interface ExtendedVehicleData {
   vehicle: UserVehicle;
@@ -161,11 +162,7 @@ export default function VehicleGaragePage({
   };
 
   if (authLoading || !user || isLoading) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-[#ff1744] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <FullPageLoader />;
   }
 
   if (!vehicle) {

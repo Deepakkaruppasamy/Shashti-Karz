@@ -11,6 +11,8 @@ import toast from "react-hot-toast";
 import Link from "next/link";
 import type { UserVehicle } from "@/lib/types";
 import { carTypes } from "@/lib/data";
+import { BrandedLoader, FullPageLoader } from "@/components/animations/CarLoader";
+import { Brain } from "lucide-react";
 
 export default function VehiclesPage() {
   const router = useRouter();
@@ -176,11 +178,7 @@ export default function VehiclesPage() {
   };
 
   if (authLoading || !user) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-[#ff1744] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <FullPageLoader />;
   }
 
   return (
@@ -206,8 +204,8 @@ export default function VehiclesPage() {
           <div className="grid lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1 space-y-4">
               {isLoading ? (
-                <div className="glass-card rounded-2xl p-8 text-center">
-                  <div className="w-8 h-8 border-2 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto" />
+                <div className="glass-card rounded-2xl p-8 text-center h-[200px] flex items-center justify-center">
+                  <BrandedLoader size={50} />
                 </div>
               ) : vehicles.length === 0 ? (
                 <div className="glass-card rounded-2xl p-8 text-center">

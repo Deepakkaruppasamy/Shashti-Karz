@@ -19,6 +19,7 @@ import toast from "react-hot-toast";
 import Image from "next/image";
 import Link from "next/link";
 import type { LoyaltyPoints, LoyaltyTransaction, ServiceTracking, Booking, Worker, Service, UserVehicle, VehicleHealthScore } from "@/lib/types";
+import { BrandedLoader } from "@/components/animations/CarLoader";
 import dynamic from "next/dynamic";
 
 function PayNowButton({ bookingId }: { bookingId: string }) {
@@ -419,11 +420,7 @@ export default function DashboardPage() {
   const displayName = profileForm.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User";
 
   if (authLoading) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-[#ff1744] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <BrandedLoader fullPage />;
   }
 
   if (!user) return null;
@@ -676,8 +673,8 @@ export default function DashboardPage() {
                             {vehicle.health_score && (
                               <div className="text-right">
                                 <span className={`text-2xl font-black ${vehicle.health_score.overall_score >= 80 ? "text-green-500" :
-                                    vehicle.health_score.overall_score >= 60 ? "text-yellow-500" :
-                                      vehicle.health_score.overall_score >= 40 ? "text-orange-500" : "text-red-500"
+                                  vehicle.health_score.overall_score >= 60 ? "text-yellow-500" :
+                                    vehicle.health_score.overall_score >= 40 ? "text-orange-500" : "text-red-500"
                                   }`}>{Math.round(vehicle.health_score.overall_score)}</span>
                                 <p className="text-[10px] text-[#666] font-bold uppercase tracking-widest">Health Score</p>
                               </div>

@@ -23,6 +23,7 @@ import dynamic from "next/dynamic";
 
 // Dynamic imports for heavy components
 const DynamicPriceCalculator = dynamic(() => import("@/components/PriceCalculator").then(mod => mod.PriceCalculator), { ssr: false });
+import { FullPageLoader } from "@/components/animations/CarLoader";
 const DynamicExplodedCarSection = dynamic(() => import("@/components/CarShowcase").then(mod => mod.ExplodedCarSection), { ssr: false });
 const DynamicServiceBeforeAfter = dynamic(() => import("@/components/CarShowcase").then(mod => mod.ServiceBeforeAfter), { ssr: false });
 const DynamicServiceTrackerDemo = dynamic(() => import("@/components/LiveServiceTracker").then(mod => mod.ServiceTrackerDemo), { ssr: false });
@@ -348,11 +349,7 @@ export default function HomePage() {
   }, []);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#ff1744]/20 border-t-[#ff1744] rounded-full animate-spin" />
-      </div>
-    );
+    return <FullPageLoader />;
   }
 
   return (

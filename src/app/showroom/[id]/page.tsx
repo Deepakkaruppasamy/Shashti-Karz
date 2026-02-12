@@ -13,6 +13,7 @@ import { Footer } from "@/components/Footer";
 import { useAuth } from "@/lib/auth-context";
 import toast from "react-hot-toast";
 import type { ShowroomPost, ShowroomComment } from "@/lib/types";
+import { BrandedLoader } from "@/components/animations/CarLoader";
 
 export default function PostDetailPage() {
     const { id } = useParams();
@@ -108,11 +109,7 @@ export default function PostDetailPage() {
     };
 
     if (isLoading) {
-        return (
-            <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-                <div className="w-12 h-12 border-4 border-[#ff1744] border-t-transparent rounded-full animate-spin" />
-            </div>
-        );
+        return <BrandedLoader fullPage />;
     }
 
     if (!post) {
@@ -185,7 +182,7 @@ export default function PostDetailPage() {
                                 </p>
 
                                 <div className="flex flex-wrap gap-3 mt-6">
-                                    {post.tags?.map((tag, i) => (
+                                    {(post.tags as string[])?.map((tag: string, i: number) => (
                                         <span key={i} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-[#888]">
                                             #{tag}
                                         </span>
@@ -256,8 +253,8 @@ export default function PostDetailPage() {
                                     <button
                                         onClick={handleLike}
                                         className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border transition-all duration-300 ${post.is_liked
-                                                ? "bg-[#ff1744] border-[#ff1744] text-white shadow-lg shadow-[#ff1744]/20"
-                                                : "bg-white/5 border-white/10 text-[#888] hover:border-white/20 hover:text-white"
+                                            ? "bg-[#ff1744] border-[#ff1744] text-white shadow-lg shadow-[#ff1744]/20"
+                                            : "bg-white/5 border-white/10 text-[#888] hover:border-white/20 hover:text-white"
                                             }`}
                                     >
                                         <Heart size={20} className={post.is_liked ? "fill-white" : ""} />

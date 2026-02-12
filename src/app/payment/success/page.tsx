@@ -7,6 +7,7 @@ import { CheckCircle, Download, ArrowRight, CreditCard, Calendar, Car } from "lu
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import Link from "next/link";
+import { BrandedLoader } from "@/components/animations/CarLoader";
 
 interface SessionData {
   status: string;
@@ -29,7 +30,7 @@ function PaymentSuccessContent() {
   const router = useRouter();
   const sessionId = searchParams.get("session_id");
   const bookingId = searchParams.get("booking_id");
-  
+
   const [sessionData, setSessionData] = useState<SessionData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,13 +61,9 @@ function PaymentSuccessContent() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-12 h-12 border-2 border-[#ff1744] border-t-transparent rounded-full"
-        />
-        <p className="text-[#888]">Verifying payment...</p>
+      <div className="flex flex-col items-center justify-center py-20">
+        <BrandedLoader size={100} />
+        <p className="text-[#888] mt-4">Verifying payment...</p>
       </div>
     );
   }
@@ -222,7 +219,7 @@ export default function PaymentSuccessPage() {
           <Suspense
             fallback={
               <div className="flex justify-center py-20">
-                <div className="w-12 h-12 border-2 border-[#ff1744] border-t-transparent rounded-full animate-spin" />
+                <BrandedLoader size={80} />
               </div>
             }
           >
