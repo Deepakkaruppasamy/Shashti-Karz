@@ -252,12 +252,6 @@ export default function AdminBillingPage() {
     doc.setTextColor(66, 66, 66); // Dark Gray
     doc.text(COMPANY_INFO.tagline, 50, 33);
 
-    // Official Invoice (Right Column) with low opacity
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(22);
-    doc.setTextColor(230, 230, 230); // 10-15% Opacity feel
-    doc.text("OFFICIAL INVOICE", pageWidth - margin, 28, { align: "right" });
-
     // Header Red Line
     doc.setDrawColor(229, 57, 53);
     doc.setLineWidth(0.7);
@@ -268,8 +262,8 @@ export default function AdminBillingPage() {
     doc.setFontSize(9);
     doc.setTextColor(97, 97, 97);
     doc.setFont("helvetica", "bold");
-    doc.text("INVOICE NO :", pageWidth - 75, yMeta);
-    doc.text("DATE       :", pageWidth - 75, yMeta + 6);
+    doc.text("INVOICE NO :", pageWidth - 80, yMeta);
+    doc.text("DATE       :", pageWidth - 80, yMeta + 6);
 
     doc.setFont("helvetica", "normal");
     doc.setTextColor(33, 33, 33);
@@ -383,16 +377,17 @@ export default function AdminBillingPage() {
 
     yTable += 8;
     // Total Payable Highlight
-    doc.setFillColor(255, 235, 238); // Very light red tint
-    doc.rect(summaryLabelX - 5, yTable - 6, (summaryValueX - summaryLabelX) + 10, 10, "F");
+    doc.setFillColor(255, 245, 245); // Extremely light red
+    doc.rect(summaryLabelX - 5, yTable - 7, (summaryValueX - summaryLabelX) + 10, 11, "F");
 
-    doc.setFontSize(11);
+    doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(33, 33, 33);
     doc.text("TOTAL PAYABLE", summaryLabelX, yTable);
+
     doc.setTextColor(229, 57, 53);
-    doc.setFontSize(13);
-    doc.text(`Rs.${invoice.total_amount.toLocaleString()}`, summaryValueX, yTable, { align: "right" });
+    doc.setFontSize(12);
+    doc.text(`Rs. ${invoice.total_amount.toLocaleString()}`, summaryValueX, yTable, { align: "right" });
 
     yTable += 4;
     doc.setFontSize(7);
