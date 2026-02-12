@@ -32,7 +32,7 @@ export function BrandedLoader({ size = 120, fullPage = false, className = "" }: 
 
                 {/* Static Logo with Pulse */}
                 <motion.div
-                    className="relative z-10"
+                    className="relative z-10 rounded-full overflow-hidden"
                     style={{ width: size, height: size }}
                     animate={{
                         scale: [1, 1.05, 1],
