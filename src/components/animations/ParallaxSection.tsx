@@ -19,6 +19,12 @@ export function ParallaxSection({
 }: ParallaxSectionProps) {
   const ref = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"],
@@ -33,7 +39,7 @@ export function ParallaxSection({
   }
 
   return (
-    <motion.div ref={ref} style={{ y: smoothY }} className={className}>
+    <motion.div ref={ref} style={{ y: isMobile ? y : smoothY }} className={className}>
       {children}
     </motion.div>
   );
@@ -113,11 +119,17 @@ interface ScrollProgressProps {
 
 export function ScrollProgress({ className = "", color = "#ff1744" }: ScrollProgressProps) {
   const { scrollYProgress } = useScroll();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
   return (
     <motion.div
-      style={{ scaleX, backgroundColor: color }}
+      style={{ scaleX: isMobile ? scrollYProgress : scaleX, backgroundColor: color }}
       className={`fixed top-0 left-0 right-0 h-1 origin-left z-[100] ${className}`}
     />
   );
