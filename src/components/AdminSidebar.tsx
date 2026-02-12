@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Calendar, Users, Package, Settings, LogOut, Bell,
   DollarSign, Play, Sparkles, Brain, Receipt, ImageIcon, Menu, X, Hammer,
   MessageCircle, TrendingUp, Wrench, Send, Star, Box, Tag, Clock, Headphones,
-  Activity, RefreshCw, Share2, Trophy, Crown, Map, ShieldCheck, Image
+  Activity, RefreshCw, Share2, Trophy, Crown, Map, ShieldCheck, Image as LucideImage
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
@@ -52,7 +52,7 @@ const navItems: NavItem[] = [
 
   // Marketing & Communication
   { id: "campaigns", label: "Ad Campaigns", icon: Play, href: "/admin/ads", badge: "Video", badgeColor: "bg-blue-500/20 text-blue-500" },
-  { id: "showroom", label: "Showroom", icon: Image, href: "/admin/showroom" },
+  { id: "showroom", label: "Showroom", icon: LucideImage, href: "/admin/showroom" },
   { id: "marketing", label: "Marketing", icon: Send, href: "/admin/campaigns" },
   { id: "referrals", label: "Referrals", icon: Share2, href: "/admin/referrals", badge: "New", badgeColor: "bg-green-500/20 text-green-500" },
   { id: "whatsapp", label: "WhatsApp", icon: MessageCircle, href: "/admin/whatsapp", badge: "New", badgeColor: "bg-green-500/20 text-green-500" },
