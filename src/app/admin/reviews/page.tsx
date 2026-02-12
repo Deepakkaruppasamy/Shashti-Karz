@@ -11,6 +11,7 @@ import {
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Review } from "@/lib/types";
+import { BrandedLoader } from "@/components/animations/BrandedLoader";
 import * as XLSX from "xlsx";
 import { jsPDF } from "jspdf";
 
@@ -278,10 +279,7 @@ export default function ReviewsAdminPage() {
                     </div>
 
                     {isLoading ? (
-                      <div className="text-center py-20 space-y-4">
-                        <div className="w-12 h-12 border-4 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto" />
-                        <p className="text-[10px] font-black uppercase tracking-widest text-[#444]">Syncing Reviews...</p>
-                      </div>
+                      <BrandedLoader className="py-20" />
                     ) : (
                       <div className="space-y-4">
                         {filteredReviews.map((review) => (

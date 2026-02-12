@@ -20,6 +20,7 @@ import {
     Box
 } from "lucide-react";
 import { toast } from "sonner";
+import { BrandedLoader } from "@/components/animations/BrandedLoader";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Equipment {
@@ -212,7 +213,7 @@ export default function EquipmentAdminPage() {
                                 </div>
 
                                 {loading ? (
-                                    <div className="py-20 text-center"><RefreshCw className="animate-spin mx-auto text-[#222]" /></div>
+                                    <BrandedLoader className="py-20" />
                                 ) : equipment.length === 0 ? (
                                     <div className="py-20 text-center border-2 border-dashed border-white/5 rounded-3xl">
                                         <p className="text-[10px] font-black uppercase text-[#444] tracking-widest">Registry empty</p>

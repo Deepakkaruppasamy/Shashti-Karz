@@ -17,6 +17,7 @@ import { useAuth } from "@/lib/auth-context";
 import { jsPDF } from "jspdf";
 import * as XLSX from "xlsx";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
+import { BrandedLoader } from "@/components/animations/BrandedLoader";
 
 interface InvoiceItem {
   id: string;
@@ -677,10 +678,7 @@ export default function AdminBillingPage() {
                 </div>
 
                 {isLoading ? (
-                  <div className="text-center py-20">
-                    <div className="w-12 h-12 border-4 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-[10px] font-black uppercase tracking-widest text-[#444]">Extracting Logs...</p>
-                  </div>
+                  <BrandedLoader className="py-20" />
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredInvoices.map((inv) => (

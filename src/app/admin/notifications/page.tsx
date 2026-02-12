@@ -29,9 +29,11 @@ import {
   Zap,
   Target,
   Radio,
-  ChevronRight
+  ChevronRight,
+  Activity
 } from "lucide-react";
 import { toast } from "sonner";
+import { BrandedLoader } from "@/components/animations/BrandedLoader";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 type TabType = "send" | "history" | "rules" | "templates" | "analytics";
@@ -356,7 +358,9 @@ export default function AdminNotificationsPage() {
                       </div>
                     </div>
                   ))}
-                  {broadcastHistory.length === 0 && !historyLoading && (
+                  {historyLoading ? (
+                    <BrandedLoader className="py-20" />
+                  ) : broadcastHistory.length === 0 && !historyLoading && (
                     <div className="col-span-full py-20 text-center text-[#222] font-black uppercase tracking-[0.5em]">No Logs Detected</div>
                   )}
                 </div>

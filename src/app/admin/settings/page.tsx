@@ -23,6 +23,7 @@ import {
 import Link from "next/link";
 import { useSound } from "@/hooks/useSound";
 import { playSound, setSoundEnabled, type SoundType } from "@/lib/sound-system";
+import { BrandedLoader } from "@/components/animations/BrandedLoader";
 import { toast } from "sonner";
 
 interface SoundSettings {
@@ -59,6 +60,13 @@ export default function AdminSoundSettingsPage() {
   const { enabled, volume, toggleSound, setVolume, setAdmin } = useSound();
   const [settings, setSettings] = useState<SoundSettings>(DEFAULT_SETTINGS);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading settings
+    const timer = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     setAdmin(false);
@@ -86,6 +94,8 @@ export default function AdminSoundSettingsPage() {
       setIsSaving(false);
     }
   };
+
+  if (isLoading) return <BrandedLoader fullPage />;
 
   return (
     <div className="flex min-h-screen bg-[#0a0a0a] text-white">

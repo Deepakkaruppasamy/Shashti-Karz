@@ -30,7 +30,7 @@ import { RevenueChart } from "@/components/admin/charts/RevenueChart";
 import { BookingTrendsChart } from "@/components/admin/charts/BookingTrendsChart";
 import { ServicePopularityChart } from "@/components/admin/charts/ServicePopularityChart";
 import { AnimatedMetricCard } from "@/components/admin/AnimatedMetricCard";
-import { LiveActivityFeed } from "@/components/admin/LiveActivityFeed";
+import { BrandedLoader } from "@/components/animations/BrandedLoader";
 
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
@@ -694,16 +694,7 @@ function AdminDashboardContent() {
   );
 
   if (authLoading || isLoading) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="text-center">
-          <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }} className="w-16 h-16 mx-auto mb-4">
-            <Brain size={64} className="text-[#ff1744]" />
-          </motion.div>
-          <p className="text-[#888]">Shashti AI is analyzing your data...</p>
-        </div>
-      </div>
-    );
+    return <BrandedLoader fullPage />;
   }
 
   return (
@@ -1751,7 +1742,7 @@ function AdminDashboardContent() {
 
 export default function AdminDashboardPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center"><div className="w-8 h-8 border-2 border-[#ff1744] border-t-transparent rounded-full animate-spin" /></div>}>
+    <Suspense fallback={<BrandedLoader fullPage />}>
       <AdminDashboardContent />
     </Suspense>
   );

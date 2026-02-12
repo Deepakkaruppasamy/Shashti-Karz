@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Package, Plus, X, Trash2, Star, Power, Edit3, Sparkles, RefreshCw, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { AdminSidebar } from "@/components/AdminSidebar";
+import { BrandedLoader } from "@/components/animations/BrandedLoader";
 import type { Service } from "@/lib/types";
 
 interface ServicePackage {
@@ -247,13 +248,9 @@ export default function PackagesPage() {
             </div>
           </motion.div>
 
-          {/* Packages Display */}
           <div className="glass-card rounded-2xl lg:rounded-[2.5rem] p-4 lg:p-8 border border-white/5">
             {isLoading ? (
-              <div className="text-center py-20">
-                <div className="w-12 h-12 border-4 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-[10px] font-black uppercase tracking-widest text-[#444]">Syncing Matrix...</p>
-              </div>
+              <BrandedLoader className="py-20" />
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                 {packages.map((pkg) => (
@@ -463,6 +460,6 @@ export default function PackagesPage() {
           </div>
         )}
       </AnimatePresence>
-    </div>
+    </div >
   );
 }

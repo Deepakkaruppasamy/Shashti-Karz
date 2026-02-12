@@ -5,6 +5,7 @@ import { Send, Users, Calendar, TrendingUp, Eye, Plus, Sparkles, Brain, Zap, Tar
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
+import { BrandedLoader } from "@/components/animations/BrandedLoader";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Campaign {
@@ -225,9 +226,7 @@ export default function CampaignsAdminPage() {
                         </div>
 
                         {loading ? (
-                            <div className="text-center py-20">
-                                <div className="w-12 h-12 border-4 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                            </div>
+                            <BrandedLoader className="py-20" />
                         ) : campaigns.length === 0 ? (
                             <div className="text-center py-20 border-2 border-dashed border-white/5 rounded-3xl">
                                 <Activity size={48} className="mx-auto text-[#222] mb-4" />

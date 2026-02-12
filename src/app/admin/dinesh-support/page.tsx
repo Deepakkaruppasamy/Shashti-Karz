@@ -22,6 +22,7 @@ import {
     MessageCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { BrandedLoader } from "@/components/animations/BrandedLoader";
 import { toast } from "sonner";
 
 export default function DineshSupportPage() {
@@ -202,7 +203,7 @@ export default function DineshSupportPage() {
                             <h3 className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em] mb-8 px-2">Deployment Feed</h3>
                             <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
                                 {loading ? (
-                                    <div className="py-20 text-center"><TrendingUp className="animate-spin mx-auto text-[#222]" /></div>
+                                    <BrandedLoader className="py-20" />
                                 ) : activeTab === "support" ? (
                                     filteredSupport.map((req) => (
                                         <motion.div key={req.id} layout onClick={() => setSelectedSupport(req)} className={`p-6 rounded-3xl border transition-all cursor-pointer ${selectedSupport?.id === req.id ? "bg-purple-500/10 border-purple-500/50" : "bg-white/[0.02] border-white/5 hover:border-white/20"}`}>

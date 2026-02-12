@@ -6,6 +6,7 @@ import {
     Clock, TrendingUp, Search, Filter, RefreshCw, Layers
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { BrandedLoader } from "@/components/animations/BrandedLoader";
 import { createClient } from "@/lib/supabase/client";
 import { formatDistanceToNow } from "date-fns";
 
@@ -68,6 +69,8 @@ export default function AdminPulsePage() {
             default: return "bg-slate-500/20 text-slate-500 border-slate-500/30";
         }
     };
+
+    if (loading) return <BrandedLoader fullPage />;
 
     return (
         <div className="flex min-h-screen bg-[#0a0a0a] text-white">

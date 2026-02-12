@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 import { motion, AnimatePresence } from "framer-motion";
+import { BrandedLoader } from "@/components/animations/BrandedLoader";
 
 interface Customer {
     user_id: string;
@@ -135,17 +136,7 @@ export default function LTVAdminPage() {
     };
 
     if (loading) {
-        return (
-            <div className="flex min-h-screen bg-[#0a0a0a]">
-
-                <div className="flex-1 p-8 flex items-center justify-center">
-                    <div className="flex flex-col items-center gap-4">
-                        <div className="w-12 h-12 border-4 border-[#ff1744] border-t-transparent rounded-full animate-spin" />
-                        <p className="text-[#888] font-mono text-sm">Calculating customer value...</p>
-                    </div>
-                </div>
-            </div>
-        );
+        return <BrandedLoader fullPage />;
     }
 
     return (

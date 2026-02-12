@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MessageCircle, CheckCircle, XCircle, Eye, EyeOff, Trash2, Flag, Lock, Unlock, RefreshCw } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { BrandedLoader } from "@/components/animations/BrandedLoader";
 import { supabase } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 
@@ -252,10 +253,7 @@ export default function CommentsAdminPage() {
             {/* Comments List */}
             <div className="glass-card rounded-2xl p-6 border border-white/5">
                 {isLoading ? (
-                    <div className="text-center py-20">
-                        <div className="w-10 h-10 border-2 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                        <p className="text-[#888] text-sm">Loading comments...</p>
-                    </div>
+                    <BrandedLoader className="py-20" />
                 ) : comments.length === 0 ? (
                     <div className="text-center py-20 text-[#888]">
                         <MessageCircle size={48} className="mx-auto mb-4 opacity-20" />
@@ -269,8 +267,8 @@ export default function CommentsAdminPage() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 className={`p-4 rounded-xl border transition-colors ${comment.status === 'approved' ? 'bg-green-500/5 border-green-500/20' :
-                                        comment.status === 'pending' ? 'bg-yellow-500/5 border-yellow-500/20' :
-                                            'bg-red-500/5 border-red-500/20'
+                                    comment.status === 'pending' ? 'bg-yellow-500/5 border-yellow-500/20' :
+                                        'bg-red-500/5 border-red-500/20'
                                     }`}
                             >
                                 <div className="flex items-start justify-between gap-4">

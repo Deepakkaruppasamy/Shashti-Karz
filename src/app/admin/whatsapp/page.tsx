@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { MessageCircle, Send, Users, Clock, CheckCheck, Plus, Sparkles, AlertCircle, RefreshCw, X, ChevronRight, Activity } from "lucide-react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
+import { useSound } from "@/hooks/useSound";
 import { motion, AnimatePresence } from "framer-motion";
+import { BrandedLoader } from "@/components/animations/BrandedLoader";
 
 interface WhatsAppTemplate {
     id: string;
@@ -28,14 +30,21 @@ interface WhatsAppStats {
 
 export default function WhatsAppAdminPage() {
     const [stats, setStats] = useState<WhatsAppStats | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
     const [aiTemplatePrompt, setAiTemplatePrompt] = useState("");
     const [isAiGenerating, setIsAiGenerating] = useState(false);
     const [generatedTemplate, setGeneratedTemplate] = useState("");
     const [showBroadcastModal, setShowBroadcastModal] = useState(false);
+    const [historyLoading, setHistoryLoading] = useState(false);
+    const [broadcastHistory, setBroadcastHistory] = useState<any[]>([]);
+    const [activeTab, setActiveTab] = useState("templates");
+
 
     useEffect(() => {
         fetchWhatsAppData();
+        // Simulate loading settings
+        setTimeout(() => setIsLoading(false), 500);
     }, []);
 
     const fetchWhatsAppData = async () => {
@@ -52,7 +61,7 @@ export default function WhatsAppAdminPage() {
         } catch (error) {
             toast.error("Failed to load WhatsApp data");
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
@@ -87,6 +96,8 @@ export default function WhatsAppAdminPage() {
         }
     };
 
+    if (isLoading) return <BrandedLoader fullPage />;
+
     return (
         <div className="flex min-h-screen bg-[#0a0a0a] text-white">
             <div className="flex-1 overflow-auto pb-24 lg:pb-8">
@@ -113,25 +124,29 @@ export default function WhatsAppAdminPage() {
                     </div>
 
                     {/* Stats */}
-                    {stats && (
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                            {[
-                                { label: "Sent", value: stats.total_sent.toLocaleString(), icon: Send, color: "text-[#25D366]", bg: "bg-[#25D366]/10" },
-                                { label: "Delivered", value: `${stats.delivery_rate}%`, icon: CheckCheck, color: "text-green-500", bg: "bg-green-500/10" },
-                                { label: "Read", value: `${stats.read_rate}%`, icon: Clock, color: "text-blue-500", bg: "bg-blue-500/10" },
-                                { label: "Replied", value: `${stats.reply_rate}%`, icon: MessageCircle, color: "text-orange-500", bg: "bg-orange-500/10" },
-                            ].map((stat, i) => (
-                                <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="glass-card rounded-2xl p-4 lg:p-6 border border-white/5 flex items-center gap-4">
-                                    <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center shrink-0`}>
-                                        <stat.icon size={18} />
-                                    </div>
-                                    <div className="min-w-0">
-                                        <div className="text-lg lg:text-xl font-black tracking-tighter truncate">{stat.value}</div>
-                                        <div className="text-[8px] lg:text-[10px] font-black text-[#555] uppercase tracking-widest">{stat.label}</div>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </div>
+                    {historyLoading ? (
+                        <BrandedLoader className="py-20" />
+                    ) : broadcastHistory.length === 0 && !historyLoading && (
+                        stats && (
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                                {[
+                                    { label: "Sent", value: stats.total_sent.toLocaleString(), icon: Send, color: "text-[#25D366]", bg: "bg-[#25D366]/10" },
+                                    { label: "Delivered", value: `${stats.delivery_rate}%`, icon: CheckCheck, color: "text-green-500", bg: "bg-green-500/10" },
+                                    { label: "Read", value: `${stats.read_rate}%`, icon: Clock, color: "text-blue-500", bg: "bg-blue-500/10" },
+                                    { label: "Replied", value: `${stats.reply_rate}%`, icon: MessageCircle, color: "text-orange-500", bg: "bg-orange-500/10" },
+                                ].map((stat, i) => (
+                                    <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="glass-card rounded-2xl p-4 lg:p-6 border border-white/5 flex items-center gap-4">
+                                        <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center shrink-0`}>
+                                            <stat.icon size={18} />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <div className="text-lg lg:text-xl font-black tracking-tighter truncate">{stat.value}</div>
+                                            <div className="text-[8px] lg:text-[10px] font-black text-[#555] uppercase tracking-widest">{stat.label}</div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        )
                     )}
 
                     {/* AI Template Architect */}
@@ -179,10 +194,19 @@ export default function WhatsAppAdminPage() {
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="flex-1 flex flex-col items-center justify-center text-white/20 gap-2">
-                                            <Activity size={32} />
-                                            <p className="text-[10px] font-black uppercase">Awaiting Vector</p>
-                                        </div>
+                                        isLoading ? (
+                                            <BrandedLoader className="py-20" />
+                                        ) : activeTab === "support" ? (
+                                            <div className="flex-1 flex flex-col items-center justify-center text-white/20 gap-2">
+                                                <Activity size={32} />
+                                                <p className="text-[10px] font-black uppercase">Awaiting Vector</p>
+                                            </div>
+                                        ) : (
+                                            <div className="flex-1 flex flex-col items-center justify-center text-white/20 gap-2">
+                                                <Activity size={32} />
+                                                <p className="text-[10px] font-black uppercase">Awaiting Vector</p>
+                                            </div>
+                                        )
                                     )}
                                 </div>
                             </div>

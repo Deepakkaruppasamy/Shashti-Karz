@@ -4,6 +4,8 @@ import { useState } from "react";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Menu } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
+import { BrandedLoader } from "@/components/animations/BrandedLoader";
 
 export default function AdminLayout({
   children,
@@ -11,6 +13,11 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isLoading: authLoading } = useAuth();
+
+  if (authLoading) {
+    return <BrandedLoader fullPage />;
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex">

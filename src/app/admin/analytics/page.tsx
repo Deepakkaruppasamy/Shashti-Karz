@@ -11,6 +11,7 @@ import {
     Filter, Download, Calendar, RefreshCw
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { BrandedLoader } from "@/components/animations/BrandedLoader";
 import { toast } from "sonner";
 
 const COLORS = ['#ff1744', '#d4af37', '#2196F3', '#4CAF50', '#9C27B0'];
@@ -38,14 +39,7 @@ export default function GlobalAnalyticsPage() {
     }, []);
 
     if (loading) {
-        return (
-            <div className="flex h-screen items-center justify-center bg-[#0a0a0a]">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-16 h-16 border-4 border-[#ff1744] border-t-transparent rounded-full animate-spin" />
-                    <p className="text-[#888] font-black uppercase tracking-[0.3em] text-xs">Syncing Global Intelligence...</p>
-                </div>
-            </div>
-        );
+        return <BrandedLoader fullPage />;
     }
 
     return (

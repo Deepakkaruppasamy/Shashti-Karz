@@ -20,6 +20,7 @@ import {
 
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { BrandedLoader } from "@/components/animations/BrandedLoader";
 import type { PricingRule } from "@/lib/types";
 
 export default function PricingRulesPage() {
@@ -228,10 +229,7 @@ export default function PricingRulesPage() {
                 </div>
 
                 {isLoading ? (
-                  <div className="text-center py-20">
-                    <div className="w-12 h-12 border-4 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-[10px] font-black uppercase tracking-widest text-[#222]">Syncing Rules...</p>
-                  </div>
+                  <BrandedLoader className="py-20" />
                 ) : (
                   <div className="space-y-3 lg:space-y-4">
                     {rules.map((rule) => {

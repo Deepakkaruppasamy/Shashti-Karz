@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
+import { BrandedLoader } from "@/components/animations/BrandedLoader";
 import { toast } from "sonner";
 import { Ad } from "@/lib/types";
 
@@ -163,10 +164,7 @@ export default function AdsAdminPage() {
                     {/* Main Content */}
                     <div className="glass-card rounded-2xl lg:rounded-[2.5rem] p-4 lg:p-8 border border-white/5">
                         {loading ? (
-                            <div className="text-center py-24">
-                                <div className="w-12 h-12 border-4 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                                <p className="text-[10px] font-black uppercase tracking-widest text-[#222]">Initializing Matrix...</p>
-                            </div>
+                            <BrandedLoader className="py-24" />
                         ) : ads.length === 0 ? (
                             <div className="text-center py-20 border-2 border-dashed border-white/5 rounded-3xl">
                                 <FileVideo size={48} className="mx-auto text-[#222] mb-4" />
