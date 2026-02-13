@@ -249,6 +249,13 @@ export default function ServicesPage() {
   if (loading) return <BrandedLoader fullPage />;
 
   const filteredServices = services.filter((service) => {
+    // Exclude packages from the services catalog
+    const packageIds = ['basic', 'premium', 'ultimate'];
+    const packageNames = ['Basic Wash', 'Ultimate Protection', 'Premium Detail'];
+    const isPackage = packageIds.includes(service.id) || packageNames.includes(service.name);
+
+    if (isPackage) return false;
+
     if (filter === "popular") return service.popular || service.is_popular;
     if (filter === "premium") return service.premium || service.is_premium;
     return service.active !== false; // Only show active services
