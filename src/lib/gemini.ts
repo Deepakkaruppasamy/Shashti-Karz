@@ -1,6 +1,6 @@
 export async function chatWithGemini(messages: any[], systemPrompt: string) {
   const apiKey = process.env.GEMINI_API_KEY;
-  const model = "gemini-2.5-flash";
+  const model = "gemini-1.5-flash";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   const history = messages.slice(0, -1).map((m: any) => ({

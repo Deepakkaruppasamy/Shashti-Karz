@@ -9,7 +9,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { FloatingButtons } from "@/components/FloatingButtons";
 import { AIChatbot } from "@/components/AIChatbot";
-import { services, carTypes } from "@/lib/data";
+import { useAppSettings } from "@/hooks/useAppSettings";
 import { ShimmerCard } from "@/components/animations/AdvancedShimmer";
 import { MorphingCard } from "@/components/animations/MorphingCard";
 import { LiquidButton } from "@/components/animations/LiquidButton";
@@ -17,8 +17,9 @@ import { ServiceComments } from "@/components/ServiceComments";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase/client";
 import { toast } from "react-hot-toast";
+import { BrandedLoader } from "@/components/animations/BrandedLoader";
 
-function ServiceCard({ service, index }: { service: typeof services[0]; index: number }) {
+function ServiceCard({ service, carTypes, index }: { service: any; carTypes: any[]; index: number }) {
   const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState<"details" | "comments">("details");
   const { user } = useAuth();
@@ -98,18 +99,18 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
         >
           <div className="relative h-56 overflow-hidden">
             <Image
-              src={service.image}
+              src={service.image_url || service.image} // Fallback for old data structure
               alt={service.name}
               fill
               className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-transparent to-transparent" />
-            {service.popular && (
+            {(service.popular || service.is_popular) && (
               <span className="absolute top-4 left-4 px-3 py-1 bg-[#ff1744] rounded-full text-xs font-semibold">
                 Most Popular
               </span>
             )}
-            {service.premium && (
+            {(service.premium || service.is_premium) && (
               <span className="absolute top-4 left-4 px-3 py-1 bg-gradient-to-r from-[#d4af37] to-[#ffd700] text-black rounded-full text-xs font-semibold">
                 Premium
               </span>
@@ -120,7 +121,7 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
             </div>
             <div className="absolute bottom-4 left-4 right-4">
               <h3 className="text-2xl font-bold font-display">{service.name}</h3>
-              <p className="text-[#aaa] text-sm mt-1">{service.shortDesc}</p>
+              <p className="text-[#aaa] text-sm mt-1">{service.shortDesc || service.short_desc}</p>
             </div>
           </div>
 
@@ -152,7 +153,7 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
                 {carTypes.slice(0, 4).map((car) => (
                   <div key={car.id} className="flex items-center justify-between bg-white/5 rounded-lg px-3 py-2">
                     <span className="text-xs text-[#888]">{car.name}</span>
-                    <span className="text-sm font-semibold">₹{Math.round(service.price * car.priceMultiplier).toLocaleString()}</span>
+                    <span className="text-sm font-semibold">₹{Math.round(service.price * (car.priceMultiplier || car.price_multiplier || 1)).toLocaleString()}</span>
                   </div>
                 ))}
               </div>
@@ -195,7 +196,7 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
                     <div>
                       <h4 className="text-sm font-semibold mb-2">What&apos;s Included:</h4>
                       <ul className="space-y-2">
-                        {service.steps.map((step, i) => (
+                        {service.steps.map((step: string, i: number) => (
                           <li key={i} className="flex items-start gap-2 text-sm text-[#888]">
                             <Check size={16} className="text-[#ff1744] shrink-0 mt-0.5" />
                             {step}
@@ -206,7 +207,7 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
                     <div>
                       <h4 className="text-sm font-semibold mb-2">Benefits:</h4>
                       <ul className="space-y-2">
-                        {service.benefits.map((benefit, i) => (
+                        {service.benefits.map((benefit: string, i: number) => (
                           <li key={i} className="flex items-start gap-2 text-sm text-[#888]">
                             <Star size={14} className="text-[#d4af37] shrink-0 mt-0.5" />
                             {benefit}
@@ -242,12 +243,15 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
 }
 
 export default function ServicesPage() {
+  const { services, carTypes, loading } = useAppSettings();
   const [filter, setFilter] = useState<"all" | "popular" | "premium">("all");
 
+  if (loading) return <BrandedLoader fullPage />;
+
   const filteredServices = services.filter((service) => {
-    if (filter === "popular") return service.popular;
-    if (filter === "premium") return service.premium;
-    return true;
+    if (filter === "popular") return service.popular || service.is_popular;
+    if (filter === "premium") return service.premium || service.is_premium;
+    return service.active !== false; // Only show active services
   });
 
   return (
@@ -309,7 +313,7 @@ export default function ServicesPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredServices.map((service, i) => (
-              <ServiceCard key={service.id} service={service} index={i} />
+              <ServiceCard key={service.id} service={service} carTypes={carTypes} index={i} />
             ))}
           </div>
         </div>

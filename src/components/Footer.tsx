@@ -3,9 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Phone, Mail, Clock, Instagram, Facebook, Youtube } from "lucide-react";
-import { businessInfo } from "@/lib/data";
+import { useAppSettings } from "@/hooks/useAppSettings";
 
 export function Footer() {
+  const { businessInfo } = useAppSettings();
   return (
     <footer className="bg-[#0a0a0a] border-t border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">

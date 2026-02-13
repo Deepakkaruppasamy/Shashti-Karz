@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Monitor, Car, Clock, CheckCircle2, Sparkles, Users, Calendar, RefreshCw } from "lucide-react";
-import { businessInfo } from "@/lib/data";
+import { useAppSettings } from "@/hooks/useAppSettings";
 
 interface QueueItem {
   id: string;
@@ -22,6 +22,7 @@ export default function QueueDisplayPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const { businessInfo } = useAppSettings();
 
   useEffect(() => {
     loadQueue();
@@ -128,16 +129,14 @@ export default function QueueDisplayPage() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className={`p-6 rounded-2xl ${
-                          index === 0
+                        className={`p-6 rounded-2xl ${index === 0
                             ? "bg-gradient-to-r from-[#ff1744]/20 to-[#d4af37]/20 border-2 border-[#ff1744]/50"
                             : "bg-white/5"
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center gap-6">
-                          <div className={`w-20 h-20 rounded-2xl flex items-center justify-center ${
-                            index === 0 ? "bg-gradient-to-br from-[#ff1744] to-[#d4af37]" : "bg-white/10"
-                          }`}>
+                          <div className={`w-20 h-20 rounded-2xl flex items-center justify-center ${index === 0 ? "bg-gradient-to-br from-[#ff1744] to-[#d4af37]" : "bg-white/10"
+                            }`}>
                             <Sparkles size={36} className="text-white" />
                           </div>
                           <div className="flex-1">
@@ -146,11 +145,10 @@ export default function QueueDisplayPage() {
                             <p className="text-sm text-[#666] mt-1">#{item.booking_id}</p>
                           </div>
                           <div className="text-right">
-                            <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${
-                              index === 0
+                            <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${index === 0
                                 ? "bg-[#ff1744] text-white animate-pulse"
                                 : "bg-green-500/20 text-green-500"
-                            }`}>
+                              }`}>
                               <CheckCircle2 size={16} />
                               {index === 0 ? "In Progress" : "Queued"}
                             </span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { SupportRequest, CustomerFeedbackDinesh } from "@/lib/types";
 import {
@@ -24,6 +24,16 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { BrandedLoader } from "@/components/animations/BrandedLoader";
 import { toast } from "sonner";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
+
+interface SupportMessage {
+    id: string;
+    request_id: string;
+    sender: 'user' | 'admin' | 'system';
+    message: string;
+    created_at: string;
+    read: boolean;
+}
 
 export default function DineshSupportPage() {
     const [activeTab, setActiveTab] = useState<"support" | "feedback">("support");
@@ -31,76 +41,138 @@ export default function DineshSupportPage() {
     const [feedbackList, setFeedbackList] = useState<CustomerFeedbackDinesh[]>([]);
     const [selectedSupport, setSelectedSupport] = useState<SupportRequest | null>(null);
     const [selectedFeedback, setSelectedFeedback] = useState<CustomerFeedbackDinesh | null>(null);
+    const [messages, setMessages] = useState<SupportMessage[]>([]);
     const [responseText, setResponseText] = useState("");
     const [adminNotes, setAdminNotes] = useState("");
     const [filterStatus, setFilterStatus] = useState<string>("all");
     const [searchTerm, setSearchTerm] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [sending, setSending] = useState(false);
 
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const supabase = createClient();
+
+    // Initial Load
     useEffect(() => {
         loadData();
-    }, [activeTab, filterStatus]);
+    }, []);
+
+    // Scroll to bottom of chat
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages, selectedSupport]);
+
+    // Load messages when selecting a ticket
+    useEffect(() => {
+        if (selectedSupport) {
+            loadMessages(selectedSupport.id);
+        } else {
+            setMessages([]);
+        }
+    }, [selectedSupport]);
 
     const loadData = async () => {
         setLoading(true);
-        const supabase = createClient();
+        try {
+            const [supportRes, feedbackRes] = await Promise.all([
+                supabase.from("support_requests").select("*").order("created_at", { ascending: false }),
+                supabase.from("customer_feedback_dinesh").select("*").order("created_at", { ascending: false })
+            ]);
 
-        if (activeTab === "support") {
-            let query = supabase
-                .from("support_requests")
-                .select("*")
-                .order("created_at", { ascending: false });
-
-            if (filterStatus !== "all") query = query.eq("status", filterStatus);
-
-            const { data, error } = await query;
-            if (!error && data) setSupportRequests(data as SupportRequest[]);
-        } else {
-            let query = supabase
-                .from("customer_feedback_dinesh")
-                .select("*")
-                .order("created_at", { ascending: false });
-
-            if (filterStatus !== "all") query = query.eq("status", filterStatus);
-
-            const { data, error } = await query;
-            if (!error && data) setFeedbackList(data as CustomerFeedbackDinesh[]);
+            if (supportRes.data) setSupportRequests(supportRes.data as SupportRequest[]);
+            if (feedbackRes.data) setFeedbackList(feedbackRes.data as CustomerFeedbackDinesh[]);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
+
+    const loadMessages = async (requestId: string) => {
+        const { data } = await supabase
+            .from("support_messages")
+            .select("*")
+            .eq("request_id", requestId)
+            .order("created_at", { ascending: true });
+
+        if (data) setMessages(data as SupportMessage[]);
+    };
+
+    // Real-time Subscriptions
+    useRealtimeSubscription<SupportRequest>({
+        table: 'support_requests',
+        onInsert: (newReq) => {
+            setSupportRequests(prev => [newReq, ...prev]);
+            toast.info(`New Ticket: ${newReq.subject}`);
+        },
+        onUpdate: (updatedReq) => {
+            setSupportRequests(prev => prev.map(req => req.id === updatedReq.id ? updatedReq : req));
+            if (selectedSupport?.id === updatedReq.id) {
+                setSelectedSupport(updatedReq); // Update selected view
+            }
+        }
+    });
+
+    useRealtimeSubscription<CustomerFeedbackDinesh>({
+        table: 'customer_feedback_dinesh',
+        onInsert: (newFeedback) => {
+            setFeedbackList(prev => [newFeedback, ...prev]);
+            toast.success(`New Feedback from ${newFeedback.customer_name}`);
+        },
+        onUpdate: (updatedFeedback) => {
+            setFeedbackList(prev => prev.map(fb => fb.id === updatedFeedback.id ? updatedFeedback : fb));
+        }
+    });
+
+    // Subscribe to messages for the active ticket
+    useRealtimeSubscription<SupportMessage>({
+        table: 'support_messages',
+        filter: selectedSupport ? `request_id=eq.${selectedSupport.id}` : undefined,
+        onInsert: (newMsg) => {
+            // Only add if not already present (dedup)
+            setMessages(prev => {
+                if (prev.some(m => m.id === newMsg.id)) return prev;
+                return [...prev, newMsg];
+            });
+        }
+    });
 
     const handleSupportResponse = async () => {
         if (!selectedSupport || !responseText.trim()) return;
+        setSending(true);
 
-        const supabase = createClient();
-        const { error } = await supabase
-            .from("support_requests")
-            .update({
-                admin_response: responseText,
-                status: "resolved",
-                conversation_history: [
-                    ...(selectedSupport.conversation_history || []),
-                    {
-                        sender: "admin" as const,
-                        message: responseText,
-                        timestamp: new Date().toISOString(),
-                    },
-                ],
-            })
-            .eq("id", selectedSupport.id);
+        try {
+            // 1. Insert message
+            const { error: msgError } = await supabase
+                .from("support_messages")
+                .insert({
+                    request_id: selectedSupport.id,
+                    sender: 'admin',
+                    message: responseText,
+                    read: false
+                });
 
-        if (!error) {
-            toast.success("Response dispatched");
+            if (msgError) throw msgError;
+
+            // 2. Update status if needed
+            if (selectedSupport.status !== 'resolved' && selectedSupport.status !== 'pending') {
+                await supabase
+                    .from("support_requests")
+                    .update({ status: "pending", admin_response: responseText }) // pending user reply
+                    .eq("id", selectedSupport.id);
+            }
+
             setResponseText("");
-            setSelectedSupport(null);
-            loadData();
+            toast.success("Message sent");
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to send message");
+        } finally {
+            setSending(false);
         }
     };
 
     const handleFeedbackReview = async (status: string) => {
         if (!selectedFeedback) return;
 
-        const supabase = createClient();
         const { error } = await supabase
             .from("customer_feedback_dinesh")
             .update({
@@ -114,7 +186,6 @@ export default function DineshSupportPage() {
             toast.success(`Feedback status: ${status}`);
             setAdminNotes("");
             setSelectedFeedback(null);
-            loadData();
         }
     };
 
@@ -128,15 +199,21 @@ export default function DineshSupportPage() {
         }
     };
 
-    const filteredSupport = supportRequests.filter(req =>
-        req.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        req.subject.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredSupport = supportRequests.filter(req => {
+        if (filterStatus !== "all" && req.status !== filterStatus) return false;
+        return (
+            req.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            req.subject.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    });
 
-    const filteredFeedback = feedbackList.filter(fb =>
-        fb.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        fb.message.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredFeedback = feedbackList.filter(fb => {
+        if (filterStatus !== "all" && fb.status !== filterStatus) return false;
+        return (
+            fb.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            fb.message.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    });
 
     return (
         <div className="flex min-h-screen bg-[#0a0a0a] text-white">
@@ -151,7 +228,7 @@ export default function DineshSupportPage() {
                             </h1>
                             <p className="text-[#888] mt-1 flex items-center gap-2 text-sm">
                                 <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
-                                Dinesh Voice Assistant Inquiries
+                                Real-time User Inquiries
                             </p>
                         </div>
                         <div className="flex p-1 glass-card rounded-2xl border border-white/5 bg-white/5">
@@ -199,10 +276,10 @@ export default function DineshSupportPage() {
 
                     {/* Feed */}
                     <div className="grid lg:grid-cols-2 gap-8 items-start">
-                        <div className="glass-card rounded-[2.5rem] p-4 lg:p-8 border border-white/5">
-                            <h3 className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em] mb-8 px-2">Deployment Feed</h3>
-                            <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                                {loading ? (
+                        <div className="glass-card rounded-[2.5rem] p-4 lg:p-8 border border-white/5 h-[600px] flex flex-col">
+                            <h3 className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em] mb-4 px-2">Deployment Feed</h3>
+                            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-4">
+                                {loading && supportRequests.length === 0 ? (
                                     <BrandedLoader className="py-20" />
                                 ) : activeTab === "support" ? (
                                     filteredSupport.map((req) => (
@@ -237,34 +314,52 @@ export default function DineshSupportPage() {
                         </div>
 
                         {/* Inspector */}
-                        <div className="glass-card rounded-[2.5rem] p-6 lg:p-10 border border-white/5 relative min-h-[400px]">
+                        <div className="glass-card rounded-[2.5rem] p-6 lg:p-10 border border-white/5 relative min-h-[600px] flex flex-col">
                             <AnimatePresence mode="wait">
                                 {selectedSupport ? (
-                                    <motion.div key="support-detail" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
-                                        <div className="flex justify-between items-start">
-                                            <h2 className="text-2xl font-black tracking-tighter">Vector Analysis</h2>
+                                    <motion.div key="support-detail" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col h-full">
+                                        <div className="flex justify-between items-start mb-6">
+                                            <h2 className="text-2xl font-black tracking-tighter">Live Chat</h2>
                                             <button onClick={() => setSelectedSupport(null)} className="p-2 bg-white/5 rounded-xl"><X size={18} /></button>
                                         </div>
-                                        <div className="space-y-6">
-                                            <div className="grid grid-cols-2 gap-6 bg-white/[0.02] p-6 rounded-3xl border border-white/5">
-                                                <div>
-                                                    <label className="text-[8px] font-black text-[#555] uppercase tracking-widest block mb-1">Subject</label>
-                                                    <p className="text-xs font-bold text-purple-400">{selectedSupport.subject}</p>
-                                                </div>
-                                                <div>
-                                                    <label className="text-[8px] font-black text-[#555] uppercase tracking-widest block mb-1">Status</label>
-                                                    <p className="text-xs font-bold uppercase">{selectedSupport.status}</p>
+
+                                        {/* Messages Area */}
+                                        <div className="flex-1 bg-black/20 rounded-3xl border border-white/5 p-4 mb-4 overflow-y-auto space-y-4">
+                                            {/* Original Ticket */}
+                                            <div className="flex justify-start">
+                                                <div className="bg-white/10 rounded-2xl rounded-tl-sm p-4 max-w-[80%]">
+                                                    <p className="text-[10px] font-black text-purple-400 uppercase mb-1">{selectedSupport.customer_name} • Ticket</p>
+                                                    <p className="text-sm">{selectedSupport.message}</p>
                                                 </div>
                                             </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[8px] font-black text-[#555] uppercase tracking-widest block">Payload context</label>
-                                                <div className="p-6 rounded-3xl bg-black/40 border border-white/5 text-xs leading-relaxed text-[#888]">{selectedSupport.message}</div>
-                                            </div>
-                                            <div className="space-y-4">
-                                                <label className="text-[10px] font-black uppercase tracking-widest ml-1">Admin Response</label>
-                                                <textarea value={responseText} onChange={(e) => setResponseText(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm outline-none focus:border-purple-500 h-32 resize-none" placeholder="Draft resolution message..." />
-                                                <button onClick={handleSupportResponse} className="w-full btn-premium py-5 rounded-2xl text-white font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3">
-                                                    <Send size={18} /> Deploy Resolution
+
+                                            {/* Chat History */}
+                                            {messages.map((msg) => (
+                                                <div key={msg.id} className={`flex ${msg.sender === 'admin' ? 'justify-end' : 'justify-start'}`}>
+                                                    <div className={`rounded-2xl p-4 max-w-[80%] ${msg.sender === 'admin' ? 'bg-purple-600 rounded-tr-sm' : 'bg-white/10 rounded-tl-sm'}`}>
+                                                        <p className="text-[10px] font-black uppercase mb-1 opacity-50">{msg.sender === 'admin' ? 'You' : 'User'}</p>
+                                                        <p className="text-sm">{msg.message}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            <div ref={messagesEndRef} />
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <div className="relative">
+                                                <input
+                                                    value={responseText}
+                                                    onChange={(e) => setResponseText(e.target.value)}
+                                                    onKeyDown={(e) => e.key === 'Enter' && handleSupportResponse()}
+                                                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-5 pr-12 py-4 text-sm outline-none focus:border-purple-500"
+                                                    placeholder="Type message..."
+                                                />
+                                                <button
+                                                    onClick={handleSupportResponse}
+                                                    disabled={sending || !responseText.trim()}
+                                                    className="absolute right-2 top-2 p-2 bg-purple-600 rounded-xl text-white hover:bg-purple-500 transition-colors disabled:opacity-50"
+                                                >
+                                                    <Send size={16} />
                                                 </button>
                                             </div>
                                         </div>

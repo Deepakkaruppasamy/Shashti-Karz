@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Trophy, Medal, Ribbon, Crown, Star, TrendingUp, Users } from "lucide-react";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 interface LeaderboardEntry {
     user_id: string;
@@ -25,6 +26,13 @@ export function Leaderboard() {
     useEffect(() => {
         fetchLeaderboard();
     }, []);
+
+    // Real-time updates for leaderboard
+    useRealtimeSubscription({
+        table: 'points_transactions',
+        onInsert: () => fetchLeaderboard(),
+        onUpdate: () => fetchLeaderboard(),
+    });
 
     const fetchLeaderboard = async () => {
         try {

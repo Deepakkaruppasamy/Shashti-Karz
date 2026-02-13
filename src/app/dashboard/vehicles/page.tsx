@@ -10,9 +10,9 @@ import { Footer } from "@/components/Footer";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import type { UserVehicle } from "@/lib/types";
-import { carTypes } from "@/lib/data";
 import { BrandedLoader, FullPageLoader } from "@/components/animations/CarLoader";
 import { Brain } from "lucide-react";
+import { useAppSettings } from "@/hooks/useAppSettings";
 
 export default function VehiclesPage() {
   const router = useRouter();
@@ -20,6 +20,7 @@ export default function VehiclesPage() {
   const [vehicles, setVehicles] = useState<UserVehicle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const { carTypes } = useAppSettings();
   const [editingVehicle, setEditingVehicle] = useState<UserVehicle | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<UserVehicle | null>(null);
   const [vehicleHistory, setVehicleHistory] = useState<any>(null);

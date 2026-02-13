@@ -2,8 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { Calendar, Clock, MapPin, DollarSign, Star, MoreVertical, AlertCircle } from "lucide-react";
+import { Calendar, Clock, MapPin, DollarSign, Star, MoreVertical, AlertCircle, RefreshCw } from "lucide-react";
 import Link from "next/link";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
+import { RescheduleModal } from "@/components/RescheduleModal";
+import { ReviewModal } from "@/components/ReviewModal";
+import { BrandedLoader } from "@/components/animations/BrandedLoader";
 
 interface Booking {
     id: string;
@@ -23,11 +27,25 @@ export default function MyBookingsPage() {
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<"all" | "upcoming" | "completed">("all");
 
+    // Modal State
+    const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+    const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
+    const [isReviewOpen, setIsReviewOpen] = useState(false);
+
     useEffect(() => {
         if (user) {
             fetchBookings();
         }
     }, [user]);
+
+    // Real-time subscription for bookings
+    useRealtimeSubscription({
+        table: 'bookings',
+        filter: user ? `user_id=eq.${user.id}` : undefined,
+        onInsert: () => fetchBookings(),
+        onUpdate: () => fetchBookings(),
+        onDelete: () => fetchBookings(),
+    });
 
     const fetchBookings = async () => {
         try {
@@ -39,6 +57,16 @@ export default function MyBookingsPage() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleReschedule = (booking: Booking) => {
+        setSelectedBooking(booking);
+        setIsRescheduleOpen(true);
+    };
+
+    const handleReview = (booking: Booking) => {
+        setSelectedBooking(booking);
+        setIsReviewOpen(true);
     };
 
     const getStatusColor = (status: string) => {
@@ -54,7 +82,7 @@ export default function MyBookingsPage() {
 
     const filteredBookings = bookings.filter((booking) => {
         if (filter === "upcoming") {
-            return booking.status === "pending" || booking.status === "confirmed";
+            return booking.status === "pending" || booking.status === "confirmed" || booking.status === "in_progress";
         }
         if (filter === "completed") {
             return booking.status === "completed";
@@ -86,51 +114,39 @@ export default function MyBookingsPage() {
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 pt-24 pb-12 px-4">
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-2">My Bookings</h1>
-                    <p className="text-gray-600">
-                        Hello, <strong>{profile?.full_name || "Customer"}</strong>! Here are all your bookings.
-                    </p>
+                <div className="mb-8 flex justify-between items-end">
+                    <div>
+                        <h1 className="text-4xl font-bold text-gray-900 mb-2">My Bookings</h1>
+                        <p className="text-gray-600">
+                            Hello, <strong>{profile?.full_name || "Customer"}</strong>!
+                        </p>
+                    </div>
+                    {/* Live Indicator */}
+                    <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase tracking-wider animate-pulse">
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        Live Updates
+                    </div>
                 </div>
 
                 {/* Filters */}
                 <div className="flex gap-4 mb-8 bg-white p-2 rounded-2xl shadow-lg w-fit">
-                    <button
-                        onClick={() => setFilter("all")}
-                        className={`px-6 py-3 rounded-xl font-semibold transition-all ${filter === "all"
+                    {(["all", "upcoming", "completed"] as const).map((t) => (
+                        <button
+                            key={t}
+                            onClick={() => setFilter(t)}
+                            className={`px-6 py-3 rounded-xl font-semibold capitalize transition-all ${filter === t
                                 ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
                                 : "text-gray-600 hover:bg-gray-100"
-                            }`}
-                    >
-                        All ({bookings.length})
-                    </button>
-                    <button
-                        onClick={() => setFilter("upcoming")}
-                        className={`px-6 py-3 rounded-xl font-semibold transition-all ${filter === "upcoming"
-                                ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
-                                : "text-gray-600 hover:bg-gray-100"
-                            }`}
-                    >
-                        Upcoming (
-                        {bookings.filter((b) => b.status === "pending" || b.status === "confirmed").length})
-                    </button>
-                    <button
-                        onClick={() => setFilter("completed")}
-                        className={`px-6 py-3 rounded-xl font-semibold transition-all ${filter === "completed"
-                                ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
-                                : "text-gray-600 hover:bg-gray-100"
-                            }`}
-                    >
-                        Completed ({bookings.filter((b) => b.status === "completed").length})
-                    </button>
+                                }`}
+                        >
+                            {t}
+                        </button>
+                    ))}
                 </div>
 
                 {/* Bookings List */}
                 {loading ? (
-                    <div className="text-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mx-auto"></div>
-                        <p className="mt-4 text-gray-600">Loading bookings...</p>
-                    </div>
+                    <BrandedLoader />
                 ) : filteredBookings.length === 0 ? (
                     <div className="bg-white rounded-3xl p-12 text-center shadow-lg">
                         <AlertCircle className="mx-auto mb-4 text-gray-400" size={64} />
@@ -154,63 +170,77 @@ export default function MyBookingsPage() {
                                 key={booking.id}
                                 className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-blue-200"
                             >
-                                <div className="flex items-start justify-between">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                                     <div className="flex-1">
-                                        {/* Service Name */}
-                                        <h3 className="text-xl font-bold text-gray-900 mb-3">
-                                            {booking.service_name}
-                                        </h3>
-
-                                        {/* Details Grid */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                            <div className="flex items-center gap-3 text-gray-600">
-                                                <Calendar size={18} className="text-blue-600" />
-                                                <span>{new Date(booking.booking_date).toLocaleDateString()}</span>
-                                            </div>
-                                            <div className="flex items-center gap-3 text-gray-600">
-                                                <Clock size={18} className="text-purple-600" />
-                                                <span>{booking.time_slot}</span>
-                                            </div>
-                                            <div className="flex items-center gap-3 text-gray-600">
-                                                <MapPin size={18} className="text-green-600" />
-                                                <span className="truncate">{booking.location}</span>
-                                            </div>
-                                            <div className="flex items-center gap-3 text-gray-600">
-                                                <DollarSign size={18} className="text-yellow-600" />
-                                                <span className="font-semibold">₹{booking.total_amount}</span>
-                                            </div>
-                                        </div>
-
                                         {/* Status Badges */}
-                                        <div className="flex gap-3">
+                                        <div className="flex gap-2 mb-3">
                                             <span
-                                                className={`px-4 py-1.5 rounded-full text-xs font-semibold border ${getStatusColor(
+                                                className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${getStatusColor(
                                                     booking.status
                                                 )}`}
                                             >
-                                                {booking.status.replace("_", " ").toUpperCase()}
+                                                {booking.status.replace("_", " ")}
                                             </span>
                                             <span
-                                                className={`px-4 py-1.5 rounded-full text-xs font-semibold ${booking.payment_status === "paid"
-                                                        ? "bg-green-100 text-green-800"
-                                                        : "bg-orange-100 text-orange-800"
+                                                className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${booking.payment_status === "paid"
+                                                    ? "bg-green-100 text-green-800"
+                                                    : "bg-orange-100 text-orange-800"
                                                     }`}
                                             >
                                                 {booking.payment_status === "paid" ? "PAID" : "PENDING PAYMENT"}
                                             </span>
                                         </div>
+
+                                        {/* Service Name */}
+                                        <h3 className="text-xl font-bold text-gray-900 mb-4">
+                                            {booking.service_name}
+                                        </h3>
+
+                                        {/* Details Grid */}
+                                        <div className="grid grid-cols-2 gap-y-2 gap-x-8 text-sm">
+                                            <div className="flex items-center gap-3 text-gray-600">
+                                                <Calendar size={16} className="text-blue-600" />
+                                                <span className="font-medium">{new Date(booking.booking_date).toLocaleDateString()}</span>
+                                            </div>
+                                            <div className="flex items-center gap-3 text-gray-600">
+                                                <Clock size={16} className="text-purple-600" />
+                                                <span className="font-medium">{booking.time_slot}</span>
+                                            </div>
+                                            <div className="flex items-center gap-3 text-gray-600">
+                                                <MapPin size={16} className="text-green-600" />
+                                                <span className="truncate font-medium">{booking.location}</span>
+                                            </div>
+                                            <div className="flex items-center gap-3 text-gray-600">
+                                                <DollarSign size={16} className="text-yellow-600" />
+                                                <span className="font-bold">₹{booking.total_amount}</span>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     {/* Actions */}
-                                    <div className="flex flex-col gap-2 ml-4">
+                                    <div className="flex md:flex-col gap-3 shrink-0">
                                         <Link
-                                            href={`/bookings/${booking.id}`}
-                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium text-center"
+                                            href={`/booking?id=${booking.id}`} // Assuming redirect to re-book or similar if detailed view is missing
+                                            className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors text-sm font-bold text-center"
                                         >
-                                            View Details
+                                            View
                                         </Link>
+
+                                        {(booking.status === 'pending' || booking.status === 'confirmed') && (
+                                            <button
+                                                onClick={() => handleReschedule(booking)}
+                                                className="px-6 py-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors text-sm font-bold flex items-center justify-center gap-2"
+                                            >
+                                                <RefreshCw size={16} />
+                                                Reschedule
+                                            </button>
+                                        )}
+
                                         {booking.status === "completed" && (
-                                            <button className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors text-sm font-medium flex items-center gap-2">
+                                            <button
+                                                onClick={() => handleReview(booking)}
+                                                className="px-6 py-2.5 bg-yellow-50 text-yellow-600 rounded-xl hover:bg-yellow-100 transition-colors text-sm font-bold flex items-center justify-center gap-2"
+                                            >
                                                 <Star size={16} />
                                                 Review
                                             </button>
@@ -236,6 +266,29 @@ export default function MyBookingsPage() {
                     </Link>
                 </div>
             </div>
+
+            {/* Modals */}
+            {selectedBooking && selectedBooking && (
+                <>
+                    <RescheduleModal
+                        booking={selectedBooking}
+                        isOpen={isRescheduleOpen}
+                        onClose={() => setIsRescheduleOpen(false)}
+                        onSuccess={() => {
+                            // Realtime will catch the update, but we can optimistically refresh too
+                            fetchBookings();
+                        }}
+                    />
+                    <ReviewModal
+                        booking={selectedBooking}
+                        isOpen={isReviewOpen}
+                        onClose={() => setIsReviewOpen(false)}
+                        onSuccess={() => {
+                            // Refresh logic if needed
+                        }}
+                    />
+                </>
+            )}
         </div>
     );
 }

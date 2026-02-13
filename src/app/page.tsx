@@ -10,6 +10,7 @@ import { FloatingButtons } from "@/components/FloatingButtons";
 import { Ad } from "@/lib/types";
 import { useState, useEffect, useRef, useMemo } from "react";
 import type { Service, Review, Offer } from "@/lib/types";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 import { ScrollReveal, StaggerContainer, StaggerItem } from "@/components/animations/ScrollReveal";
 import { AnimatedCounter } from "@/components/animations/AnimatedCounter";
 import { ScrollProgress } from "@/components/animations/ParallaxSection";
@@ -322,6 +323,23 @@ export default function HomePage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const fetchReviews = async () => {
+    try {
+      const res = await fetch("/api/reviews");
+      const data = await res.json();
+      setReviews(data || []);
+    } catch (e) {
+      console.error("Error fetching reviews:", e);
+    }
+  };
+
+  useRealtimeSubscription({
+    table: 'reviews',
+    onInsert: () => fetchReviews(), // New approved review
+    onUpdate: () => fetchReviews(), // Review status changed
+    onDelete: () => fetchReviews(), // Review deleted
+  });
 
   useEffect(() => {
     let mounted = true;

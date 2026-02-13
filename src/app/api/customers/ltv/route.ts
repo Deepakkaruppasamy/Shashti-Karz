@@ -56,13 +56,23 @@ export async function GET(request: NextRequest) {
         const { data, error } = await query;
 
         if (error) {
+            // Check if error is due to missing table
+            if (error.code === '42P01') { // Postgres code for undefined table
+                console.warn("LTV table missing, returning empty data. Please run sql/customer_ltv.sql");
+                return NextResponse.json({ customers: [], segments: [] });
+            }
+            console.error("Supabase error:", error);
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
         // Get segment summary
-        const { data: segments } = await supabase
+        const { data: segments, error: segmentsError } = await supabase
             .from("customer_segments")
             .select("*");
+
+        if (segmentsError && segmentsError.code === '42P01') {
+            return NextResponse.json({ customers: data, segments: [] });
+        }
 
         return NextResponse.json({ customers: data, segments });
     } catch (error) {

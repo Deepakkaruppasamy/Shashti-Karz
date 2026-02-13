@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, User, Calendar, Phone, LogOut, Rotate3d } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { SoundToggle } from "@/components/SoundToggle";
-import { businessInfo } from "@/lib/data";
+import { useAppSettings } from "@/hooks/useAppSettings";
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import { useSound } from "@/hooks/useSound";
@@ -18,6 +18,7 @@ import { Languages, ChevronDown } from "lucide-react";
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, profile, signOut, isLoading } = useAuth();
+  const { businessInfo } = useAppSettings();
   const { language, setLanguage, t } = useLanguage();
   const router = useRouter();
   const { play } = useSound();

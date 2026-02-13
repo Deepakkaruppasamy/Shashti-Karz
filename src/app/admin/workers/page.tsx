@@ -183,8 +183,8 @@ export default function WorkersPage() {
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         className={`px-6 py-2 rounded-lg text-sm font-medium transition-all capitalize ${activeTab === tab
-                                ? 'bg-[#ff1744] text-white font-bold shadow-lg shadow-[#ff1744]/25'
-                                : 'text-[#888] hover:text-white hover:bg-white/5'
+                            ? 'bg-[#ff1744] text-white font-bold shadow-lg shadow-[#ff1744]/25'
+                            : 'text-[#888] hover:text-white hover:bg-white/5'
                             }`}
                     >
                         {tab}
@@ -195,7 +195,14 @@ export default function WorkersPage() {
             {activeTab === "overview" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredWorkers.map((worker) => {
-                        const perf = worker.performance?.[0] || {};
+                        const perf = worker.performance?.[0] || {
+                            average_rating: 0,
+                            completed_services: 0,
+                            quality_score: 0,
+                            on_time_percentage: 0,
+                            total_revenue: 0,
+                            total_reviews: 0
+                        } as WorkerPerformance;
                         const rating = perf.average_rating || 0;
                         const services = perf.completed_services || 0;
                         const quality = perf.quality_score || 0;
@@ -206,7 +213,7 @@ export default function WorkersPage() {
                                     <div className="flex justify-between items-start mb-6">
                                         <div className="flex items-center gap-4">
                                             <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center text-xl font-bold text-[#ff1744] border-2 border-white/5 group-hover:border-[#ff1744] transition-colors">
-                                                {worker.name.charAt(0)}
+                                                {(worker.name || "W").charAt(0)}
                                             </div>
                                             <div>
                                                 <h3 className="font-bold text-lg text-white">{worker.name}</h3>

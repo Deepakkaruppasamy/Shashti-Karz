@@ -123,8 +123,8 @@ export default function ShowroomAdminPage() {
                     <button
                         onClick={() => setActiveTab("posts")}
                         className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "posts"
-                                ? 'bg-[#ff1744] text-white font-bold shadow-lg shadow-[#ff1744]/25'
-                                : 'text-[#888] hover:text-white hover:bg-white/5'
+                            ? 'bg-[#ff1744] text-white font-bold shadow-lg shadow-[#ff1744]/25'
+                            : 'text-[#888] hover:text-white hover:bg-white/5'
                             }`}
                     >
                         Posts
@@ -132,8 +132,8 @@ export default function ShowroomAdminPage() {
                     <button
                         onClick={() => setActiveTab("comments")}
                         className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "comments"
-                                ? 'bg-[#ff1744] text-white font-bold shadow-lg shadow-[#ff1744]/25'
-                                : 'text-[#888] hover:text-white hover:bg-white/5'
+                            ? 'bg-[#ff1744] text-white font-bold shadow-lg shadow-[#ff1744]/25'
+                            : 'text-[#888] hover:text-white hover:bg-white/5'
                             }`}
                     >
                         Comments
@@ -153,8 +153,8 @@ export default function ShowroomAdminPage() {
                                 />
                                 <div className="absolute top-4 right-4 flex gap-2">
                                     <span className={`px-2 py-1 rounde-lg text-[10px] font-bold uppercase tracking-wider backdrop-blur-md ${post.status === 'approved' ? 'bg-green-500/20 text-green-500' :
-                                            post.status === 'flagged' ? 'bg-red-500/20 text-red-500' :
-                                                'bg-yellow-500/20 text-yellow-500'
+                                        post.status === 'flagged' ? 'bg-red-500/20 text-red-500' :
+                                            'bg-yellow-500/20 text-yellow-500'
                                         }`}>
                                         {post.status}
                                     </span>
@@ -164,7 +164,7 @@ export default function ShowroomAdminPage() {
                             <div className="p-6">
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ff1744] to-[#d4af37] flex items-center justify-center text-white font-bold text-xs">
-                                        {post.user_name.charAt(0)}
+                                        {(post.user_name || "U").charAt(0)}
                                     </div>
                                     <div>
                                         <p className="text-sm font-bold text-white">{post.user_name}</p>

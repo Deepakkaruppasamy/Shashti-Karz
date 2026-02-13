@@ -2,18 +2,23 @@ import { NextResponse } from "next/server";
 export const dynamic = 'force-dynamic';
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { createClient } from "@/lib/supabase/server";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req: Request) {
   try {
     if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json({ error: "AI services configured incorrectly" }, { status: 500 });
+      return NextResponse.json({ error: "AI services configured incorrectly: Missing API Key" }, { status: 500 });
     }
 
-    const { command, context } = await req.json();
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const body = await req.json();
+    const { command, context } = body;
+
+    if (!command && !context) {
+      return NextResponse.json({ error: "Missing command or context" }, { status: 400 });
+    }
+
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     let prompt = "";
 
@@ -22,7 +27,7 @@ export async function POST(req: Request) {
       prompt = `
         You are Shashti AI, an expert business analyst for a premium car detailing studio.
         
-        TASK: "${command}"
+        TASK: "${command || 'Analyze this data'}"
         
         CONTEXT DATA:
         ${JSON.stringify(context, null, 2)}
@@ -80,7 +85,7 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error("Admin Command Error:", error?.message || error);
     return NextResponse.json(
-      { error: "Failed to process command", details: error?.message },
+      { error: "Failed to process command", details: error?.message, stack: error?.stack },
       { status: 500 }
     );
   }

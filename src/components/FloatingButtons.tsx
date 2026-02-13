@@ -1,10 +1,11 @@
 "use client";
 
 import { Phone, Calendar, MessageCircle, Rotate3d } from "lucide-react";
-import { businessInfo } from "@/lib/data";
+import { useAppSettings } from "@/hooks/useAppSettings";
 import Link from "next/link";
 
 export function FloatingButtons() {
+  const { businessInfo } = useAppSettings();
   const whatsappUrl = `https://wa.me/${businessInfo.whatsapp}?text=Hi, I'm interested in your car detailing services.`;
 
   return (

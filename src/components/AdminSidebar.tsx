@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Calendar, Users, Package, Settings, LogOut, Bell,
   DollarSign, Play, Sparkles, Brain, Receipt, ImageIcon, Menu, X, Hammer,
   MessageCircle, TrendingUp, Wrench, Send, Star, Box, Tag, Clock, Headphones,
-  Activity, RefreshCw, Share2, Trophy, Crown, Map, ShieldCheck, Image as LucideImage
+  Activity, RefreshCw, Trophy, Image as LucideImage
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
@@ -33,7 +33,7 @@ const navItems: NavItem[] = [
   // Financial
   { id: "finance", label: "Finance", icon: DollarSign, href: "/admin?tab=finance" },
   { id: "billing", label: "Billing", icon: Receipt, href: "/admin/billing" },
-  { id: "subscriptions", label: "Subscriptions", icon: Crown, href: "/admin/subscriptions", badge: "VIP", badgeColor: "bg-[#d4af37]/20 text-[#d4af37]" },
+
 
   // Services & Products
   { id: "services", label: "Services", icon: Package, href: "/admin?tab=services" },
@@ -54,14 +54,13 @@ const navItems: NavItem[] = [
   { id: "campaigns", label: "Ad Campaigns", icon: Play, href: "/admin/ads", badge: "Video", badgeColor: "bg-blue-500/20 text-blue-500" },
   { id: "showroom", label: "Showroom", icon: LucideImage, href: "/admin/showroom" },
   { id: "marketing", label: "Marketing", icon: Send, href: "/admin/campaigns" },
-  { id: "referrals", label: "Referrals", icon: Share2, href: "/admin/referrals", badge: "New", badgeColor: "bg-green-500/20 text-green-500" },
+
   { id: "whatsapp", label: "WhatsApp", icon: MessageCircle, href: "/admin/whatsapp", badge: "New", badgeColor: "bg-green-500/20 text-green-500" },
   { id: "notifications", label: "Notifications", icon: Bell, href: "/admin/notifications", badge: "Send", badgeColor: "bg-orange-500/20 text-orange-500" },
 
   // Operations
   { id: "workers", label: "Workers", icon: Users, href: "/admin/workers" },
-  { id: "quality", label: "Quality Control", icon: ShieldCheck, href: "/admin/quality" },
-  { id: "fleet", label: "Fleet & Routes", icon: Map, href: "/admin/fleet" },
+
   { id: "worker-portal", label: "Worker Portal", icon: Hammer, href: "/worker", badge: "Live", badgeColor: "bg-[#ff1744]/20 text-[#ff1744]" },
   { id: "equipment", label: "Equipment", icon: Wrench, href: "/admin/equipment", badge: "New", badgeColor: "bg-orange-500/20 text-orange-500" },
   { id: "inventory", label: "Inventory", icon: Package, href: "/admin/inventory" },

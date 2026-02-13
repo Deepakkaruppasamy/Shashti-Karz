@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Award, Lock, CheckCircle2, Star, Zap, Shield, Sparkles, Trophy } from "lucide-react";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 interface Achievement {
     id: string;
@@ -33,6 +34,18 @@ export function AchievementsDisplay({ userId }: AchievementsDisplayProps) {
     useEffect(() => {
         fetchAchievements();
     }, []);
+
+    // Real-time updates
+    useRealtimeSubscription({
+        table: 'points_transactions', // Activity usually triggers unlocks
+        onInsert: () => fetchAchievements(),
+    });
+
+    useRealtimeSubscription({
+        table: 'achievements', // New achievements added to system
+        onInsert: () => fetchAchievements(),
+        onUpdate: () => fetchAchievements(),
+    });
 
     const fetchAchievements = async () => {
         try {
@@ -140,8 +153,8 @@ export function AchievementsDisplay({ userId }: AchievementsDisplayProps) {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.05 }}
                                 className={`group relative p-6 rounded-[2rem] border transition-all duration-500 overflow-hidden ${unlocked_item
-                                        ? `glass-card ${config.border} ${config.glow} scale-100`
-                                        : "bg-white/[0.02] border-white/5 opacity-60 grayscale hover:grayscale-0"
+                                    ? `glass-card ${config.border} ${config.glow} scale-100`
+                                    : "bg-white/[0.02] border-white/5 opacity-60 grayscale hover:grayscale-0"
                                     }`}
                             >
                                 {/* Background Icon Watermark */}
