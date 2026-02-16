@@ -103,8 +103,17 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error("Chat API error:", error);
 
+    // Check for specific error types to provide better feedback
+    const errorMessage = error.message || "";
+    if (errorMessage.toLowerCase().includes("quota") || errorMessage.includes("429")) {
+      return NextResponse.json(
+        { error: "AI service is currently busy (quota exceeded). Please wait a moment or try again later." },
+        { status: 429 }
+      );
+    }
+
     return NextResponse.json(
-      { error: error.message || "Failed to process message. Please try again." },
+      { error: "Failed to process message. Please try again." },
       { status: 500 }
     );
   }

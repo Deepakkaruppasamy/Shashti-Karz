@@ -621,7 +621,7 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
                 interactionType = "navigation";
             }
 
-            const { data, error } = await supabase.from("dinesh_interactions").insert({
+            const { error } = await supabase.from("dinesh_interactions").insert({
                 session_id: sessionId,
                 user_id: userId || null,
                 interaction_type: interactionType,
@@ -633,12 +633,12 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
                     pathname,
                     userName: userName || "Guest"
                 }
-            }).select();
+            });
 
             if (error) {
                 console.error("Error inserting interaction:", error);
             } else {
-                console.log("✅ Interaction logged successfully:", data);
+                console.log("✅ Interaction logged successfully");
             }
         } catch (error) {
             console.error("Error logging interaction:", error);
