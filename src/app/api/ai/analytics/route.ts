@@ -1,11 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
-import { 
-  generateAIInsights, 
-  processNaturalLanguageQuery, 
-  detectAnomalies, 
-  detectRiskPatterns, 
-  generateSmartDiscounts 
+import {
+  generateAIInsights,
+  processNaturalLanguageQuery,
+  detectAnomalies,
+  detectRiskPatterns,
+  generateSmartDiscounts
 } from "@/lib/shashti-ai";
 import { chatWithGemini } from "@/lib/gemini";
 
@@ -41,65 +41,65 @@ async function getAnalyticsData(timeRange: string) {
 
   const { data: currentBookings } = await supabase
     .from("bookings")
-    .select("*, service:services(*), worker:workers(*)")
+    .select("*, service:services(*)")
     .gte("created_at", startDate.toISOString());
 
   const { data: previousBookings } = await supabase
     .from("bookings")
-    .select("*, service:services(*), worker:workers(*)")
+    .select("*, service:services(*)")
     .gte("created_at", previousStartDate.toISOString())
     .lt("created_at", previousEndDate.toISOString());
 
-    const { data: allServices } = await supabase.from("services").select("*");
-    const { data: allUsers } = await supabase.from("profiles").select("*");
-    const { data: allWorkers } = await supabase.from("workers").select("*");
-    const { data: allInventory } = await supabase.from("inventory_items").select("*");
-    const lowStockItems = (allInventory || []).filter(item => item.current_stock < item.min_stock_threshold);
+  const { data: allServices } = await supabase.from("services").select("*");
+  const { data: allUsers } = await supabase.from("profiles").select("*");
+  const { data: allWorkers } = await supabase.from("workers").select("*");
+  const { data: allInventory } = await supabase.from("inventory_items").select("*");
+  const lowStockItems = (allInventory || []).filter(item => item.current_stock < item.min_stock_threshold);
 
 
-    const { data: activeAlerts } = await supabase
-      .from("system_alerts")
-      .select("*")
-      .eq("resolved", false)
-      .order("created_at", { ascending: false });
+  const { data: activeAlerts } = await supabase
+    .from("system_alerts")
+    .select("*")
+    .eq("resolved", false)
+    .order("created_at", { ascending: false });
 
-    const bookings = currentBookings || [];
-    const prevBookings = previousBookings || [];
+  const bookings = currentBookings || [];
+  const prevBookings = previousBookings || [];
 
-    const totalRevenue = bookings
-      .filter((b) => b.status === "completed" || b.payment_status === "paid")
-      .reduce((sum, b) => sum + (b.price || 0), 0);
+  const totalRevenue = bookings
+    .filter((b) => b.status === "completed" || b.payment_status === "paid")
+    .reduce((sum, b) => sum + (b.price || 0), 0);
 
-    const prevRevenue = prevBookings
-      .filter((b) => b.status === "completed" || b.payment_status === "paid")
-      .reduce((sum, b) => sum + (b.price || 0), 0);
+  const prevRevenue = prevBookings
+    .filter((b) => b.status === "completed" || b.payment_status === "paid")
+    .reduce((sum, b) => sum + (b.price || 0), 0);
 
-    const revenueChange = prevRevenue > 0 
-      ? Math.round(((totalRevenue - prevRevenue) / prevRevenue) * 100) 
-      : 0;
+  const revenueChange = prevRevenue > 0
+    ? Math.round(((totalRevenue - prevRevenue) / prevRevenue) * 100)
+    : 0;
 
-    // Advanced Revenue Forecast (using growth rate and seasonal weight)
-    const daysInPeriod = timeRange === "today" ? 1 : timeRange === "week" ? 7 : timeRange === "month" ? 30 : 90;
-    const dailyAvg = totalRevenue / daysInPeriod;
-    const growthFactor = 1 + (revenueChange / 100);
-    // Add 10% safety margin and weight recent trends more
-    const revenueForecast = Math.round(dailyAvg * 7 * Math.max(0.8, Math.min(1.5, growthFactor)));
+  // Advanced Revenue Forecast (using growth rate and seasonal weight)
+  const daysInPeriod = timeRange === "today" ? 1 : timeRange === "week" ? 7 : timeRange === "month" ? 30 : 90;
+  const dailyAvg = totalRevenue / daysInPeriod;
+  const growthFactor = 1 + (revenueChange / 100);
+  // Add 10% safety margin and weight recent trends more
+  const revenueForecast = Math.round(dailyAvg * 7 * Math.max(0.8, Math.min(1.5, growthFactor)));
 
-    // Service Duration Analytics
-    const { data: trackingData } = await supabase
-      .from("service_tracking")
-      .select("*")
-      .eq("status", "completed");
-    
-    let avgServiceDuration = 0;
-    if (trackingData && trackingData.length > 0) {
-      const durations = trackingData
-        .filter(t => t.started_at && t.completed_at)
-        .map(t => new Date(t.completed_at).getTime() - new Date(t.started_at).getTime());
-      if (durations.length > 0) {
-        avgServiceDuration = Math.round(durations.reduce((a, b) => a + b, 0) / durations.length / (1000 * 60)); // in minutes
-      }
+  // Service Duration Analytics
+  const { data: trackingData } = await supabase
+    .from("service_tracking")
+    .select("*")
+    .eq("status", "completed");
+
+  let avgServiceDuration = 0;
+  if (trackingData && trackingData.length > 0) {
+    const durations = trackingData
+      .filter(t => t.started_at && t.completed_at)
+      .map(t => new Date(t.completed_at).getTime() - new Date(t.started_at).getTime());
+    if (durations.length > 0) {
+      avgServiceDuration = Math.round(durations.reduce((a, b) => a + b, 0) / durations.length / (1000 * 60)); // in minutes
     }
+  }
 
 
   const totalBookings = bookings.length;
@@ -148,7 +148,7 @@ async function getAnalyticsData(timeRange: string) {
 
   const revenueByDay: Record<string, number> = {};
   const bookingsByDay: Record<string, number> = {};
-  
+
   for (let i = 6; i >= 0; i--) {
     const date = new Date(now);
     date.setDate(date.getDate() - i);
@@ -171,10 +171,15 @@ async function getAnalyticsData(timeRange: string) {
     (u) => new Date(u.created_at) >= startDate
   ).length;
 
+  const workerMap: Record<string, string> = {};
+  (allWorkers || []).forEach(w => {
+    workerMap[w.id] = w.name;
+  });
+
   const workerPerformance: Record<string, { name: string; bookings: number; revenue: number }> = {};
   bookings.forEach((b) => {
     if (b.assigned_worker_id) {
-      const workerName = b.worker?.name || "Unknown";
+      const workerName = workerMap[b.assigned_worker_id] || "Unknown";
       if (!workerPerformance[b.assigned_worker_id]) {
         workerPerformance[b.assigned_worker_id] = { name: workerName, bookings: 0, revenue: 0 };
       }
@@ -193,15 +198,15 @@ async function getAnalyticsData(timeRange: string) {
     cancelled: cancelledBookings,
   };
 
-    return {
-      totalRevenue,
-      prevRevenue,
-      revenueChange,
-      revenueForecast,
-      lowStockItems: lowStockItems || [],
-      activeAlerts: activeAlerts || [],
-      totalBookings,
-      completedBookings,
+  return {
+    totalRevenue,
+    prevRevenue,
+    revenueChange,
+    revenueForecast,
+    lowStockItems: lowStockItems || [],
+    activeAlerts: activeAlerts || [],
+    totalBookings,
+    completedBookings,
 
     pendingBookings,
     inProgressBookings,
@@ -212,12 +217,12 @@ async function getAnalyticsData(timeRange: string) {
     topService,
     lowPerformingService,
     servicePopularity: sortedServices,
-      workerPerformance: Object.values(workerPerformance).sort((a, b) => b.revenue - a.revenue),
-      funnel,
-      peakDay,
-      peakHours,
-      avgServiceDuration,
-      revenueByDay: Object.entries(revenueByDay).map(([date, value]) => ({ date, value })),
+    workerPerformance: Object.values(workerPerformance).sort((a, b) => b.revenue - a.revenue),
+    funnel,
+    peakDay,
+    peakHours,
+    avgServiceDuration,
+    revenueByDay: Object.entries(revenueByDay).map(([date, value]) => ({ date, value })),
 
     bookingsByDay: Object.entries(bookingsByDay).map(([date, value]) => ({ date, value })),
     newCustomers,

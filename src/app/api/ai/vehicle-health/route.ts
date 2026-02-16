@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       .eq("status", "completed")
       .order("date", { ascending: false });
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = `
       Analyze the following car service history and generate a health summary and a resale-friendly report.

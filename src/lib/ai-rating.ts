@@ -25,7 +25,7 @@ export async function analyzeReviewSentiment(comment: string): Promise<Sentiment
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     const prompt = `
       Analyze the following customer review for a car detailing service.
       Extract:
@@ -87,7 +87,7 @@ export function calculateWeightedRating(inputs: RatingInput[]): {
   inputs.forEach((input) => {
     // 1. Recency Weight (decay over 365 days)
     const recencyWeight = Math.max(0.1, 1 - input.days_ago / 365);
-    
+
     // 2. Trust Weight
     let trustWeight = 1.0;
     if (input.is_repeat_customer) trustWeight *= 1.5;
@@ -102,13 +102,13 @@ export function calculateWeightedRating(inputs: RatingInput[]): {
     const adjustedStars = Math.max(1, Math.min(5, input.stars + sentimentAdjustment));
 
     const combinedWeight = recencyWeight * trustWeight;
-    
+
     weightedSum += adjustedStars * combinedWeight;
     totalWeight += combinedWeight;
   });
 
   const finalRating = totalWeight > 0 ? weightedSum / totalWeight : 0;
-  
+
   // Confidence calculation
   let confidence: "High" | "Medium" | "Low" = "Low";
   if (inputs.length > 50 && totalWeight > 20) confidence = "High";

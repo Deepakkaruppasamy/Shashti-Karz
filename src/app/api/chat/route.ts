@@ -53,11 +53,11 @@ export async function POST(request: Request) {
     ]);
 
     const userRole: UserRole = context?.role || "guest";
-      const systemPrompt = buildSystemPrompt(userRole, services, offers, carTypes, {
-        userName: context?.userName,
-        language: context?.language,
-        loyaltyData: context?.loyaltyTier ? { tier: context.loyaltyTier } : undefined,
-      });
+    const systemPrompt = buildSystemPrompt(userRole, services, offers, carTypes, {
+      userName: context?.userName,
+      language: context?.language,
+      loyaltyData: context?.loyaltyTier ? { tier: context.loyaltyTier } : undefined,
+    });
 
 
     const lastMessage = messages[messages.length - 1]?.content || "";
@@ -95,16 +95,16 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: assistantMessage,
       intent: intent.name,
       confidence: intent.confidence
     });
   } catch (error: any) {
     console.error("Chat API error:", error);
-    
+
     return NextResponse.json(
-      { error: "Failed to process message. Please try again." },
+      { error: error.message || "Failed to process message. Please try again." },
       { status: 500 }
     );
   }
