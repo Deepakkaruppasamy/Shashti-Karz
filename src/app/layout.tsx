@@ -9,20 +9,61 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { PWARegistration } from "@/components/PWARegistration";
 
 export const metadata: Metadata = {
-  title: "Shashti Karz - Car Detailing Xpert | Tirupur",
-  description: "Premium car detailing services in Avinashi, Tirupur. Ceramic coating, PPF, paint correction, and more. Experience BMW-level service.",
+  title: {
+    default: "Shashti Karz - Premium Car Detailing Xpert | Tirupur",
+    template: "%s | Shashti Karz"
+  },
+  description: "Elite car detailing services in Avinashi, Tirupur. Ceramic coating, Graphene coating, Paint Protection Film (PPF), and advanced Paint Correction. Experience BMW-standard care for your vehicle.",
+  keywords: ["car detailing tirupur", "ceramic coating avinashi", "PPF tirupur", "paint correction tamil nadu", "premium car wash", "shashti karz detailing"],
+  authors: [{ name: "Shashti Karz Team" }],
+  creator: "Shashti Karz",
+  publisher: "Shashti Karz",
   manifest: "/manifest.json",
+  metadataBase: new URL("https://shashtikarz.com"),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: "https://shashtikarz.com",
+    title: "Shashti Karz - Premium Car Detailing Xpert",
+    description: "Tirupur's most advanced AI-powered car detailing center. Book premium ceramic coating and PPF online.",
+    siteName: "Shashti Karz",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Shashti Karz - Experience Premium Detailing",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Shashti Karz - Premium Car Detailing",
+    description: "Advanced detailing for luxury cars in Tirupur. Ceramic, PPF, and Paint Correction.",
+    images: ["/og-image.png"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "Shashti Karz",
-    startupImage: [
-      "/logo.png",
-    ],
+    startupImage: ["/logo.png"],
   },
-
   formatDetection: {
     telephone: true,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 };
 
@@ -42,6 +83,54 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "AutoBodyShop",
+              "name": "Shashti Karz",
+              "image": "https://shashtikarz.com/logo.png",
+              "@id": "https://shashtikarz.com",
+              "url": "https://shashtikarz.com",
+              "telephone": "+91 98765 43210",
+              "priceRange": "₹₹₹",
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Avinashi Main Road",
+                "addressLocality": "Tirupur",
+                "addressRegion": "Tamil Nadu",
+                "postalCode": "641603",
+                "addressCountry": "IN"
+              },
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 11.1085,
+                "longitude": 77.3411
+              },
+              "openingHoursSpecification": {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": [
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday",
+                  "Saturday",
+                  "Sunday"
+                ],
+                "opens": "09:00",
+                "closes": "20:00"
+              },
+              "sameAs": [
+                "https://facebook.com/shashtikarz",
+                "https://instagram.com/shashtikarz"
+              ]
+            })
+          }}
+        />
+      </head>
       <body className="antialiased bg-[#0a0a0a] text-white overflow-x-hidden" suppressHydrationWarning>
         <SoundProvider>
           <LanguageProvider>
