@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Award, Lock, CheckCircle2, Star, Zap, Shield, Sparkles, Trophy } from "lucide-react";
+import { Award, Lock, CheckCircle2, Star, Zap, Shield, Sparkles, Trophy, RefreshCw } from "lucide-react";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 interface Achievement {
@@ -51,7 +51,6 @@ export function AchievementsDisplay({ userId }: AchievementsDisplayProps) {
         try {
             const response = await fetch("/api/achievements");
             const data = await response.json();
-
             if (data && !data.error) {
                 setAchievements(data.all_achievements || []);
                 setUnlocked(data.unlocked || []);
@@ -66,8 +65,25 @@ export function AchievementsDisplay({ userId }: AchievementsDisplayProps) {
         }
     };
 
+    const syncAchievements = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch("/api/achievements/sync", { method: "POST" });
+            const data = await response.json();
+            if (data.success) {
+                fetchAchievements();
+            } else {
+                console.error("Sync failed:", data.error);
+            }
+        } catch (error) {
+            console.error("Error syncing:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const isUnlocked = (achievementId: string) => {
-        return unlocked.some((ua) => ua.achievement.id === achievementId);
+        return unlocked.some((ua) => ua.achievement?.id === achievementId);
     };
 
     const getTierConfig = (tier: string) => {
@@ -114,9 +130,18 @@ export function AchievementsDisplay({ userId }: AchievementsDisplayProps) {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-4xl font-black text-white tracking-tight italic uppercase">
-                                Achievement <span className="text-[#ff1744]">Vault</span>
-                            </h2>
+                            <div className="flex items-center gap-3">
+                                <h2 className="text-4xl font-black text-white tracking-tight italic uppercase">
+                                    Achievement <span className="text-[#ff1744]">Vault</span>
+                                </h2>
+                                <button
+                                    onClick={syncAchievements}
+                                    className="p-2 bg-white/5 rounded-full hover:bg-[#ff1744]/20 transition-colors group"
+                                    title="Sync achievements"
+                                >
+                                    <RefreshCw size={16} className={`${loading ? 'animate-spin text-[#ff1744]' : 'text-[#666] group-hover:text-[#ff1744]'}`} />
+                                </button>
+                            </div>
                             <p className="text-[#888] font-medium tracking-wide">
                                 You have earned <span className="text-white font-bold">{points.total_points}</span> loyalty points
                             </p>
@@ -126,12 +151,14 @@ export function AchievementsDisplay({ userId }: AchievementsDisplayProps) {
                     <div className="w-full md:w-64 space-y-3">
                         <div className="flex justify-between text-xs font-black uppercase tracking-[0.2em] text-[#666]">
                             <span>Gallery Progress</span>
-                            <span className="text-white">{unlocked.length} / {achievements.length}</span>
+                            <span className="text-white">
+                                {achievements.length > 0 ? `${unlocked.length} / ${achievements.length}` : "Initializing..."}
+                            </span>
                         </div>
                         <div className="h-4 bg-white/5 rounded-full p-1 border border-white/5">
                             <motion.div
                                 initial={{ width: 0 }}
-                                animate={{ width: `${(unlocked.length / achievements.length) * 100}%` }}
+                                animate={{ width: achievements.length > 0 ? `${(unlocked.length / achievements.length) * 100}%` : "0%" }}
                                 className="h-full rounded-full bg-gradient-to-r from-[#ff1744] to-[#d4af37] shadow-[0_0_15px_rgba(255,23,68,0.3)]"
                             />
                         </div>
@@ -140,79 +167,89 @@ export function AchievementsDisplay({ userId }: AchievementsDisplayProps) {
             </div>
 
             {/* Achievements Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <AnimatePresence mode="popLayout">
-                    {achievements.map((achievement, index) => {
-                        const unlocked_item = isUnlocked(achievement.id);
-                        const config = getTierConfig(achievement.tier);
+            {achievements.length === 0 ? (
+                <div className="text-center py-20 glass-card rounded-[2.5rem] border-white/5">
+                    <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6 opacity-20">
+                        <Award size={48} />
+                    </div>
+                    <h3 className="text-xl font-black uppercase text-[#666] tracking-widest italic mb-2">Vault Initializing</h3>
+                    <p className="text-sm text-[#444] font-medium">No system achievements detected. Please stand by for mission protocols.</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <AnimatePresence mode="popLayout">
+                        {achievements.map((achievement, index) => {
+                            const unlocked_item = isUnlocked(achievement.id);
+                            const config = getTierConfig(achievement.tier);
 
-                        return (
-                            <motion.div
-                                key={achievement.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.05 }}
-                                className={`group relative p-6 rounded-[2rem] border transition-all duration-500 overflow-hidden ${unlocked_item
-                                    ? `glass-card ${config.border} ${config.glow} scale-100`
-                                    : "bg-white/[0.02] border-white/5 opacity-60 grayscale hover:grayscale-0"
-                                    }`}
-                            >
-                                {/* Background Icon Watermark */}
-                                <div className="absolute -right-4 -bottom-4 text-white/[0.03] rotate-12 group-hover:rotate-0 transition-transform duration-700">
-                                    <span className="text-9xl tracking-tighter select-none">{achievement.badge_icon}</span>
-                                </div>
+                            return (
+                                <motion.div
+                                    key={achievement.id}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.05 }}
+                                    className={`group relative p-6 rounded-[2rem] border transition-all duration-500 overflow-hidden ${unlocked_item
+                                        ? `glass-card ${config.border} ${config.glow} scale-100`
+                                        : "bg-white/[0.02] border-white/5 opacity-60 grayscale hover:grayscale-0"
+                                        }`}
+                                >
+                                    {/* Background Icon Watermark */}
+                                    <div className="absolute -right-4 -bottom-4 text-white/[0.03] rotate-12 group-hover:rotate-0 transition-transform duration-700">
+                                        <span className="text-9xl tracking-tighter select-none">{achievement.badge_icon}</span>
+                                    </div>
 
-                                <div className="relative flex flex-col h-full">
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-3xl transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 ${unlocked_item ? config.bg : "bg-white/5"
-                                            }`}>
-                                            {achievement.badge_icon}
-                                        </div>
-                                        {unlocked_item ? (
-                                            <div className="bg-green-500/20 text-green-500 p-1.5 rounded-full">
-                                                <CheckCircle2 size={16} />
+                                    <div className="relative flex flex-col h-full">
+                                        <div className="flex items-start justify-between mb-4">
+                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-3xl transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 ${unlocked_item ? config.bg : "bg-white/5"
+                                                }`}>
+                                                {achievement.badge_icon}
                                             </div>
-                                        ) : (
-                                            <div className="bg-white/5 text-white/20 p-1.5 rounded-full">
-                                                <Lock size={16} />
+                                            {unlocked_item ? (
+                                                <div className="bg-green-500/20 text-green-500 p-1.5 rounded-full">
+                                                    <CheckCircle2 size={16} />
+                                                </div>
+                                            ) : (
+                                                <div className="bg-white/5 text-white/20 p-1.5 rounded-full">
+                                                    <Lock size={16} />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${config.bg} ${config.border} ${config.color}`}>
+                                                    {achievement.tier}
+                                                </span>
+                                                <span className="text-[10px] font-bold text-[#666] uppercase tracking-widest">
+                                                    {achievement.category}
+                                                </span>
                                             </div>
-                                        )}
-                                    </div>
-
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${config.bg} ${config.border} ${config.color}`}>
-                                                {achievement.tier}
-                                            </span>
-                                            <span className="text-[10px] font-bold text-[#666] uppercase tracking-widest">
-                                                {achievement.category}
-                                            </span>
+                                            <h3 className="text-lg font-black text-white tracking-tight group-hover:text-[#ff1744] transition-colors">
+                                                {achievement.name}
+                                            </h3>
+                                            <p className="text-sm text-[#888] font-medium leading-snug mt-2">
+                                                {achievement.description}
+                                            </p>
                                         </div>
-                                        <h3 className="text-lg font-black text-white tracking-tight group-hover:text-[#ff1744] transition-colors">
-                                            {achievement.name}
-                                        </h3>
-                                        <p className="text-sm text-[#888] font-medium leading-snug mt-2">
-                                            {achievement.description}
-                                        </p>
-                                    </div>
 
-                                    <div className="mt-6 flex items-center justify-between">
-                                        <div className="flex items-center gap-1.5">
-                                            <Zap size={14} className="text-[#d4af37]" />
-                                            <span className="text-sm font-black text-white">+{achievement.points} <span className="text-[10px] text-[#666] uppercase font-bold tracking-widest ml-1">Pts</span></span>
+                                        <div className="mt-6 flex items-center justify-between">
+                                            <div className="flex items-center gap-1.5">
+                                                <Zap size={14} className="text-[#d4af37]" />
+                                                <span className="text-sm font-black text-white">+{achievement.points} <span className="text-[10px] text-[#666] uppercase font-bold tracking-widest ml-1">Pts</span></span>
+                                            </div>
+                                            {unlocked_item && (
+                                                <span className="text-[10px] font-black text-green-500/80 uppercase tracking-tighter">
+                                                    Unlocked
+                                                </span>
+                                            )}
                                         </div>
-                                        {unlocked_item && (
-                                            <span className="text-[10px] font-black text-green-500/80 uppercase tracking-tighter">
-                                                Unlocked
-                                            </span>
-                                        )}
                                     </div>
-                                </div>
-                            </motion.div>
-                        );
-                    })}
-                </AnimatePresence>
-            </div>
+                                </motion.div>
+                            );
+                        })}
+                    </AnimatePresence>
+                </div>
+            )}
         </div>
     );
 }
