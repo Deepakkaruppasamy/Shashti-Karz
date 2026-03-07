@@ -9,7 +9,7 @@ import {
   Save, Phone, Mail, MapPin, Shield, Sparkles, History,
   CreditCard, Gift, Star, TrendingUp, Award, Crown,
   Copy, Share2, Users, Zap, Eye, Package, Send, MessageCircle,
-  Download, FileText, BarChart, Brain, RefreshCw, Plus
+  Download, FileText, BarChart, Brain, RefreshCw, Plus, X
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { Navbar } from "@/components/Navbar";
@@ -130,6 +130,8 @@ export default function DashboardPage() {
   const [selectedBookingForReschedule, setSelectedBookingForReschedule] = useState<Booking | null>(null);
   const [reviewedBookingIds, setReviewedBookingIds] = useState<Set<string>>(new Set());
   const [vehicles, setVehicles] = useState<(UserVehicle & { health_score?: VehicleHealthScore })[]>([]);
+  const [showMetricModal, setShowMetricModal] = useState(false);
+  const [selectedMetric, setSelectedMetric] = useState<"total" | "completed" | "active" | "loyalty" | null>(null);
 
   const refreshBookings = async () => {
     if (!user) return;
@@ -599,23 +601,26 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4">
 
                   {[
-                    { label: "Total Bookings", value: stats.totalBookings, icon: Calendar, color: "from-[#ff1744] to-[#ff4569]" },
-                    { label: "Completed", value: stats.completedBookings, icon: CheckCircle2, color: "from-green-500 to-emerald-500" },
-                    { label: "Active", value: activeBookings.length, icon: Sparkles, color: "from-purple-500 to-pink-500" },
-                    { label: "Loyalty Points", value: loyaltyData?.points || 0, icon: Star, color: "from-[#d4af37] to-[#ffd700]" },
+                    { id: "total" as const, label: "Total Bookings", value: stats.totalBookings, icon: Calendar, color: "from-[#ff1744] to-[#ff4569]" },
+                    { id: "completed" as const, label: "Completed", value: stats.completedBookings, icon: CheckCircle2, color: "from-green-500 to-emerald-500" },
+                    { id: "active" as const, label: "Active", value: activeBookings.length, icon: Sparkles, color: "from-purple-500 to-pink-500" },
+                    { id: "loyalty" as const, label: "Loyalty Points", value: loyaltyData?.points || 0, icon: Star, color: "from-[#d4af37] to-[#ffd700]" },
                   ].map((stat, i) => (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
+                      whileHover={{ scale: 1.02, y: -5 }}
+                      whileTap={{ scale: 0.98 }}
                       transition={{ delay: i * 0.1 }}
-                      className="glass-card rounded-2xl p-6"
+                      onClick={() => { setSelectedMetric(stat.id); setShowMetricModal(true); }}
+                      className="glass-card rounded-2xl p-6 cursor-pointer border border-white/5 hover:border-white/20 transition-all flex flex-col"
                     >
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-4`}>
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-4 shadow-lg shadow-black/20`}>
                         <stat.icon size={24} className="text-white" />
                       </div>
-                      <div className="text-2xl sm:text-3xl font-bold mb-1">{stat.value.toLocaleString()}</div>
-                      <div className="text-sm text-[#888]">{stat.label}</div>
+                      <div className="text-2xl sm:text-3xl font-bold mb-1 tracking-tight">{stat.value.toLocaleString()}</div>
+                      <div className="text-xs font-bold uppercase tracking-widest text-[#666]">{stat.label}</div>
                     </motion.div>
                   ))}
                 </div>
@@ -1512,6 +1517,130 @@ export default function DashboardPage() {
           onClose={() => setSelectedBookingForReschedule(null)}
           onSuccess={refreshBookings}
         />
+
+        <AnimatePresence>
+          {showMetricModal && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" onClick={() => setShowMetricModal(false)}>
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="relative w-full max-w-2xl bg-[#0d0d0d] border border-white/10 rounded-[2.5rem] p-6 lg:p-10 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto no-scrollbar"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff1744]/5 rounded-full blur-[100px] -z-1" />
+
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h2 className="text-2xl lg:text-3xl font-black tracking-tighter">
+                      {selectedMetric === "total" && "Booking History"}
+                      {selectedMetric === "completed" && "Completed Journeys"}
+                      {selectedMetric === "active" && "Current Activations"}
+                      {selectedMetric === "loyalty" && "Loyalty Dynamics"}
+                    </h2>
+                    <p className="text-[10px] font-black text-[#555] uppercase tracking-widest mt-1">Detailed Analysis & Insights</p>
+                  </div>
+                  <button onClick={() => setShowMetricModal(false)} className="p-3 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-colors">
+                    <X size={24} />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {(selectedMetric === "total" || selectedMetric === "completed" || selectedMetric === "active") && (
+                    <div className="space-y-3">
+                      {(selectedMetric === "total" ? bookings :
+                        selectedMetric === "completed" ? bookings.filter(b => b.status === "completed") :
+                          activeBookings).length === 0 ? (
+                        <div className="text-center py-12 bg-white/5 rounded-3xl border border-dashed border-white/10">
+                          <p className="text-[#888] font-bold uppercase tracking-widest text-[10px]">No data available in this segment</p>
+                        </div>
+                      ) : (
+                        (selectedMetric === "total" ? bookings :
+                          selectedMetric === "completed" ? bookings.filter(b => b.status === "completed") :
+                            activeBookings).map((booking) => (
+                              <div key={booking.id} className="p-5 rounded-3xl bg-white/[0.03] border border-white/10 flex items-center gap-5 hover:border-[#ff1744]/30 transition-all group">
+                                <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 border border-white/5">
+                                  {booking.service?.image ? (
+                                    <img src={booking.service.image} alt="" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
+                                  ) : (
+                                    <div className="w-full h-full bg-gradient-to-br from-[#ff1744] to-[#d4af37] flex items-center justify-center">
+                                      <Car size={32} className="text-white" />
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-start justify-between">
+                                    <h4 className="font-black text-lg truncate group-hover:text-[#ff1744] transition-colors">{booking.service?.name || "Premium Care"}</h4>
+                                    <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md border ${getStatusColor(booking.status)}`}>
+                                      {booking.status}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-3 mt-2 text-[10px] font-bold text-[#666] uppercase tracking-widest">
+                                    <span className="flex items-center gap-1.5"><Calendar size={12} className="text-[#ff1744]" /> {new Date(booking.date).toLocaleDateString()}</span>
+                                    <span className="flex items-center gap-1.5"><Car size={12} className="text-[#ff1744]" /> {booking.car_model}</span>
+                                    <span className="text-[#d4af37]">₹{booking.price?.toLocaleString()}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            ))
+                      )}
+                    </div>
+                  )}
+
+                  {selectedMetric === "loyalty" && (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="p-6 rounded-[2rem] bg-gradient-to-br from-[#d4af37]/20 to-transparent border border-[#d4af37]/30">
+                          <h5 className="text-[10px] font-black text-[#d4af37] uppercase tracking-widest mb-1">Current Balance</h5>
+                          <div className="text-4xl font-black tracking-tighter text-white">{loyaltyData?.points.toLocaleString()} <span className="text-sm font-bold text-[#666]">pts</span></div>
+                        </div>
+                        <div className="p-6 rounded-[2rem] bg-white/5 border border-white/10">
+                          <h5 className="text-[10px] font-black text-[#555] uppercase tracking-widest mb-1">Membership Rank</h5>
+                          <div className="text-2xl font-black tracking-tighter text-[#d4af37] uppercase">{loyaltyData?.tier}</div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <h5 className="text-[10px] font-black text-[#444] uppercase tracking-widest px-1">Transaction Ledger</h5>
+                        <div className="space-y-2">
+                          {loyaltyData?.transactions && loyaltyData.transactions.length > 0 ? (
+                            loyaltyData.transactions.map((tx, idx) => (
+                              <div key={idx} className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-between hover:bg-white/5 transition-colors">
+                                <div className="flex items-center gap-4">
+                                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${tx.type === 'earned' || tx.type === 'bonus' || tx.type === 'referral' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                                    {tx.type === 'earned' || tx.type === 'bonus' || tx.type === 'referral' ? <TrendingUp size={18} /> : <Gift size={18} />}
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-bold text-white uppercase tracking-tight">{tx.description || (tx.type === 'earned' ? 'Service Reward' : 'Points Redeemed')}</p>
+                                    <p className="text-[9px] font-bold text-[#555] uppercase tracking-widest">{new Date(tx.created_at).toLocaleString()}</p>
+                                  </div>
+                                </div>
+                                <div className={`text-lg font-black tracking-tighter ${tx.type === 'earned' || tx.type === 'bonus' || tx.type === 'referral' ? 'text-green-500' : 'text-red-500'}`}>
+                                  {tx.type === 'earned' || tx.type === 'bonus' || tx.type === 'referral' ? '+' : '-'}{tx.points.toLocaleString()}
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-center py-6 text-[10px] font-black text-[#444] uppercase tracking-widest">No recent point dynamics</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-8 pt-8 border-t border-white/5">
+                  <button
+                    onClick={() => setShowMetricModal(false)}
+                    className="w-full py-4 rounded-2xl bg-white/5 text-[#666] font-black uppercase text-[10px] tracking-widest hover:bg-white/10 transition-all border border-white/5"
+                  >
+                    Close Perspective
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
 
       <Footer />
