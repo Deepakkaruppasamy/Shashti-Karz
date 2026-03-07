@@ -283,7 +283,7 @@ export async function POST(request: NextRequest) {
 
     const analyticsData = await getAnalyticsData(timeRange);
 
-    if (process.env.GEMINI_API_KEY) {
+    if (process.env.GEMINI_API_KEY || process.env.GROQ_API_KEY) {
       const systemPrompt = `You are Shashti AI, the analytics assistant for Shashti Karz car detailing business. 
 Analyze the following data and answer the user's question in a helpful, actionable way.
 

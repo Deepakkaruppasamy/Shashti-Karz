@@ -39,9 +39,9 @@ export async function POST(request: Request) {
   try {
     const { messages, context } = await request.json();
 
-    if (!process.env.GEMINI_API_KEY) {
+    if (!process.env.GEMINI_API_KEY && !process.env.GROQ_API_KEY) {
       return NextResponse.json(
-        { error: "Gemini API key not configured" },
+        { error: "AI service not configured (Missing API Keys)" },
         { status: 500 }
       );
     }
