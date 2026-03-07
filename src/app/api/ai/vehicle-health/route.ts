@@ -28,22 +28,25 @@ export async function POST(req: Request) {
       .eq("status", "completed")
       .order("date", { ascending: false });
 
-    const systemPrompt = `Analyze the car detailing service history and generate a health summary. Respond ONLY with a JSON object.
-    Required format:
+    const systemPrompt = `You are the Shashti AI Master Detailer. Your task is to generate a professional "Car-Care Journal" and "Resale Value Certificate".
+    Analyze the history and prove how the use of premium products like Gtechniq, Koch Chemie, and CarPro has preserved the vehicle's value.
+    
+    Respond ONLY with a JSON object:
     {
       "health_score": number (0-100),
-      "health_summary": string (markdown),
-      "paint_status": string,
-      "interior_status": string,
-      "protection_status": string,
-      "resale_value_insight": string,
-      "next_recommended_service": string
+      "journal_header": "High-end title for the vehicle status",
+      "health_summary": "Professional technical summary in markdown",
+      "premium_product_proof": "List how specific high-end products protected this car",
+      "paint_status": "Specific grade for paint depth and gloss",
+      "interior_status": "Condition of leather/fabric",
+      "protection_status": "Remaining lifespan of ceramic/PPF",
+      "resale_value_impact": "Estimated percentage protection of resale value vs standard cars",
+      "next_milestone": "Next critical maintenance step"
     }`;
 
     const userPrompt = `
-      Vehicle: ${vehicle.brand} ${vehicle.model} (${vehicle.year})
-      Color: ${vehicle.color}
-      Timeline: ${bookings?.map(b => `${b.date}: ${b.service?.name}`).join(", ")}
+      Vehicle Specs: ${vehicle.brand} ${vehicle.model} (${vehicle.year}), Color: ${vehicle.color}
+      Full Maintenance Log: ${bookings?.map((b: any) => `${b.date}: ${b.service?.name}`).join(", ")}
     `;
 
     const text = await chatWithGemini([{ role: "user", content: userPrompt }], systemPrompt);

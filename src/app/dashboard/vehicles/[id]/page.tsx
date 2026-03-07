@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, Calendar, Award, Bell, FileText, TrendingUp,
   CheckCircle2, AlertTriangle, Image as ImageIcon, Edit3, Plus,
-  X, Upload, Star, Package, Clock, DollarSign, Sparkles, Brain
+  X, Upload, Star, Package, Clock, DollarSign, Sparkles, Brain, RefreshCw
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { Navbar } from "@/components/Navbar";
@@ -22,6 +22,7 @@ import type {
 import { ServiceJournalModal } from "@/components/dashboard/ServiceJournalModal";
 import { MaintenanceReminderModal } from "@/components/dashboard/MaintenanceReminderModal";
 import { FullPageLoader } from "@/components/animations/CarLoader";
+import { ResaleValueReport } from "@/components/gamification/ResaleValueReport";
 
 interface ExtendedVehicleData {
   vehicle: UserVehicle;
@@ -46,6 +47,8 @@ export default function VehicleGaragePage({
   const [showJournalModal, setShowJournalModal] = useState(false);
   const [showReminderModal, setShowReminderModal] = useState(false);
   const [editingEntry, setEditingEntry] = useState<ServiceJournalEntry | null>(null);
+  const [extendedHealthData, setExtendedHealthData] = useState<any>(null);
+  const [isGeneratingJournal, setIsGeneratingJournal] = useState(false);
 
   useEffect(() => {
     params.then(p => setVehicleId(p.id));
@@ -95,11 +98,35 @@ export default function VehicleGaragePage({
         certificates: certsData || [],
         health_score: healthData,
       });
+
+      // Also try to load the extended AI health data if it exists or just generate it once
+      if (historyData.vehicle) {
+        generatePremiumJournal(historyData.vehicle.id);
+      }
     } catch (error) {
       console.error("Error loading vehicle data:", error);
       toast.error("Failed to load vehicle data");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const generatePremiumJournal = async (vId: string) => {
+    setIsGeneratingJournal(true);
+    try {
+      const res = await fetch("/api/ai/vehicle-health", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vehicleId: vId }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setExtendedHealthData(data);
+      }
+    } catch (e) {
+      console.error("Error generating premium journal:", e);
+    } finally {
+      setIsGeneratingJournal(false);
     }
   };
 
@@ -593,13 +620,51 @@ export default function VehicleGaragePage({
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
+                className="space-y-12"
               >
-                <h2 className="text-2xl font-bold mb-6">Vehicle Health Report</h2>
+                {/* Premium Journal Section */}
+                <section>
+                  <div className="flex items-center justify-between mb-8">
+                    <div>
+                      <h2 className="text-3xl font-black italic uppercase tracking-tighter">Personalized Car-Care Journal</h2>
+                      <p className="text-[#888] text-sm">AI-Verified maintenance passport for your Shashti-protected vehicle.</p>
+                    </div>
+                    {isGeneratingJournal && (
+                      <div className="flex items-center gap-2 text-[#d4af37] text-xs font-bold animate-pulse">
+                        <RefreshCw size={14} className="animate-spin" />
+                        AI MASTER DETAILER ANALYZING...
+                      </div>
+                    )}
+                  </div>
+
+                  {extendedHealthData ? (
+                    <ResaleValueReport
+                      vehicle={vehicle.vehicle}
+                      healthData={extendedHealthData}
+                      onDownload={() => toast.success("Downloading Resale Value Certificate...")}
+                    />
+                  ) : (
+                    <div className="glass-card rounded-2xl p-12 text-center border-dashed border-white/10">
+                      <Brain size={48} className="mx-auto text-[#d4af37] mb-4 opacity-20" />
+                      <h3 className="text-lg font-bold mb-2">No AI Journal Generated</h3>
+                      <p className="text-[#888] mb-6">Our AI Master Detailer hasn&apos;t analyzed this vehicle&apos;s full history yet.</p>
+                      <button
+                        onClick={() => generatePremiumJournal(vehicleId)}
+                        disabled={isGeneratingJournal}
+                        className="btn-premium px-8 py-4 rounded-full text-sm font-black uppercase tracking-widest disabled:opacity-50"
+                      >
+                        {isGeneratingJournal ? "Analyzing History..." : "Generate AI Resale Passport"}
+                      </button>
+                    </div>
+                  )}
+                </section>
+
+                <h2 className="text-2xl font-bold pt-8 border-t border-white/5">Raw Health Metrics</h2>
 
                 {vehicle.health_score ? (
                   <div className="space-y-6">
                     {/* Overall Score */}
-                    <div className="glass-card rounded-2xl p-8 text-center">
+                    <div className="glass-card rounded-2xl p-8 text-center bg-gradient-to-b from-white/[0.03] to-transparent">
                       <div className="w-32 h-32 rounded-full mx-auto mb-4 flex items-center justify-center"
                         style={{
                           background: `conic-gradient(
