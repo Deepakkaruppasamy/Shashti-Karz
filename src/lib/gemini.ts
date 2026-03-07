@@ -67,4 +67,3 @@ export async function chatWithGemini(messages: any[], systemPrompt: string) {
 
   return data.candidates[0].content.parts[0].text;
 }
-
