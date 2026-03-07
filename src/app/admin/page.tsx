@@ -1717,6 +1717,35 @@ function AdminDashboardContent() {
                       <p className="text-xs text-[#888] uppercase font-bold tracking-widest mb-1">New Customers</p>
                       <p className="text-4xl font-black text-blue-500">{analytics.newCustomers}</p>
                     </div>
+
+                    <div className="glass-card rounded-3xl p-6 border border-white/5 col-span-full">
+                      <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Users size={20} className="text-[#d4af37]" /> Revenue Contribution by Customer</h3>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                          <thead className="border-b border-white/5">
+                            <tr>
+                              <th className="py-3 text-[10px] font-bold uppercase text-[#666]">Customer</th>
+                              <th className="py-3 text-[10px] font-bold uppercase text-[#666]">Service</th>
+                              <th className="py-3 text-[10px] font-bold uppercase text-[#666]">Revenue</th>
+                              <th className="py-3 text-[10px] font-bold uppercase text-[#666]">Date</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/5">
+                            {bookings.filter(b => b.status === 'completed' || b.status === 'approved').slice(0, 5).map((b, i) => (
+                              <tr key={i} className="hover:bg-white/5 transition-colors">
+                                <td className="py-4 font-medium text-sm">{b.customer_name}</td>
+                                <td className="py-4 text-xs text-[#888]">{b.service?.name || b.service_id}</td>
+                                <td className="py-4 text-sm font-bold text-green-500">₹{b.price?.toLocaleString()}</td>
+                                <td className="py-4 text-xs text-[#666]">{b.date}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        {bookings.filter(b => b.status === 'completed' || b.status === 'approved').length === 0 && (
+                          <p className="text-center py-6 text-xs text-[#666]">No revenue records found for this period.</p>
+                        )}
+                      </div>
+                    </div>
                   </>
                 )}
 
@@ -1741,6 +1770,30 @@ function AdminDashboardContent() {
                       </div>
                       <p className="text-right text-[10px] text-[#666] mt-1 font-bold">94% Accuracy - Last 30 days performance</p>
                     </div>
+
+                    <div className="glass-card rounded-3xl p-6 border border-white/5 col-span-full">
+                      <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Clock size={20} className="text-green-500" /> Expected Revenue (Upcoming)</h3>
+                      <div className="space-y-3">
+                        {bookings.filter(b => b.status === 'pending' || b.status === 'approved').slice(0, 3).map((b, i) => (
+                          <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 font-bold">{b.customer_name.charAt(0)}</div>
+                              <div>
+                                <p className="text-sm font-bold">{b.customer_name}</p>
+                                <p className="text-[10px] text-[#888]">{b.service?.name} • Coming {b.date}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm font-bold text-white">₹{b.price?.toLocaleString()}</p>
+                              <span className="text-[8px] font-black uppercase text-green-500/80 px-1.5 py-0.5 rounded-full bg-green-500/10 border border-green-500/20">Forecasted</span>
+                            </div>
+                          </div>
+                        ))}
+                        {bookings.filter(b => b.status === 'pending' || b.status === 'approved').length === 0 && (
+                          <p className="text-center py-4 text-xs text-[#666]">No upcoming bookings for the forecasted period.</p>
+                        )}
+                      </div>
+                    </div>
                   </>
                 )}
 
@@ -1761,13 +1814,23 @@ function AdminDashboardContent() {
                       <p className="text-xs text-[#888] uppercase font-bold tracking-widest mb-1">Completion Rate</p>
                       <p className="text-4xl font-black text-green-500">{analytics.completionRate}%</p>
                     </div>
-                    <div className="glass-card rounded-3xl p-6 border border-white/5">
-                      <p className="text-xs text-[#888] uppercase font-bold tracking-widest mb-1">Cancellation Rate</p>
-                      <p className="text-4xl font-black text-red-500">{analytics.cancellationRate}%</p>
-                    </div>
-                    <div className="glass-card rounded-3xl p-6 border border-white/5">
-                      <p className="text-xs text-[#888] uppercase font-bold tracking-widest mb-1">Total Records</p>
-                      <p className="text-4xl font-black text-[#ff1744]">{analytics.totalBookings}</p>
+
+                    <div className="glass-card rounded-3xl p-6 border border-white/5 col-span-2">
+                      <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Users size={20} className="text-[#ff1744]" /> Recent Customers</h3>
+                      <div className="space-y-4">
+                        {bookings.slice(0, 4).map((b, i) => (
+                          <div key={i} className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-xs font-bold text-gradient">{b.customer_name.charAt(0)}</div>
+                              <div>
+                                <p className="text-xs font-bold truncate max-w-[120px]">{b.customer_name}</p>
+                                <p className="text-[10px] text-[#666]">{b.car_model}</p>
+                              </div>
+                            </div>
+                            <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase ${statusColors[b.status]}`}>{b.status}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </>
                 )}
@@ -1776,20 +1839,36 @@ function AdminDashboardContent() {
                   <>
                     <div className="glass-card rounded-3xl p-6 border border-white/5 bg-gradient-to-br from-purple-500/10 to-transparent col-span-full">
                       <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Target size={20} className="text-purple-500" /> Efficiency Analysis</h3>
-                      <div className="space-y-4">
-                        <p className="text-sm text-[#888]">Worker performance contributes significantly to the overall completion rate.</p>
-                        <div className="space-y-3">
-                          {analytics.workerPerformance.slice(0, 3).map((w, i) => (
-                            <div key={i} className="flex items-center justify-between">
-                              <span className="text-sm font-medium">{w.name}</span>
-                              <div className="flex items-center gap-3 flex-1 max-w-[200px] ml-4">
-                                <div className="h-1.5 flex-1 bg-white/5 rounded-full overflow-hidden">
-                                  <div className="h-full bg-purple-500" style={{ width: '85%' }} />
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                          <p className="text-sm text-[#888]">Worker performance contributes significantly to the overall completion rate.</p>
+                          <div className="space-y-3">
+                            {analytics.workerPerformance.slice(0, 3).map((w, i) => (
+                              <div key={i} className="flex items-center justify-between">
+                                <span className="text-sm font-medium">{w.name}</span>
+                                <div className="flex items-center gap-3 flex-1 max-w-[150px] ml-4">
+                                  <div className="h-1.5 flex-1 bg-white/5 rounded-full overflow-hidden">
+                                    <div className="h-full bg-purple-500" style={{ width: '85%' }} />
+                                  </div>
+                                  <span className="text-xs font-bold">85%</span>
                                 </div>
-                                <span className="text-xs font-bold">85%</span>
                               </div>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
+                        </div>
+                        <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                          <h4 className="text-xs font-bold uppercase tracking-widest text-[#666] mb-4">Recently Fulfilled</h4>
+                          <div className="space-y-3">
+                            {bookings.filter(b => b.status === 'completed').slice(0, 3).map((b, i) => (
+                              <div key={i} className="flex items-center justify-between">
+                                <div>
+                                  <p className="text-xs font-bold">{b.customer_name}</p>
+                                  <p className="text-[10px] text-[#888]">{b.service?.name}</p>
+                                </div>
+                                <CheckCircle size={14} className="text-green-500" />
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>
