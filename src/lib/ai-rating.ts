@@ -1,6 +1,6 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { chatWithGemini } from "./gemini";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+// Using centralized AI utility (Groq with Gemini fallback)
 
 export interface SentimentResult {
   score: number; // -1 to 1
@@ -24,32 +24,18 @@ export async function analyzeReviewSentiment(comment: string): Promise<Sentiment
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-    const prompt = `
-      Analyze the following customer review for a car detailing service.
-      Extract:
-      1. Overall sentiment score (-1.0 to 1.0)
-      2. Sentiment label (Positive, Neutral, Negative)
-      3. Key themes (quality, time, price, staff, cleanliness, communication)
-      4. Intensity score (0.0 to 1.0)
-      5. Boolean flags for: is_abusive, is_low_effort (e.g., "good", "nice", "ok")
+    const systemPrompt = `Analyze the car detailing customer review provided. Respond ONLY with a JSON object.
+    Required format:
+    {
+      "score": number (-1 to 1),
+      "label": "Positive" | "Neutral" | "Negative",
+      "themes": string[] (quality, time, price, staff, cleanliness, communication),
+      "intensity": number (0 to 1),
+      "is_abusive": boolean,
+      "is_low_effort": boolean
+    }`;
 
-      Review: "${comment}"
-
-      Respond ONLY with a JSON object in this format:
-      {
-        "score": number,
-        "label": string,
-        "themes": string[],
-        "intensity": number,
-        "is_abusive": boolean,
-        "is_low_effort": boolean
-      }
-    `;
-
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const text = await chatWithGemini([{ role: "user", content: comment }], systemPrompt);
     const cleanedText = text.replace(/```json|```/g, "").trim();
     return JSON.parse(cleanedText);
   } catch (error) {

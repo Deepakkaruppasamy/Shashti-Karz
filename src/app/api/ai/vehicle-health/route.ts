@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@/lib/supabase/server";
+import { chatWithGemini } from "@/lib/gemini";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+// Centralized AI utility (Groq with Gemini fallback)
 
 export async function POST(req: Request) {
   try {
@@ -28,35 +28,29 @@ export async function POST(req: Request) {
       .eq("status", "completed")
       .order("date", { ascending: false });
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const systemPrompt = `Analyze the car detailing service history and generate a health summary. Respond ONLY with a JSON object.
+    Required format:
+    {
+      "health_score": number (0-100),
+      "health_summary": string (markdown),
+      "paint_status": string,
+      "interior_status": string,
+      "protection_status": string,
+      "resale_value_insight": string,
+      "next_recommended_service": string
+    }`;
 
-    const prompt = `
-      Analyze the following car service history and generate a health summary and a resale-friendly report.
-      
+    const userPrompt = `
       Vehicle: ${vehicle.brand} ${vehicle.model} (${vehicle.year})
       Color: ${vehicle.color}
-      Total Services: ${bookings?.length || 0}
-      
-      Service History:
-      ${bookings?.map(b => `- ${b.date}: ${b.service?.name} (Price: ${b.price})`).join("\n")}
-      
-      Please provide:
-      1. Health Score (0-100)
-      2. AI Health Summary (concise paragraphs)
-      3. Component Status (Paint, Interior, Protection)
-      4. Resale Value Insight (How well is the value maintained)
-      5. Next Recommended Service
-      
-      Return the response as a JSON object.
+      Timeline: ${bookings?.map(b => `${b.date}: ${b.service?.name}`).join(", ")}
     `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const text = await chatWithGemini([{ role: "user", content: userPrompt }], systemPrompt);
 
     // Parse the JSON from the response
     const jsonMatch = text.match(/\{[\s\S]*\}/);
-    const aiData = jsonMatch ? JSON.parse(jsonMatch[0]) : { summary: text };
+    const aiData = jsonMatch ? JSON.parse(jsonMatch[0]) : { health_summary: text };
 
     // Update vehicle with the summary (if columns exist, otherwise just return)
     // For now, we'll just return it to the frontend
