@@ -581,7 +581,7 @@ function AdminDashboardContent() {
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...serviceData, price: 300 }),
+        body: JSON.stringify(serviceData),
       });
       if (!response.ok) throw new Error("Failed to save service");
       toast.success(`Service ${isEditing ? "updated" : "added"} successfully!`);
@@ -2042,6 +2042,109 @@ function AdminDashboardContent() {
                 <div className="flex gap-4 pt-4">
                   <button type="button" onClick={() => setShowWorkerModal(false)} className="flex-1 px-4 py-2 rounded-lg bg-white/5 font-medium hover:bg-white/10">Cancel</button>
                   <button type="submit" className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-[#ff1744] to-[#d4af37] text-white font-bold">Save Worker</button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showServiceModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowServiceModal(false)}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-[#111] border border-white/10 rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="flex justify-between items-center mb-8">
+                <div>
+                  <h2 className="text-2xl font-bold font-display">{selectedService ? 'Edit Service' : 'Add New Service'}</h2>
+                  <p className="text-sm text-[#888] mt-1">Configure your service offerings and pricing.</p>
+                </div>
+                <button onClick={() => setShowServiceModal(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors"><X size={24} /></button>
+              </div>
+
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                handleSaveService({
+                  name: formData.get('name') as string,
+                  short_desc: formData.get('short_desc') as string,
+                  description: formData.get('description') as string,
+                  price: parseInt(formData.get('price') as string),
+                  duration: formData.get('duration') as string,
+                  image: formData.get('image') as string,
+                  steps: (formData.get('steps') as string).split('\n').filter(s => s.trim()),
+                  benefits: (formData.get('benefits') as string).split('\n').filter(b => b.trim()),
+                  active: true,
+                  popular: formData.get('popular') === 'on',
+                  premium: formData.get('premium') === 'on'
+                });
+              }} className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-bold text-[#888] uppercase mb-2 tracking-widest">Service Name</label>
+                    <input name="name" defaultValue={selectedService?.name} required className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:border-[#ff1744] outline-none transition-all" placeholder="e.g. Interior Detailing" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#888] uppercase mb-2 tracking-widest">Image URL</label>
+                    <input name="image" defaultValue={selectedService?.image} className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:border-[#ff1744] outline-none transition-all" placeholder="https://..." />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#888] uppercase mb-2 tracking-widest">Base Price (₹)</label>
+                    <input name="price" type="number" defaultValue={selectedService?.price} required className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:border-[#ff1744] outline-none transition-all" placeholder="1999" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#888] uppercase mb-2 tracking-widest">Duration</label>
+                    <input name="duration" defaultValue={selectedService?.duration} required className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:border-[#ff1744] outline-none transition-all" placeholder="2-3 Hours" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#888] uppercase mb-2 tracking-widest">Short Catchphrase</label>
+                  <input name="short_desc" defaultValue={selectedService?.short_desc} required className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:border-[#ff1744] outline-none transition-all" placeholder="Pure interior hygiene & deep cleaning" />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#888] uppercase mb-2 tracking-widest">Full Description</label>
+                  <textarea name="description" defaultValue={selectedService?.description} required className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:border-[#ff1744] outline-none transition-all h-20 resize-none" placeholder="Detailed service breakdown..." />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-bold text-[#888] uppercase mb-2 tracking-widest">Steps (one per line)</label>
+                    <textarea name="steps" defaultValue={selectedService?.steps?.join('\n')} className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:border-[#ff1744] outline-none transition-all h-32 resize-none" placeholder="Steam Cleaning&#10;Leather Conditioning&#10;Dashboard Polishing" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#888] uppercase mb-2 tracking-widest">Benefits (one per line)</label>
+                    <textarea name="benefits" defaultValue={selectedService?.benefits?.join('\n')} className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:border-[#ff1744] outline-none transition-all h-32 resize-none" placeholder="UV Protection&#10;99% Germ Removal&#10;Stain-Free Finish" />
+                  </div>
+                </div>
+
+                <div className="flex gap-6 py-2">
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative">
+                      <input type="checkbox" name="popular" defaultChecked={selectedService?.popular} className="sr-only peer" />
+                      <div className="w-10 h-6 bg-white/10 rounded-full peer peer-checked:bg-[#ff1744] transition-all" />
+                      <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full peer-checked:translate-x-4 transition-all" />
+                    </div>
+                    <span className="text-xs font-bold uppercase tracking-widest text-[#888] group-hover:text-white">Popular</span>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative">
+                      <input type="checkbox" name="premium" defaultChecked={selectedService?.premium} className="sr-only peer" />
+                      <div className="w-10 h-6 bg-white/10 rounded-full peer peer-checked:bg-[#d4af37] transition-all" />
+                      <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full peer-checked:translate-x-4 transition-all" />
+                    </div>
+                    <span className="text-xs font-bold uppercase tracking-widest text-[#888] group-hover:text-white">Premium</span>
+                  </label>
+                </div>
+
+                <div className="flex gap-4 pt-4">
+                  <button type="button" onClick={() => setShowServiceModal(false)} className="flex-1 px-6 py-4 rounded-2xl bg-white/5 font-bold hover:bg-white/10 transition-all">Cancel</button>
+                  <button type="submit" className="flex-1 px-6 py-4 rounded-2xl bg-gradient-to-r from-[#ff1744] to-[#d4af37] text-white font-bold shadow-lg shadow-[#ff1744]/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    {selectedService ? 'Update Service' : 'Launch Service'}
+                  </button>
                 </div>
               </form>
             </motion.div>
