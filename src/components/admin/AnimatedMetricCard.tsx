@@ -15,6 +15,7 @@ interface AnimatedMetricCardProps {
     trendLabel?: string;
     isLive?: boolean;
     decimals?: number;
+    onClick?: () => void;
 }
 
 export function AnimatedMetricCard({
@@ -27,7 +28,8 @@ export function AnimatedMetricCard({
     trend,
     trendLabel,
     isLive = false,
-    decimals = 0
+    decimals = 0,
+    onClick
 }: AnimatedMetricCardProps) {
     const spring = useSpring(0, { stiffness: 100, damping: 30 });
     const display = useTransform(spring, (current) =>
@@ -45,7 +47,8 @@ export function AnimatedMetricCard({
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            whileHover={{ scale: 1.02 }}
+            whileHover={{ scale: 1.02, cursor: onClick ? 'pointer' : 'default' }}
+            onClick={onClick}
             className="glass-card rounded-2xl p-4 sm:p-6 border border-white/5 relative overflow-hidden"
         >
             {/* Background gradient effect */}

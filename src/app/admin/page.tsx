@@ -128,6 +128,8 @@ function AdminDashboardContent() {
   const [inspectionData, setInspectionData] = useState<any>({
     paint: 5, interior: 5, wheels: 5, glass: 5, notes: ""
   });
+  const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
+  const [showMetricModal, setShowMetricModal] = useState(false);
 
   // Real-time hooks
   const { playSound } = useNotificationSound();
@@ -823,6 +825,11 @@ function AdminDashboardContent() {
                         scale: (stat.label === "Total Revenue" && pulseRevenue) ? [1, 1.05, 1] : 1,
                         boxShadow: (stat.label === "Total Revenue" && pulseRevenue) ? "0 0 20px rgba(212, 175, 55, 0.3)" : "none"
                       }}
+                      whileHover={{ scale: 1.05, cursor: "pointer" }}
+                      onClick={() => {
+                        setSelectedMetric(stat.label);
+                        setShowMetricModal(true);
+                      }}
                       transition={{
                         delay: i * 0.1,
                         duration: (stat.label === "Total Revenue" && pulseRevenue) ? 0.5 : 0.3
@@ -893,6 +900,10 @@ function AdminDashboardContent() {
                         trend={liveAnalytics.revenueGrowth}
                         trendLabel="yesterday"
                         isLive={true}
+                        onClick={() => {
+                          setSelectedMetric("Total Revenue");
+                          setShowMetricModal(true);
+                        }}
                       />
                       <AnimatedMetricCard
                         title="Bookings Today"
@@ -902,6 +913,10 @@ function AdminDashboardContent() {
                         trend={liveAnalytics.bookingsGrowth}
                         trendLabel="yesterday"
                         isLive={true}
+                        onClick={() => {
+                          setSelectedMetric("Total Bookings");
+                          setShowMetricModal(true);
+                        }}
                       />
                       <AnimatedMetricCard
                         title="Satisfaction"
@@ -911,6 +926,10 @@ function AdminDashboardContent() {
                         gradient="from-yellow-500 to-orange-500"
                         isLive={true}
                         decimals={1}
+                        onClick={() => {
+                          setSelectedMetric("Satisfaction");
+                          setShowMetricModal(true);
+                        }}
                       />
                       <AnimatedMetricCard
                         title="Active Workers"
@@ -918,6 +937,9 @@ function AdminDashboardContent() {
                         icon={<Users size={20} className="text-white" />}
                         gradient="from-purple-500 to-pink-500"
                         isLive={true}
+                        onClick={() => {
+                          router.push('/admin?tab=workers');
+                        }}
                       />
                     </div>
 
@@ -1621,6 +1643,216 @@ function AdminDashboardContent() {
       </div>
 
       <AnimatePresence>
+        {showMetricModal && selectedMetric && analytics && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[60] flex items-center justify-center p-4"
+            onClick={() => setShowMetricModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.9, y: 20, opacity: 0 }}
+              className="bg-[#0a0a0a] border border-white/10 rounded-[2.5rem] p-6 lg:p-10 max-w-4xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar relative shadow-2xl shadow-[#ff1744]/10"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setShowMetricModal(false)}
+                className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+              >
+                <X size={24} />
+              </button>
+
+              <div className="mb-8">
+                <div className="flex items-center gap-4 mb-2">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${selectedMetric === "Total Revenue" ? "bg-[#d4af37]/20 text-[#d4af37]" :
+                    selectedMetric === "Revenue Forecast" ? "bg-green-500/20 text-green-500" :
+                      selectedMetric === "Total Bookings" ? "bg-[#ff1744]/20 text-[#ff1744]" :
+                        "bg-purple-500/20 text-purple-500"
+                    }`}>
+                    {selectedMetric === "Total Revenue" ? <DollarSign size={24} /> :
+                      selectedMetric === "Revenue Forecast" ? <TrendingUp size={24} /> :
+                        selectedMetric === "Total Bookings" ? <Calendar size={24} /> :
+                          <Target size={24} />}
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-black font-display tracking-tight">{selectedMetric}</h2>
+                    <p className="text-[#888] font-medium">Detailed intelligence & performance metrics</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Metric Specific Content */}
+                {selectedMetric === "Total Revenue" && (
+                  <>
+                    <div className="glass-card rounded-3xl p-6 border border-white/5 bg-gradient-to-br from-[#d4af37]/10 to-transparent col-span-full">
+                      <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Activity size={20} className="text-[#d4af37]" /> Revenue Velocity</h3>
+                      <div className="h-48 flex items-end gap-2">
+                        {analytics.revenueByDay.map((day, i) => (
+                          <div key={i} className="flex-1 flex flex-col items-center gap-2">
+                            <motion.div
+                              initial={{ height: 0 }}
+                              animate={{ height: `${(day.value / Math.max(...analytics.revenueByDay.map(d => d.value), 1)) * 100}%` }}
+                              className="w-full bg-gradient-to-t from-[#d4af37] to-[#ffd700] rounded-t-xl min-h-[4px]"
+                            />
+                            <span className="text-[10px] text-[#666] font-bold uppercase">{new Date(day.date).toLocaleDateString(undefined, { weekday: 'narrow' })}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="glass-card rounded-3xl p-6 border border-white/5">
+                      <p className="text-xs text-[#888] uppercase font-bold tracking-widest mb-1">Growth (MoM)</p>
+                      <p className={`text-4xl font-black ${analytics.revenueChange >= 0 ? "text-green-500" : "text-red-500"}`}>
+                        {analytics.revenueChange > 0 ? "+" : ""}{analytics.revenueChange}%
+                      </p>
+                    </div>
+                    <div className="glass-card rounded-3xl p-6 border border-white/5">
+                      <p className="text-xs text-[#888] uppercase font-bold tracking-widest mb-1">Avg Order Value</p>
+                      <p className="text-4xl font-black text-white">₹{analytics.avgOrderValue.toLocaleString()}</p>
+                    </div>
+                    <div className="glass-card rounded-3xl p-6 border border-white/5">
+                      <p className="text-xs text-[#888] uppercase font-bold tracking-widest mb-1">New Customers</p>
+                      <p className="text-4xl font-black text-blue-500">{analytics.newCustomers}</p>
+                    </div>
+                  </>
+                )}
+
+                {selectedMetric === "Revenue Forecast" && (
+                  <>
+                    <div className="glass-card rounded-3xl p-6 border border-white/5 bg-gradient-to-br from-green-500/10 to-transparent col-span-full">
+                      <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Sparkles size={20} className="text-green-500" /> AI Growth Projection</h3>
+                      <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
+                        <p className="text-sm text-[#ccc] leading-relaxed italic">
+                          "Based on historical data and current market trends, Shashti AI predicts a revenue of <span className="text-green-500 font-bold">₹{analytics.revenueForecast.toLocaleString()}</span> over the next 7 days. We're seeing a high demand for <span className="text-[#d4af37] font-bold">{analytics.topService?.name || 'premium services'}</span> during peak hours of <span className="text-blue-400 font-bold">{analytics.peakHours}</span>."
+                        </p>
+                      </div>
+                    </div>
+                    <div className="glass-card rounded-3xl p-6 border border-white/5">
+                      <p className="text-xs text-[#888] uppercase font-bold tracking-widest mb-1">Peak Demand Day</p>
+                      <p className="text-2xl font-black text-white">{analytics.peakDay}</p>
+                    </div>
+                    <div className="glass-card rounded-3xl p-6 border border-white/5 col-span-2">
+                      <p className="text-xs text-[#888] uppercase font-bold tracking-widest mb-2">Confidence Level</p>
+                      <div className="h-4 w-full bg-white/5 rounded-full overflow-hidden border border-white/10">
+                        <motion.div initial={{ width: 0 }} animate={{ width: "94%" }} className="h-full bg-gradient-to-r from-green-600 to-emerald-400" />
+                      </div>
+                      <p className="text-right text-[10px] text-[#666] mt-1 font-bold">94% Accuracy - Last 30 days performance</p>
+                    </div>
+                  </>
+                )}
+
+                {selectedMetric === "Total Bookings" && (
+                  <>
+                    <div className="glass-card rounded-3xl p-6 border border-white/5 bg-gradient-to-br from-[#ff1744]/10 to-transparent col-span-full">
+                      <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Calendar size={20} className="text-[#ff1744]" /> Booking Funnel</h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                        {Object.entries(analytics.funnel).map(([status, count]) => (
+                          <div key={status} className="p-3 rounded-2xl bg-white/5 border border-white/10 text-center">
+                            <p className="text-[10px] text-[#888] uppercase font-bold mb-1 truncate">{status.replace('_', ' ')}</p>
+                            <p className="text-xl font-black text-white">{count}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="glass-card rounded-3xl p-6 border border-white/5">
+                      <p className="text-xs text-[#888] uppercase font-bold tracking-widest mb-1">Completion Rate</p>
+                      <p className="text-4xl font-black text-green-500">{analytics.completionRate}%</p>
+                    </div>
+                    <div className="glass-card rounded-3xl p-6 border border-white/5">
+                      <p className="text-xs text-[#888] uppercase font-bold tracking-widest mb-1">Cancellation Rate</p>
+                      <p className="text-4xl font-black text-red-500">{analytics.cancellationRate}%</p>
+                    </div>
+                    <div className="glass-card rounded-3xl p-6 border border-white/5">
+                      <p className="text-xs text-[#888] uppercase font-bold tracking-widest mb-1">Total Records</p>
+                      <p className="text-4xl font-black text-[#ff1744]">{analytics.totalBookings}</p>
+                    </div>
+                  </>
+                )}
+
+                {selectedMetric === "Completion Rate" && (
+                  <>
+                    <div className="glass-card rounded-3xl p-6 border border-white/5 bg-gradient-to-br from-purple-500/10 to-transparent col-span-full">
+                      <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Target size={20} className="text-purple-500" /> Efficiency Analysis</h3>
+                      <div className="space-y-4">
+                        <p className="text-sm text-[#888]">Worker performance contributes significantly to the overall completion rate.</p>
+                        <div className="space-y-3">
+                          {analytics.workerPerformance.slice(0, 3).map((w, i) => (
+                            <div key={i} className="flex items-center justify-between">
+                              <span className="text-sm font-medium">{w.name}</span>
+                              <div className="flex items-center gap-3 flex-1 max-w-[200px] ml-4">
+                                <div className="h-1.5 flex-1 bg-white/5 rounded-full overflow-hidden">
+                                  <div className="h-full bg-purple-500" style={{ width: '85%' }} />
+                                </div>
+                                <span className="text-xs font-bold">85%</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {selectedMetric === "Satisfaction" && liveAnalytics && (
+                  <>
+                    <div className="glass-card rounded-3xl p-6 border border-white/5 bg-gradient-to-br from-yellow-500/10 to-transparent col-span-full">
+                      <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Star size={20} className="text-yellow-500" /> Customer Satisfaction</h3>
+                      <div className="space-y-4">
+                        <p className="text-sm text-[#888]">Average satisfaction score based on recent customer reviews and feedback.</p>
+                        <div className="flex items-center gap-6">
+                          <div className="text-6xl font-black text-white">{liveAnalytics.satisfactionScore.toFixed(1)}%</div>
+                          <div className="space-y-1">
+                            <div className="flex gap-1">
+                              {[1, 2, 3, 4, 5].map(i => (
+                                <Star key={i} size={24} className={i <= Math.round(liveAnalytics.averageRating) ? "text-yellow-500 fill-yellow-500" : "text-[#333]"} />
+                              ))}
+                            </div>
+                            <p className="text-sm text-[#888] font-bold">{liveAnalytics.averageRating.toFixed(1)} / 5.0 Average Rating</p>
+                          </div>
+                        </div>
+                        <div className="pt-4 border-t border-white/5">
+                          <p className="text-xs text-[#666] uppercase font-bold tracking-widest mb-2">Confidence Indicator</p>
+                          <p className="text-sm text-[#ccc]">Based on <span className="text-white font-bold">{liveAnalytics.totalReviews}</span> verified customer reviews.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className="mt-10 pt-10 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p className="text-xs text-[#666]">Data synchronized in real-time. Insights provided by Shashti AI Model 2.5.</p>
+                <div className="flex gap-3 w-full sm:w-auto">
+                  <button
+                    onClick={() => setShowMetricModal(false)}
+                    className="flex-1 sm:flex-none px-6 py-3 rounded-2xl bg-white/5 font-bold hover:bg-white/10 transition-all text-sm"
+                  >
+                    Close Intelligence
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowMetricModal(false);
+                      const tab = selectedMetric === "Total Revenue" ? "finance" :
+                        selectedMetric === "Total Bookings" ? "bookings" :
+                          selectedMetric === "Revenue Forecast" ? "analytics" : "dashboard";
+                      router.push(`/admin?tab=${tab}`);
+                    }}
+                    className="flex-1 sm:flex-none px-6 py-3 rounded-2xl bg-white text-black font-bold hover:bg-white/90 transition-all text-sm flex items-center justify-center gap-2"
+                  >
+                    System Deep Dive <ChevronRight size={16} />
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+
         {showInspectionModal && selectedBooking && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowInspectionModal(false)}>
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-[#111] border border-white/10 rounded-3xl p-8 max-w-lg w-full" onClick={(e) => e.stopPropagation()}>

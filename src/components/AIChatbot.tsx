@@ -91,13 +91,16 @@ How can I help you today?`
       const data = await response.json();
 
       if (data.error) {
+        const errorMsg = data.error.toLowerCase();
+        const isQuota = errorMsg.includes("quota") || errorMsg.includes("busy") || response.status === 429;
+
         setMessages(prev => [
           ...prev,
           {
             role: "assistant",
-            content: `I apologize, but I'm having trouble connecting right now. 
-
-📞 Please call us at **+91 98765 43210** for immediate assistance, or try again in a moment.`
+            content: isQuota
+              ? `The AI service is currently very busy (limit reached). Please wait a minute and try again, or call us for immediate booking.`
+              : `I apologize, but I'm having trouble connecting right now. \n\n📞 Please call us at **+91 98765 43210** for immediate assistance.`
           }
         ]);
       } else {
@@ -213,7 +216,7 @@ How can I help you today?`
                           animate={{ opacity: [1, 0.5, 1] }}
                           transition={{ duration: 1.5, repeat: Infinity }}
                         />
-                        <span className="text-xs text-white/60">Online • GPT Powered</span>
+                        <span className="text-xs text-white/60">Online • AI Powered</span>
                       </div>
                     </div>
                   </div>
@@ -409,7 +412,7 @@ How can I help you today?`
                               transition={{ duration: 2, repeat: Infinity }}
                               className="w-2 h-2 bg-green-500 rounded-full"
                             />
-                            <span className="text-xs text-white/30">Powered by OpenAI</span>
+                            <span className="text-xs text-white/30">Powered by Shashti AI</span>
                           </div>
                           <div className="flex items-center gap-3">
                             <a
