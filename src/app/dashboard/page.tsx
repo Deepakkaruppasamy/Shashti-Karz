@@ -22,6 +22,7 @@ import type { LoyaltyPoints, LoyaltyTransaction, ServiceTracking, Booking, Worke
 import { BrandedLoader } from "@/components/animations/CarLoader";
 import dynamic from "next/dynamic";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
+import { LoyaltyMissionMap } from "@/components/LoyaltyMissionMap";
 
 function PayNowButton({ bookingId }: { bookingId: string }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -475,7 +476,7 @@ export default function DashboardPage() {
     { id: "overview" as TabType, label: "Overview", icon: TrendingUp },
     { id: "bookings" as TabType, label: "My Bookings", icon: Calendar },
     { id: "tracking" as TabType, label: "Live Tracking", icon: Eye, badge: activeBookings.length },
-    { id: "loyalty" as TabType, label: "Rewards", icon: Gift, badge: loyaltyData?.points },
+    { id: "loyalty" as TabType, label: "Missions", icon: Star, badge: loyaltyData?.points },
     { id: "profile" as TabType, label: "Profile", icon: User },
     { id: "settings" as TabType, label: "Settings", icon: Settings },
   ];
@@ -980,57 +981,8 @@ export default function DashboardPage() {
               >
                 {loyaltyData && (
                   <>
-                    <div className="glass-card rounded-2xl p-6">
-                      <div className="flex items-center gap-4 mb-6">
-                        <div
-                          className="w-20 h-20 rounded-2xl flex items-center justify-center"
-                          style={{ backgroundColor: `${tierInfo.color}30` }}
-                        >
-                          <TierIcon size={40} style={{ color: tierInfo.color }} />
-                        </div>
-                        <div>
-                          <h2 className="text-2xl font-bold" style={{ color: tierInfo.color }}>
-                            {loyaltyData.tier.charAt(0).toUpperCase() + loyaltyData.tier.slice(1)} Member
-                          </h2>
-                          <p className="text-[#888]">{loyaltyData.total_bookings} bookings • ₹{loyaltyData.total_spent.toLocaleString()} spent</p>
-                        </div>
-                      </div>
-
-                      <div className="grid sm:grid-cols-3 gap-4 mb-6">
-                        <div className="p-4 rounded-xl bg-white/5 text-center">
-                          <Star size={24} className="mx-auto text-[#d4af37] mb-2" />
-                          <div className="text-2xl font-bold">{loyaltyData.points.toLocaleString()}</div>
-                          <div className="text-sm text-[#888]">Available Points</div>
-                        </div>
-                        <div className="p-4 rounded-xl bg-white/5 text-center">
-                          <TrendingUp size={24} className="mx-auto text-green-500 mb-2" />
-                          <div className="text-2xl font-bold">₹{loyaltyData.total_spent.toLocaleString()}</div>
-                          <div className="text-sm text-[#888]">Total Spent</div>
-                        </div>
-                        <div className="p-4 rounded-xl bg-white/5 text-center">
-                          <Calendar size={24} className="mx-auto text-blue-500 mb-2" />
-                          <div className="text-2xl font-bold">{loyaltyData.total_bookings}</div>
-                          <div className="text-sm text-[#888]">Total Bookings</div>
-                        </div>
-                      </div>
-
-                      {loyaltyData.nextTier && (
-                        <div className="p-4 rounded-xl bg-white/5">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm text-[#888]">Progress to {loyaltyData.nextTier.charAt(0).toUpperCase() + loyaltyData.nextTier.slice(1)}</span>
-                            <span className="text-sm font-medium">₹{loyaltyData.pointsToNextTier.toLocaleString()} more</span>
-                          </div>
-                          <div className="h-3 rounded-full bg-white/10">
-                            <div
-                              className="h-full rounded-full"
-                              style={{
-                                width: `${Math.min(100, (loyaltyData.total_spent / (loyaltyData.total_spent + loyaltyData.pointsToNextTier)) * 100)}%`,
-                                backgroundColor: tierInfo.color
-                              }}
-                            />
-                          </div>
-                        </div>
-                      )}
+                    <div className="mb-12">
+                      <LoyaltyMissionMap currentPoints={loyaltyData.points} />
                     </div>
 
                     <div className="glass-card rounded-2xl p-6">
