@@ -27,8 +27,13 @@ function ServiceCard({ service, carTypes, index }: { service: any; carTypes: any
   const [likesCount, setLikesCount] = useState(0);
 
   useEffect(() => {
-    checkInitialStatus();
-  }, [user, service.id]);
+    // Delay fetching to prevent simultaneous requests locking up the browser
+    const timer = setTimeout(() => {
+      checkInitialStatus();
+    }, index * 150 + 100);
+
+    return () => clearTimeout(timer);
+  }, [user, service.id, index]);
 
   const checkInitialStatus = async () => {
     try {
