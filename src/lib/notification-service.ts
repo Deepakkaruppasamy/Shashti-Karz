@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import type {
   Notification,
   NotificationType,
@@ -91,7 +91,7 @@ const TYPE_TO_CHANNELS: Record<NotificationType, NotificationChannel[]> = {
 };
 
 export async function sendNotification(params: SendNotificationParams): Promise<Notification | null> {
-  const supabase = await createClient();
+  const supabase = await createServiceClient();
 
   const category = TYPE_TO_CATEGORY[params.type];
   const priority = params.priority || TYPE_TO_DEFAULT_PRIORITY[params.type];
@@ -185,7 +185,7 @@ async function sendEmailNotification(
   type: NotificationType,
   data?: Record<string, any>
 ) {
-  const supabase = await createClient();
+  const supabase = await createServiceClient();
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -269,7 +269,7 @@ async function sendEmailNotification(
 }
 
 async function sendWhatsAppNotification(userId: string, message: string) {
-  const supabase = await createClient();
+  const supabase = await createServiceClient();
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -479,23 +479,40 @@ export async function sendAdminNotification(
   type: "new_booking" | "high_value" | "payment_failed" | "service_completed" | "booking_cancelled" | "payment_received",
   data: Record<string, any>
 ) {
-  const supabase = await createClient();
+  const supabase = await createServiceClient();
+
+  // Always include ADMIN_EMAIL from env as a guaranteed fallback
+  const envAdminEmail = process.env.ADMIN_EMAIL;
 
   // Fetch all admin profiles (id + email) from DB
-  const { data: dbAdmins } = await supabase
+  let { data: dbAdmins } = await supabase
     .from("profiles")
     .select("id, email, full_name")
     .eq("role", "admin");
 
-  // Always include ADMIN_EMAIL from env as a guaranteed fallback
-  const envAdminEmail = process.env.ADMIN_EMAIL;
+  // Failsafe: If the env admin isn't explicitly marked as admin in DB, find their profile anyway
+  if (envAdminEmail) {
+    const isAlreadyIn = dbAdmins?.some(a => a.email?.toLowerCase() === envAdminEmail.toLowerCase());
+    if (!isAlreadyIn) {
+      const { data: extraAdmin } = await supabase
+        .from("profiles")
+        .select("id, email, full_name")
+        .eq("email", envAdminEmail)
+        .single();
+      
+      if (extraAdmin) {
+        dbAdmins = [...(dbAdmins || []), extraAdmin];
+      }
+    }
+  }
+
   const admins = dbAdmins || [];
 
   // Collect unique email recipients: all DB admins + the env ADMIN_EMAIL
   const emailRecipients = new Set<string>(
     admins.map((a: { email: string }) => a.email).filter(Boolean)
   );
-  if (envAdminEmail) emailRecipients.add(envAdminEmail);
+  if (envAdminEmail) emailRecipients.add(envAdminEmail.toLowerCase());
 
   const titles: Record<string, string> = {
     new_booking: "🆕 New Booking Received",
@@ -533,7 +550,9 @@ export async function sendAdminNotification(
     });
   }
 
-  // Step 2: Build the HTML email body once
+  console.log(`[Admin Notification] Processing ${type} for ${admins.length} DB admins and ${emailRecipients.size} email recipients`);
+
+  // Step 3: Build the HTML email body once
   let html = "";
   try {
     switch (type) {
@@ -599,20 +618,28 @@ export async function sendAdminNotification(
     console.error("[Admin Email] Failed to build email HTML:", buildErr);
   }
 
-  // Step 3: Send email to every unique admin recipient (DB admins + ADMIN_EMAIL env)
+  // Step 4: Send email to every unique admin recipient (DB admins + ADMIN_EMAIL env)
   if (html) {
     for (const recipientEmail of emailRecipients) {
       try {
-        await sendEmail({
+        console.log(`[Admin Email] Attempting send to ${recipientEmail}...`);
+        const result = await sendEmail({
           to: recipientEmail,
           subject: `[Shashti Karz Admin] ${titles[type]}`,
           html,
         });
-        console.log(`[Admin Email] Sent "${titles[type]}" to ${recipientEmail}`);
+        
+        if (result.success) {
+          console.log(`[Admin Email] SUCCESS: Sent "${titles[type]}" to ${recipientEmail}`);
+        } else {
+          console.error(`[Admin Email] FAILED to ${recipientEmail}: ${result.error}`);
+        }
       } catch (emailErr) {
-        console.error(`[Admin Email] Failed to send to ${recipientEmail}:`, emailErr);
+        console.error(`[Admin Email] EXCEPTION for ${recipientEmail}:`, emailErr);
       }
     }
+  } else {
+    console.warn(`[Admin Notification] No HTML generated for ${type}, skipping emails.`);
   }
 }
 
