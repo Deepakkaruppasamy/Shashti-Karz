@@ -4,12 +4,31 @@ import nodemailer from "nodemailer";
 const transporter = process.env.SMTP_HOST ? nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: parseInt(process.env.SMTP_PORT || "587"),
-  secure: process.env.SMTP_PORT === "465", // true for 465, false for other ports
+  secure: process.env.SMTP_PORT === "465",
   auth: {
     user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    pass: process.env.SMTP_PASS?.replace(/\s/g, ""), // Remove any spaces from App Passwords
   },
+  tls: {
+    // Gmail often requires this to avoid AUTH errors in local/limited envs
+    rejectUnauthorized: false,
+    ciphers: 'SSLv3'
+  },
+  pool: true, // Use pooling for better performance
+  maxConnections: 5,
+  maxMessages: 100,
 }) : null;
+
+// Self-test connection on init (Server-side)
+if (transporter && typeof window === 'undefined') {
+  transporter.verify((error) => {
+    if (error) {
+      console.error("[Email Engine] Transporter connection failed:", error);
+    } else {
+      console.log("[Email Engine] Transporter is ready to deliver messages");
+    }
+  });
+}
 
 const FROM_EMAIL = process.env.FROM_EMAIL || "Shashti Karz <updates@shashtikarz.com>";
 
@@ -22,11 +41,12 @@ interface SendEmailParams {
 
 export async function sendEmail(params: SendEmailParams): Promise<{ success: boolean; id?: string; error?: string }> {
   if (!transporter) {
+    console.error("[Email Engine] Transporter not initialized. Missing SMTP_HOST in .env.local?");
     console.log("=========================================");
     console.log(`[EMAIL AUTO-MOCK]`);
     console.log(`To: ${params.to}`);
     console.log(`Subject: ${params.subject}`);
-    console.log(`Status: Simulated Success (Configure SMTP in .env.local to send real emails)`);
+    console.log(`Status: Simulated Success (Check environment variables)`);
     console.log("=========================================");
     return { success: true, id: "mock-email-id" };
   }
