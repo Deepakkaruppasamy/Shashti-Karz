@@ -412,11 +412,11 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
 
         if (lowerQuery.includes("location") || lowerQuery.includes("address") || lowerQuery.includes("where") || lowerQuery.includes("directions")) {
             setTimeout(() => router.push("/contact"), 1000);
-            return { text: "We're located at 123 Car Care Street, Auto District, Tirupur. I'll open the contact page with our exact location and Google Maps directions.", lang: "en-US" };
+            return { text: "We're located at Rajalakshmi Roofing Gundon Left Side 100 Meters, Tirupur. I'll open the contact page with our exact location and Google Maps directions.", lang: "en-US" };
         }
 
         if (lowerQuery.includes("whatsapp") || lowerQuery.includes("message") || lowerQuery.includes("chat")) {
-            return { text: "You can reach us on WhatsApp at +91 98765 43210. Just send us a message and we'll respond quickly! You can also use the WhatsApp button on our website.", lang: "en-US" };
+            return { text: "You can reach us on WhatsApp at +91 73583 03550. Just send us a message and we'll respond quickly! You can also use the WhatsApp button on our website.", lang: "en-US" };
         }
 
         // ========== SUPPORT & FEEDBACK ==========

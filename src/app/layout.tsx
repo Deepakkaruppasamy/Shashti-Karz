@@ -7,6 +7,7 @@ import { SoundProvider } from "@/hooks/useSound";
 import { LanguageProvider } from "@/lib/LanguageContext";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { PWARegistration } from "@/components/PWARegistration";
+import { PWAInstallPrompt } from "@/components/pwa/InstallPrompt";
 
 export const metadata: Metadata = {
   title: {
@@ -94,14 +95,14 @@ export default function RootLayout({
               "image": "https://shashtikarz.com/logo.png",
               "@id": "https://shashtikarz.com",
               "url": "https://shashtikarz.com",
-              "telephone": "+91 98765 43210",
+              "telephone": "+91 73583 03550",
               "priceRange": "₹₹₹",
               "address": {
                 "@type": "PostalAddress",
-                "streetAddress": "Avinashi Main Road",
+                "streetAddress": "Rajalakshmi Roofing Gundon Left Side 100 Meters",
                 "addressLocality": "Tirupur",
                 "addressRegion": "Tamil Nadu",
-                "postalCode": "641603",
+                "postalCode": "641654",
                 "addressCountry": "IN"
               },
               "geo": {
@@ -136,6 +137,7 @@ export default function RootLayout({
           <LanguageProvider>
             <AuthProvider>
               <PWARegistration />
+              <PWAInstallPrompt />
               <main className="pb-16 lg:pb-0">
                 {children}
               </main>

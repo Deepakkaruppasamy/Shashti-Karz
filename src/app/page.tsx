@@ -41,8 +41,8 @@ const InterstitialVideoPromo = dynamic(() => import("@/components/ads/Interstiti
 const businessInfo = {
   name: 'Shashti Karz',
   tagline: 'Car Detailing Xpert',
-  phone: '+91 98765 43210',
-  whatsapp: '919876543210',
+  phone: '+91 7358303550',
+  whatsapp: '917358303550',
 };
 
 
@@ -457,7 +457,7 @@ function CTASection() {
             <ArrowRight size={20} />
           </Link>
           <a
-            href="https://wa.me/919876543210"
+            href="https://wa.me/917358303550"
             className="px-10 py-4 rounded-full text-lg font-bold bg-[#25D366] text-white inline-flex items-center justify-center gap-2 shadow-xl"
           >
             <MessageCircle size={20} />

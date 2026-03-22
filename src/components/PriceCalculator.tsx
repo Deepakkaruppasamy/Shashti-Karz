@@ -382,7 +382,7 @@ export function PriceCalculator({ services, onBookNow }: PriceCalculatorProps) {
                 </button>
 
                 <a
-                  href={`https://wa.me/919876543210?text=${encodeURIComponent(
+                  href={`https://wa.me/917358303550?text=${encodeURIComponent(
                     `Hi! I'm interested in ${selectedService?.name || "your services"} for my ${selectedCarType.name}. ${selectedAddons.length > 0 ? `Add-ons: ${selectedAddons.map(id => addons.find(a => a.id === id)?.name).join(", ")}. ` : ""}${selectedPackages.length > 0 ? `Packages: ${selectedPackages.map(id => packages.find(p => p.id === id)?.name).join(", ")}. ` : ""}Estimated price: ₹${totalPrice.toLocaleString()}`
                   )}`}
                   target="_blank"

@@ -64,7 +64,7 @@ const COMPANY_INFO = {
   name: "Shashti Karz",
   tagline: "Car Detailing Xpert",
   address: "123 Main Road, Tirupur, Tamil Nadu 641601",
-  phone: "+91 98765 43210",
+  phone: "+91 7358303550",
   email: "info@shashtikarz.com",
   gst: "33AABCU9603R1ZM",
 };

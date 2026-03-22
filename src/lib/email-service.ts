@@ -214,7 +214,7 @@ export function generateBookingConfirmationEmail(data: {
     </div>
     
     <div style="text-align: center; margin-top: 32px; color: #666; font-size: 12px;">
-      <p>Questions? Reply to this email or WhatsApp us at +91 98765 43210</p>
+      <p>Questions? Reply to this email or WhatsApp us at +91 7358303550</p>
       <p>© ${new Date().getFullYear()} Shashti Karz. All rights reserved.</p>
     </div>
   </div>

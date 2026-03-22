@@ -122,7 +122,7 @@ export default function ContactPage() {
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      placeholder="+91 98765 43210"
+                      placeholder="7358303550"
                       className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-[#666] focus:outline-none focus:border-[#ff1744]/50"
                     />
                   </div>
@@ -188,7 +188,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <p className="font-medium text-sm">Address</p>
-                      <p className="text-[#888] text-sm">Avinashi Road, Tirupur, Tamil Nadu 641652</p>
+                      <p className="text-[#888] text-sm leading-relaxed">Rajalakshmi Roofing Gundon Left Side 100 Meters, Tirupur-641654</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
@@ -197,7 +197,10 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <p className="font-medium text-sm">Phone</p>
-                      <a href="tel:+919876543210" className="text-[#888] text-sm hover:text-[#ff1744]">+91 98765 43210</a>
+                      <div className="flex flex-col gap-1">
+                        <a href="tel:+917358303550" className="text-[#888] text-sm hover:text-[#ff1744]">7358303550</a>
+                        <a href="tel:+919042203550" className="text-[#888] text-sm hover:text-[#ff1744]">9042203550</a>
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
@@ -206,7 +209,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <p className="font-medium text-sm">Email</p>
-                      <a href="mailto:info@shashtikarz.com" className="text-[#888] text-sm hover:text-[#ff1744]">info@shashtikarz.com</a>
+                      <a href="mailto:Shashtikarz@gmail.com" className="text-[#888] text-sm hover:text-[#ff1744]">Shashtikarz@gmail.com</a>
                     </div>
                   </div>
                 </div>
@@ -239,7 +242,7 @@ export default function ContactPage() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.6 }}
-                href="https://wa.me/919876543210"
+                href="https://wa.me/917358303550"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="glass-card rounded-2xl p-6 flex items-center gap-4 hover:border-green-500/50 transition-colors block"

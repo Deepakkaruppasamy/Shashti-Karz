@@ -627,7 +627,7 @@ function BookingForm() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="+91 98765 43210"
+                    placeholder="+91 7358303550"
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-[#666] focus:outline-none focus:border-[#ff1744]/50 focus:ring-2 focus:ring-[#ff1744]/20 transition-all"
                   />
                 </div>

@@ -130,7 +130,7 @@ function generateEmailHTML(type: string, data: any): string {
             <div class="footer">
               <p>Shashti Karz - Premium Car Detailing<br>
               📍 123 Car Care Street, Auto District, Tirupur<br>
-              📞 +91 98765 43210 | 📧 support@shashtikarz.com</p>
+              📞 +91 7358303550 | 📧 support@shashtikarz.com</p>
             </div>
           </div>
         </body>
@@ -168,7 +168,7 @@ function generateEmailHTML(type: string, data: any): string {
             <div class="footer">
               <p>Shashti Karz - Premium Car Detailing<br>
               📍 123 Car Care Street, Auto District, Tirupur<br>
-              📞 +91 98765 43210 | 📧 support@shashtikarz.com</p>
+              📞 +91 7358303550 | 📧 support@shashtikarz.com</p>
             </div>
           </div>
         </body>
@@ -215,7 +215,7 @@ function generateEmailHTML(type: string, data: any): string {
             <div class="footer">
               <p>Shashti Karz - Premium Car Detailing<br>
               📍 123 Car Care Street, Auto District, Tirupur<br>
-              📞 +91 98765 43210 | 📧 support@shashtikarz.com</p>
+              📞 +91 7358303550 | 📧 support@shashtikarz.com</p>
             </div>
           </div>
         </body>

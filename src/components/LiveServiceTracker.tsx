@@ -309,7 +309,7 @@ export function LiveServiceTracker({ bookingId, isClient = false }: LiveServiceT
             <div className="glass-card rounded-2xl p-6 text-center">
               <p className="text-[#888] mb-4">Questions about your service?</p>
               <a
-                href={`https://wa.me/919876543210?text=${encodeURIComponent(
+                href={`https://wa.me/917358303550?text=${encodeURIComponent(
                   `Hi! I'm checking on my booking ${booking.booking_id}. Current status: ${currentStage}`
                 )}`}
                 target="_blank"

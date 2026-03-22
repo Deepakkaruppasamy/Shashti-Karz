@@ -52,7 +52,8 @@ export function ShashtiAI() {
 
   useEffect(() => {
     if (user && profile) {
-      const isAdmin = profile.email?.includes("admin") || profile.email === "deepanshukumar2004@gmail.com";
+      const isAdmin = profile.email?.includes("admin") ||
+        ["deepakkaruppasamy27@gmail.com", "Shashtikarz@gmail.com", "deepanshukumar2004@gmail.com"].includes(profile.email || "");
       setUserRole(isAdmin ? "admin" : "customer");
       setUserName(profile.full_name || user.email?.split("@")[0] || "");
     } else {
@@ -120,7 +121,7 @@ export function ShashtiAI() {
       if (data.error) {
         setMessages(prev => [...prev, {
           role: "assistant",
-          content: "I'm having trouble right now. Please call us at **+91 98765 43210**.",
+          content: "I'm having trouble right now. Please call us at **+91 73583 03550**.",
           timestamp: new Date()
         }]);
       } else {
@@ -130,7 +131,7 @@ export function ShashtiAI() {
       setIsTyping(false);
       setMessages(prev => [...prev, {
         role: "assistant",
-        content: "Connection error. Please try again or call **+91 98765 43210**.",
+        content: "Connection error. Please try again or call **+91 73583 03550**.",
         timestamp: new Date()
       }]);
     } finally {

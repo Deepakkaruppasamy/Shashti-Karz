@@ -270,7 +270,7 @@ export function ServiceComparison() {
           <p className="text-[#888] mb-4">Not sure which package to choose?</p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
-              href="https://wa.me/919876543210?text=Hi! I need help choosing the right car detailing package."
+              href="https://wa.me/917358303550?text=Hi! I need help choosing the right car detailing package."
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 bg-[#25D366] text-white rounded-xl hover:bg-[#25D366]/90 transition-colors"

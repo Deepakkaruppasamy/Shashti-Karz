@@ -374,7 +374,7 @@ export const mockBookings = [
     price: 5999,
     customerName: 'Rajesh Kumar',
     customerEmail: 'rajesh@example.com',
-    customerPhone: '+91 98765 43210'
+    customerPhone: '+91 7358303550'
   },
   {
     id: 'BK002',
@@ -409,7 +409,7 @@ export const mockUsers = [
     id: 'USR001',
     name: 'Rajesh Kumar',
     email: 'rajesh@example.com',
-    phone: '+91 98765 43210',
+    phone: '+91 7358303550',
     joinedDate: '2025-06-15',
     totalBookings: 5,
     totalSpent: 45999,
@@ -439,11 +439,12 @@ export const mockUsers = [
 
 export const businessInfo = {
   name: 'Shashti Karz',
-  tagline: 'Car Detailing Xpert',
-  address: 'Avinashi Road, Tirupur, Tamil Nadu 641652',
-  phone: '+91 98765 43210',
-  whatsapp: '+919876543210',
-  email: 'info@shashtikarz.com',
+  tagline: 'Car Detailing Xpert | Owner: Dinesh S',
+  address: 'Rajalakshmi Roofing Gundon Left Side 100 Meters, Tirupur-641654',
+  phone: '7358303550',
+  phone_alt: '9042203550',
+  whatsapp: '917358303550',
+  email: 'Shashtikarz@gmail.com',
   hours: {
     weekdays: '9:00 AM - 7:00 PM',
     saturday: '9:00 AM - 6:00 PM',

@@ -100,7 +100,7 @@ How can I help you today?`
             role: "assistant",
             content: isQuota
               ? `The AI service is currently very busy (limit reached). Please wait a minute and try again, or call us for immediate booking.`
-              : `I apologize, but I'm having trouble connecting right now. \n\n📞 Please call us at **+91 98765 43210** for immediate assistance.`
+              : `I apologize, but I'm having trouble connecting right now. \n\n📞 Please call us at **+91 7358303550** for immediate assistance.`
           }
         ]);
       } else {
@@ -114,7 +114,7 @@ How can I help you today?`
         ...prev,
         {
           role: "assistant",
-          content: `I'm having trouble connecting. Please try again or call us at **+91 98765 43210**.`
+          content: `I'm having trouble connecting. Please try again or call us at **+91 7358303550**.`
         }
       ]);
     } finally {
@@ -416,7 +416,7 @@ How can I help you today?`
                           </div>
                           <div className="flex items-center gap-3">
                             <a
-                              href="tel:+919876543210"
+                              href="tel:+917358303550"
                               className="flex items-center gap-1 text-xs text-white/50 hover:text-[#ff1744] transition-colors"
                             >
                               <Phone size={12} />
