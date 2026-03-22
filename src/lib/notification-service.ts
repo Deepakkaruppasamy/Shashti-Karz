@@ -429,11 +429,11 @@ export async function sendBookingNotification(
     cancelled: `Your booking for ${bookingData.serviceName} on ${bookingData.date} has been cancelled.`,
   };
 
-  const notificationType: NotificationType = type === "created"
-    ? "booking_created"
-    : type === "approved"
-      ? "booking_approved"
-      : "service_completed";
+  const notificationType: NotificationType =
+    type === "created" ? "booking_created"
+      : type === "approved" ? "booking_approved"
+        : type === "cancelled" ? "booking_created" // or admin_booking_cancelled? For customer let's stick to base
+          : "service_completed";
 
   const notification = await sendNotification({
     userId,
