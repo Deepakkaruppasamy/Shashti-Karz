@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 export const dynamic = 'force-dynamic';
 
-import { sendBookingNotification } from "@/lib/notification-service";
+import { sendBookingNotification, sendAdminNotification } from "@/lib/notification-service";
 import { logActivity } from "@/lib/activities";
 import { updateLoyaltyPoints } from "@/lib/loyalty";
 
@@ -53,18 +53,23 @@ export async function PUT(
 
   try {
     if (oldData && data.status !== oldData.status) {
+      const commonData = {
+        serviceName: data.service?.name || "Service",
+        date: data.date,
+        time: data.time,
+        price: data.price,
+        customerName: data.customer_name,
+        customerEmail: data.customer_email,
+        carModel: data.car_model,
+        bookingId: data.booking_id,
+      };
+
       if (data.status === "approved") {
         await sendBookingNotification(
           data.id,
           "approved",
           data.user_id,
-          {
-            serviceName: data.service?.name || "Service",
-            date: data.date,
-            time: data.time,
-            price: data.price,
-            customerName: data.customer_name,
-          }
+          commonData
         );
       } else if (data.status === "completed") {
         try {
@@ -80,31 +85,25 @@ export async function PUT(
         }
 
         await sendBookingNotification(
-
           data.id,
           "completed",
           data.user_id,
-          {
-            serviceName: data.service?.name || "Service",
-            date: data.date,
-            time: data.time,
-            price: data.price,
-            customerName: data.customer_name,
-          }
+          { ...commonData, customerEmail: data.customer_email }
         );
+
+        // Notify all admins that service was completed
+        await sendAdminNotification("service_completed", commonData);
+
       } else if (data.status === "cancelled") {
         await sendBookingNotification(
           data.id,
           "cancelled",
           data.user_id,
-          {
-            serviceName: data.service?.name || "Service",
-            date: data.date,
-            time: data.time,
-            price: data.price,
-            customerName: data.customer_name,
-          }
+          commonData
         );
+
+        // Notify all admins that a booking was cancelled
+        await sendAdminNotification("booking_cancelled", commonData);
       }
 
       await logActivity({

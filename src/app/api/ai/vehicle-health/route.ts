@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { chatWithGemini } from "@/lib/gemini";
+import { sendAIInsight } from "@/lib/notification-service";
 
 // Centralized AI utility (Groq with Gemini fallback)
 
@@ -55,8 +56,18 @@ export async function POST(req: Request) {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     const aiData = jsonMatch ? JSON.parse(jsonMatch[0]) : { health_summary: text };
 
-    // Update vehicle with the summary (if columns exist, otherwise just return)
-    // For now, we'll just return it to the frontend
+    // Send AI insight notification to the vehicle owner
+    try {
+      const healthScore = aiData.health_score || 0;
+      const emoji = healthScore >= 80 ? "🌟" : healthScore >= 60 ? "✅" : "⚠️";
+      await sendAIInsight(
+        vehicle.user_id,
+        `${emoji} AI Health Report ready for your ${vehicle.brand} ${vehicle.model}. Health Score: ${healthScore}/100. ${aiData.next_milestone || ""}`,
+        { vehicleId, healthScore, vehicleName: `${vehicle.brand} ${vehicle.model}` }
+      );
+    } catch (notifyErr) {
+      console.error("Failed to send AI insight notification:", notifyErr);
+    }
 
     return NextResponse.json(aiData);
   } catch (error) {

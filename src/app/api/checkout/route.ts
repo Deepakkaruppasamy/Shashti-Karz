@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 
 import { stripe } from '@/lib/stripe';
 import { createClient } from '@supabase/supabase-js';
-import { sendPaymentNotification } from '@/lib/notification-service';
+import { sendPaymentNotification, sendAdminNotification, sendNotification } from '@/lib/notification-service';
 import { updateLoyaltyPoints } from '@/lib/loyalty';
 
 const supabase = createClient(
@@ -127,7 +127,6 @@ export async function GET(request: NextRequest) {
           );
 
           await sendPaymentNotification(
-
             booking.user_id,
             {
               customerName: session.metadata.customer_name || booking.customer_name,
@@ -138,6 +137,32 @@ export async function GET(request: NextRequest) {
               bookingId: booking.id,
             }
           );
+
+          // Notify admins about payment received
+          await sendAdminNotification("payment_received", {
+            customerName: session.metadata.customer_name || booking.customer_name,
+            customerEmail: session.customer_details?.email || booking.customer_email,
+            serviceName: session.metadata.service_name || booking.service?.name || 'Service',
+            amount: (session.amount_total || 0) / 100,
+            paymentId: session.id,
+            bookingId: booking.booking_id || booking.id,
+          });
+
+          // invoice_generated in-app notification for the customer
+          const invoiceUrl = (session.invoice as { hosted_invoice_url?: string })?.hosted_invoice_url || null;
+          await sendNotification({
+            userId: booking.user_id,
+            type: "invoice_generated",
+            title: "Your Invoice is Ready 📄",
+            message: `Invoice for ${session.metadata.service_name || booking.service?.name || 'your service'} — ₹${((session.amount_total || 0) / 100).toLocaleString()} has been generated.`,
+            data: {
+              bookingId: booking.id,
+              amount: (session.amount_total || 0) / 100,
+              invoiceUrl,
+            },
+            actionUrl: invoiceUrl || `/dashboard`,
+            priority: "medium",
+          });
         } catch (notifError) {
           console.error('Failed to send payment notification:', notifError);
         }

@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 import { logActivity } from "@/lib/activities";
+import { sendNotification } from "@/lib/notification-service";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
 
       const { data: booking } = await supabase
         .from("bookings")
-        .select("booking_id, customer_name")
+        .select("booking_id, customer_name, user_id")
         .eq("id", booking_id)
         .single();
 
@@ -73,6 +74,18 @@ export async function POST(request: NextRequest) {
         description: `Stage ${stage} started for ${booking?.customer_name || 'Booking'} (${booking?.booking_id || ''})`,
         metadata: { booking_id: booking?.booking_id, stage, status: status || "pending" }
       });
+
+      // Notify customer that a worker has been assigned to their booking
+      if (booking?.user_id) {
+        await sendNotification({
+          userId: booking.user_id,
+          type: "worker_assigned",
+          title: "Worker Assigned to Your Service",
+          message: `A technician has been assigned and the ${stage} stage of your service is being prepared.`,
+          data: { bookingId: booking_id, stage },
+          actionUrl: `/dashboard`,
+        });
+      }
 
       return NextResponse.json(data);
     } catch (error) {
@@ -106,9 +119,10 @@ export async function PUT(request: NextRequest) {
 
       if (error) throw error;
 
+      // Fetch booking + user for notification
       const { data: booking } = await supabase
         .from("bookings")
-        .select("booking_id, customer_name")
+        .select("booking_id, customer_name, user_id")
         .eq("id", data.booking_id)
         .single();
 
@@ -118,6 +132,18 @@ export async function PUT(request: NextRequest) {
         description: `Stage ${data.stage} is now ${status} for ${booking?.customer_name || 'Booking'} (${booking?.booking_id || ''})`,
         metadata: { booking_id: booking?.booking_id, stage: data.stage, status }
       });
+
+      // Notify customer when their service actually starts
+      if (status === "in_progress" && booking?.user_id) {
+        await sendNotification({
+          userId: booking.user_id,
+          type: "service_started",
+          title: "Your Service Has Started! 🚗",
+          message: `Great news! The ${data.stage} stage of your detailing service is now in progress. We'll keep you updated.`,
+          data: { bookingId: data.booking_id, stage: data.stage },
+          actionUrl: `/dashboard`,
+        });
+      }
 
       return NextResponse.json(data);
 

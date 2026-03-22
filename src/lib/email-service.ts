@@ -413,3 +413,381 @@ export function generatePromotionalEmail(data: {
 </html>
   `.trim();
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADMIN EMAIL TEMPLATES
+// ─────────────────────────────────────────────────────────────────────────────
+
+export function generateAdminNewBookingEmail(data: {
+  customerName: string;
+  customerEmail: string;
+  customerPhone?: string;
+  serviceName: string;
+  carModel: string;
+  date: string;
+  time: string;
+  price: number;
+  bookingId: string;
+}): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #0a0a0a; color: #ffffff;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+    <div style="text-align: center; margin-bottom: 32px;">
+      <h1 style="color: #ff1744; margin: 0; font-size: 28px;">Shashti Karz</h1>
+      <p style="color: #888; margin: 6px 0 0; font-size: 13px;">Admin Notification</p>
+    </div>
+
+    <div style="background: linear-gradient(135deg, #1a1a1a 0%, #111 100%); border-radius: 16px; padding: 28px; border: 1px solid #333;">
+      <div style="display: flex; align-items: center; margin-bottom: 20px;">
+        <div style="width: 14px; height: 14px; background: #ff1744; border-radius: 50%; margin-right: 10px;"></div>
+        <h2 style="color: #ffffff; margin: 0; font-size: 20px;">🆕 New Booking Received</h2>
+      </div>
+
+      <div style="background: #0a0a0a; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+        <p style="color: #d4af37; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 14px;">Booking Details</p>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Booking ID</td>
+            <td style="padding: 7px 0; text-align: right; color: #fff; font-family: monospace; font-size: 14px;">${data.bookingId}</td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Service</td>
+            <td style="padding: 7px 0; text-align: right; color: #fff; font-size: 14px;">${data.serviceName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Vehicle</td>
+            <td style="padding: 7px 0; text-align: right; color: #fff; font-size: 14px;">${data.carModel}</td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Date & Time</td>
+            <td style="padding: 7px 0; text-align: right; color: #fff; font-size: 14px;">${data.date} at ${data.time}</td>
+          </tr>
+          <tr style="border-top: 1px solid #333;">
+            <td style="padding: 14px 0 7px; color: #888; font-weight: bold; font-size: 14px;">Total Amount</td>
+            <td style="padding: 14px 0 7px; text-align: right; color: #d4af37; font-size: 22px; font-weight: bold;">₹${data.price.toLocaleString()}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="background: #111; border-radius: 12px; padding: 20px; margin-bottom: 20px; border-left: 3px solid #ff1744;">
+        <p style="color: #d4af37; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 14px;">Customer Info</p>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 6px 0; color: #888; font-size: 14px;">Name</td>
+            <td style="padding: 6px 0; text-align: right; color: #fff; font-size: 14px;">${data.customerName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; color: #888; font-size: 14px;">Email</td>
+            <td style="padding: 6px 0; text-align: right; color: #fff; font-size: 14px;">${data.customerEmail}</td>
+          </tr>
+          ${data.customerPhone ? `
+          <tr>
+            <td style="padding: 6px 0; color: #888; font-size: 14px;">Phone</td>
+            <td style="padding: 6px 0; text-align: right; color: #fff; font-size: 14px;">${data.customerPhone}</td>
+          </tr>` : ""}
+        </table>
+      </div>
+
+      <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/admin/bookings" style="display: block; background: linear-gradient(135deg, #ff1744 0%, #d4af37 100%); color: white; text-decoration: none; padding: 14px 28px; border-radius: 12px; text-align: center; font-weight: 600; font-size: 15px;">
+        Manage Booking in Admin Panel
+      </a>
+    </div>
+
+    <div style="text-align: center; margin-top: 28px; color: #666; font-size: 12px;">
+      <p>© ${new Date().getFullYear()} Shashti Karz Admin. This is an automated notification.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim();
+}
+
+export function generateAdminHighValueEmail(data: {
+  customerName: string;
+  customerEmail: string;
+  serviceName: string;
+  carModel: string;
+  date: string;
+  price: number;
+  bookingId: string;
+}): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #0a0a0a; color: #ffffff;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+    <div style="text-align: center; margin-bottom: 32px;">
+      <h1 style="color: #ff1744; margin: 0; font-size: 28px;">Shashti Karz</h1>
+      <p style="color: #888; margin: 6px 0 0; font-size: 13px;">Admin Notification</p>
+    </div>
+
+    <div style="background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%); border-radius: 4px; padding: 4px; margin-bottom: 2px;">
+      <div style="background: linear-gradient(135deg, #1a1a1a 0%, #111 100%); border-radius: 14px; padding: 28px;">
+        <h2 style="color: #d4af37; margin: 0 0 6px; font-size: 22px;">💎 High-Value Booking Alert!</h2>
+        <p style="color: #aaa; margin: 0 0 22px; font-size: 14px;">A premium booking worth ₹${data.price.toLocaleString()} has been placed.</p>
+
+        <div style="background: #0a0a0a; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 7px 0; color: #888; font-size: 14px;">Booking ID</td>
+              <td style="padding: 7px 0; text-align: right; color: #fff; font-family: monospace; font-size: 14px;">${data.bookingId}</td>
+            </tr>
+            <tr>
+              <td style="padding: 7px 0; color: #888; font-size: 14px;">Customer</td>
+              <td style="padding: 7px 0; text-align: right; color: #fff; font-size: 14px;">${data.customerName} (${data.customerEmail})</td>
+            </tr>
+            <tr>
+              <td style="padding: 7px 0; color: #888; font-size: 14px;">Service</td>
+              <td style="padding: 7px 0; text-align: right; color: #fff; font-size: 14px;">${data.serviceName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 7px 0; color: #888; font-size: 14px;">Vehicle</td>
+              <td style="padding: 7px 0; text-align: right; color: #fff; font-size: 14px;">${data.carModel}</td>
+            </tr>
+            <tr>
+              <td style="padding: 7px 0; color: #888; font-size: 14px;">Date</td>
+              <td style="padding: 7px 0; text-align: right; color: #fff; font-size: 14px;">${data.date}</td>
+            </tr>
+            <tr style="border-top: 1px solid #333;">
+              <td style="padding: 14px 0 7px; color: #888; font-weight: bold; font-size: 14px;">Total Amount</td>
+              <td style="padding: 14px 0 7px; text-align: right; color: #d4af37; font-size: 26px; font-weight: bold;">₹${data.price.toLocaleString()}</td>
+            </tr>
+          </table>
+        </div>
+
+        <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/admin/bookings" style="display: block; background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%); color: #0a0a0a; text-decoration: none; padding: 14px 28px; border-radius: 12px; text-align: center; font-weight: 700; font-size: 15px;">
+          View Booking in Admin Panel
+        </a>
+      </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 28px; color: #666; font-size: 12px;">
+      <p>© ${new Date().getFullYear()} Shashti Karz Admin. This is an automated notification.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim();
+}
+
+export function generateAdminServiceCompletedEmail(data: {
+  customerName: string;
+  customerEmail: string;
+  serviceName: string;
+  carModel: string;
+  bookingId: string;
+  price: number;
+}): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #0a0a0a; color: #ffffff;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+    <div style="text-align: center; margin-bottom: 32px;">
+      <h1 style="color: #ff1744; margin: 0; font-size: 28px;">Shashti Karz</h1>
+      <p style="color: #888; margin: 6px 0 0; font-size: 13px;">Admin Notification</p>
+    </div>
+
+    <div style="background: linear-gradient(135deg, #1a1a1a 0%, #111 100%); border-radius: 16px; padding: 28px; border: 1px solid #22c55e44;">
+      <h2 style="color: #22c55e; margin: 0 0 6px; font-size: 20px;">✅ Service Marked as Completed</h2>
+      <p style="color: #aaa; margin: 0 0 22px; font-size: 14px;">A service has been successfully completed and the customer has been notified.</p>
+
+      <div style="background: #0a0a0a; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Booking ID</td>
+            <td style="padding: 7px 0; text-align: right; color: #fff; font-family: monospace; font-size: 14px;">${data.bookingId}</td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Customer</td>
+            <td style="padding: 7px 0; text-align: right; color: #fff; font-size: 14px;">${data.customerName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Email</td>
+            <td style="padding: 7px 0; text-align: right; color: #fff; font-size: 14px;">${data.customerEmail}</td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Service</td>
+            <td style="padding: 7px 0; text-align: right; color: #fff; font-size: 14px;">${data.serviceName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Vehicle</td>
+            <td style="padding: 7px 0; text-align: right; color: #fff; font-size: 14px;">${data.carModel}</td>
+          </tr>
+          <tr style="border-top: 1px solid #333;">
+            <td style="padding: 14px 0 7px; color: #888; font-weight: bold; font-size: 14px;">Revenue</td>
+            <td style="padding: 14px 0 7px; text-align: right; color: #22c55e; font-size: 22px; font-weight: bold;">₹${data.price.toLocaleString()}</td>
+          </tr>
+        </table>
+      </div>
+
+      <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/admin/bookings" style="display: block; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; text-decoration: none; padding: 14px 28px; border-radius: 12px; text-align: center; font-weight: 600; font-size: 15px;">
+        View in Admin Panel
+      </a>
+    </div>
+
+    <div style="text-align: center; margin-top: 28px; color: #666; font-size: 12px;">
+      <p>© ${new Date().getFullYear()} Shashti Karz Admin. This is an automated notification.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim();
+}
+
+export function generateAdminBookingCancelledEmail(data: {
+  customerName: string;
+  customerEmail: string;
+  serviceName: string;
+  carModel: string;
+  date: string;
+  price: number;
+  bookingId: string;
+}): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #0a0a0a; color: #ffffff;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+    <div style="text-align: center; margin-bottom: 32px;">
+      <h1 style="color: #ff1744; margin: 0; font-size: 28px;">Shashti Karz</h1>
+      <p style="color: #888; margin: 6px 0 0; font-size: 13px;">Admin Notification</p>
+    </div>
+
+    <div style="background: linear-gradient(135deg, #1a1a1a 0%, #111 100%); border-radius: 16px; padding: 28px; border: 1px solid #ff174444;">
+      <h2 style="color: #ff1744; margin: 0 0 6px; font-size: 20px;">❌ Booking Cancelled</h2>
+      <p style="color: #aaa; margin: 0 0 22px; font-size: 14px;">A customer has cancelled their booking. The slot is now available.</p>
+
+      <div style="background: #0a0a0a; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Booking ID</td>
+            <td style="padding: 7px 0; text-align: right; color: #fff; font-family: monospace; font-size: 14px;">${data.bookingId}</td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Customer</td>
+            <td style="padding: 7px 0; text-align: right; color: #fff; font-size: 14px;">${data.customerName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Email</td>
+            <td style="padding: 7px 0; text-align: right; color: #fff; font-size: 14px;">${data.customerEmail}</td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Service</td>
+            <td style="padding: 7px 0; text-align: right; color: #fff; font-size: 14px;">${data.serviceName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Vehicle</td>
+            <td style="padding: 7px 0; text-align: right; color: #fff; font-size: 14px;">${data.carModel}</td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Scheduled Date</td>
+            <td style="padding: 7px 0; text-align: right; color: #ff1744; font-size: 14px;">${data.date}</td>
+          </tr>
+          <tr style="border-top: 1px solid #333;">
+            <td style="padding: 14px 0 7px; color: #888; font-weight: bold; font-size: 14px;">Lost Revenue</td>
+            <td style="padding: 14px 0 7px; text-align: right; color: #ff1744; font-size: 22px; font-weight: bold;">₹${data.price.toLocaleString()}</td>
+          </tr>
+        </table>
+      </div>
+
+      <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/admin/bookings" style="display: block; background: linear-gradient(135deg, #ff1744 0%, #d50032 100%); color: white; text-decoration: none; padding: 14px 28px; border-radius: 12px; text-align: center; font-weight: 600; font-size: 15px;">
+        View in Admin Panel
+      </a>
+    </div>
+
+    <div style="text-align: center; margin-top: 28px; color: #666; font-size: 12px;">
+      <p>© ${new Date().getFullYear()} Shashti Karz Admin. This is an automated notification.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim();
+}
+
+export function generateAdminPaymentReceivedEmail(data: {
+  customerName: string;
+  customerEmail: string;
+  serviceName: string;
+  amount: number;
+  paymentId: string;
+  bookingId: string;
+}): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #0a0a0a; color: #ffffff;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+    <div style="text-align: center; margin-bottom: 32px;">
+      <h1 style="color: #ff1744; margin: 0; font-size: 28px;">Shashti Karz</h1>
+      <p style="color: #888; margin: 6px 0 0; font-size: 13px;">Admin Notification</p>
+    </div>
+
+    <div style="background: linear-gradient(135deg, #1a1a1a 0%, #111 100%); border-radius: 16px; padding: 28px; border: 1px solid #22c55e44;">
+      <h2 style="color: #22c55e; margin: 0 0 6px; font-size: 20px;">💰 Payment Received</h2>
+      <p style="color: #aaa; margin: 0 0 22px; font-size: 14px;">A customer has successfully completed their payment via Stripe.</p>
+
+      <div style="background: #0a0a0a; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Booking ID</td>
+            <td style="padding: 7px 0; text-align: right; color: #fff; font-family: monospace; font-size: 14px;">${data.bookingId}</td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Payment ID</td>
+            <td style="padding: 7px 0; text-align: right; color: #fff; font-family: monospace; font-size: 13px;">${data.paymentId.slice(0, 20)}...</td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Customer</td>
+            <td style="padding: 7px 0; text-align: right; color: #fff; font-size: 14px;">${data.customerName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Email</td>
+            <td style="padding: 7px 0; text-align: right; color: #fff; font-size: 14px;">${data.customerEmail}</td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 0; color: #888; font-size: 14px;">Service</td>
+            <td style="padding: 7px 0; text-align: right; color: #fff; font-size: 14px;">${data.serviceName}</td>
+          </tr>
+          <tr style="border-top: 1px solid #333;">
+            <td style="padding: 14px 0 7px; color: #888; font-weight: bold; font-size: 14px;">Amount Received</td>
+            <td style="padding: 14px 0 7px; text-align: right; color: #22c55e; font-size: 26px; font-weight: bold;">₹${data.amount.toLocaleString()}</td>
+          </tr>
+        </table>
+      </div>
+
+      <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/admin/bookings" style="display: block; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; text-decoration: none; padding: 14px 28px; border-radius: 12px; text-align: center; font-weight: 600; font-size: 15px;">
+        View in Admin Panel
+      </a>
+    </div>
+
+    <div style="text-align: center; margin-top: 28px; color: #666; font-size: 12px;">
+      <p>© ${new Date().getFullYear()} Shashti Karz Admin. This is an automated notification.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim();
+}

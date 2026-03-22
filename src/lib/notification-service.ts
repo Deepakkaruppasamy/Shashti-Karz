@@ -13,7 +13,12 @@ import {
   generateServiceCompletedEmail,
   generatePaymentReceiptEmail,
   generateReminderEmail,
-  generatePromotionalEmail
+  generatePromotionalEmail,
+  generateAdminNewBookingEmail,
+  generateAdminHighValueEmail,
+  generateAdminServiceCompletedEmail,
+  generateAdminBookingCancelledEmail,
+  generateAdminPaymentReceivedEmail,
 } from "@/lib/email-service";
 import { sendWhatsAppMessage } from "@/lib/whatsapp-service";
 
@@ -82,7 +87,7 @@ const TYPE_TO_CHANNELS: Record<NotificationType, NotificationChannel[]> = {
   admin_daily_summary: ["email"],
   system_alert: ["in_app", "email"],
   ai_insight: ["in_app"],
-  promotion: ["email"],
+  promotion: ["in_app", "email"],
 };
 
 export async function sendNotification(params: SendNotificationParams): Promise<Notification | null> {
@@ -471,44 +476,142 @@ export async function sendBookingNotification(
 }
 
 export async function sendAdminNotification(
-  type: "new_booking" | "high_value" | "payment_failed",
+  type: "new_booking" | "high_value" | "payment_failed" | "service_completed" | "booking_cancelled" | "payment_received",
   data: Record<string, any>
 ) {
   const supabase = await createClient();
 
-  const { data: admins } = await supabase
+  // Fetch all admin profiles (id + email) from DB
+  const { data: dbAdmins } = await supabase
     .from("profiles")
-    .select("id")
+    .select("id, email, full_name")
     .eq("role", "admin");
 
+  // Always include ADMIN_EMAIL from env as a guaranteed fallback
+  const envAdminEmail = process.env.ADMIN_EMAIL;
+  const admins = dbAdmins || [];
+
+  // Collect unique email recipients: all DB admins + the env ADMIN_EMAIL
+  const emailRecipients = new Set<string>(
+    admins.map((a: { email: string }) => a.email).filter(Boolean)
+  );
+  if (envAdminEmail) emailRecipients.add(envAdminEmail);
+
   const titles: Record<string, string> = {
-    new_booking: "New Booking Received",
-    high_value: "High-Value Booking Alert!",
-    payment_failed: "Payment Failed Alert",
+    new_booking: "🆕 New Booking Received",
+    high_value: "💎 High-Value Booking Alert!",
+    payment_failed: "⚠️ Payment Failed Alert",
+    service_completed: "✅ Service Completed",
+    booking_cancelled: "❌ Booking Cancelled",
+    payment_received: "💰 Payment Received",
   };
 
   const messages: Record<string, string> = {
-    new_booking: `New booking from ${data.customerName} for ${data.serviceName}`,
+    new_booking: `New booking from ${data.customerName} for ${data.serviceName} on ${data.date}`,
     high_value: `High-value booking of ₹${data.price} from ${data.customerName}`,
     payment_failed: `Payment of ₹${data.amount} failed for booking ${data.bookingId}`,
+    service_completed: `${data.serviceName} for ${data.customerName} has been completed`,
+    booking_cancelled: `${data.customerName} cancelled their ${data.serviceName} booking`,
+    payment_received: `Payment of ₹${data.amount} received from ${data.customerName}`,
   };
 
-  const notificationType: NotificationType = type === "new_booking"
-    ? "admin_new_booking"
-    : type === "high_value"
-      ? "admin_high_value"
-      : "admin_payment_failed";
+  const notificationType: NotificationType =
+    type === "new_booking" ? "admin_new_booking"
+    : type === "high_value" ? "admin_high_value"
+    : type === "payment_failed" || type === "payment_received" ? "admin_payment_failed"
+    : "admin_new_booking";
 
-  if (admins && admins.length > 0) {
-    for (const admin of admins) {
-      await sendNotification({
-        userId: admin.id,
-        type: notificationType,
-        title: titles[type],
-        message: messages[type],
-        data,
-        actionUrl: "/admin/bookings",
-      });
+  // Step 1: Send in-app notifications to all DB admin users
+  for (const admin of admins) {
+    await sendNotification({
+      userId: admin.id,
+      type: notificationType,
+      title: titles[type],
+      message: messages[type],
+      data,
+      actionUrl: "/admin/bookings",
+    });
+  }
+
+  // Step 2: Build the HTML email body once
+  let html = "";
+  try {
+    switch (type) {
+      case "new_booking":
+        html = generateAdminNewBookingEmail({
+          customerName: data.customerName,
+          customerEmail: data.customerEmail || "",
+          customerPhone: data.customerPhone,
+          serviceName: data.serviceName,
+          carModel: data.carModel || data.car_model || "",
+          date: data.date,
+          time: data.time || "",
+          price: data.price,
+          bookingId: data.bookingId || data.booking_id || "",
+        });
+        break;
+      case "high_value":
+        html = generateAdminHighValueEmail({
+          customerName: data.customerName,
+          customerEmail: data.customerEmail || "",
+          serviceName: data.serviceName,
+          carModel: data.carModel || data.car_model || "",
+          date: data.date,
+          price: data.price,
+          bookingId: data.bookingId || data.booking_id || "",
+        });
+        break;
+      case "service_completed":
+        html = generateAdminServiceCompletedEmail({
+          customerName: data.customerName,
+          customerEmail: data.customerEmail || "",
+          serviceName: data.serviceName,
+          carModel: data.carModel || data.car_model || "",
+          bookingId: data.bookingId || data.booking_id || "",
+          price: data.price,
+        });
+        break;
+      case "booking_cancelled":
+        html = generateAdminBookingCancelledEmail({
+          customerName: data.customerName,
+          customerEmail: data.customerEmail || "",
+          serviceName: data.serviceName,
+          carModel: data.carModel || data.car_model || "",
+          date: data.date,
+          price: data.price,
+          bookingId: data.bookingId || data.booking_id || "",
+        });
+        break;
+      case "payment_received":
+        html = generateAdminPaymentReceivedEmail({
+          customerName: data.customerName,
+          customerEmail: data.customerEmail || "",
+          serviceName: data.serviceName,
+          amount: data.amount || data.price,
+          paymentId: data.paymentId || "",
+          bookingId: data.bookingId || data.booking_id || "",
+        });
+        break;
+      default:
+        html = `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px"><h2 style="color:#ff1744">${titles[type]}</h2><p>${messages[type]}</p></div>`;
+    }
+  } catch (buildErr) {
+    console.error("[Admin Email] Failed to build email HTML:", buildErr);
+  }
+
+  // Step 3: Send email to every unique admin recipient (DB admins + ADMIN_EMAIL env)
+  if (html) {
+    for (const recipientEmail of emailRecipients) {
+      try {
+        await sendEmail({
+          to: recipientEmail,
+          subject: `[Shashti Karz Admin] ${titles[type]}`,
+          html,
+        });
+        console.log(`[Admin Email] Sent "${titles[type]}" to ${recipientEmail}`);
+      } catch (emailErr) {
+        console.error(`[Admin Email] Failed to send to ${recipientEmail}:`, emailErr);
+      }
     }
   }
 }

@@ -59,7 +59,8 @@ export function NotificationBell() {
 
     setIsLoading(true);
     try {
-      const res = await fetch("/api/notifications?limit=20");
+      const categoryParam = activeCategory !== "all" ? `&category=${activeCategory}` : "";
+      const res = await fetch(`/api/notifications?limit=50${categoryParam}`);
       if (res.ok) {
         const data = await res.json();
         if (data && !data.error) {
@@ -72,7 +73,7 @@ export function NotificationBell() {
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, activeCategory]);
 
   useEffect(() => {
     fetchNotifications();
@@ -149,9 +150,8 @@ export function NotificationBell() {
     }
   };
 
-  const filteredNotifications = activeCategory === "all"
-    ? notifications
-    : notifications.filter(n => n.category === activeCategory);
+  // No client-side filtering needed — API now handles category filtering
+  const filteredNotifications = notifications;
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);

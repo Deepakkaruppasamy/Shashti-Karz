@@ -166,6 +166,17 @@
   transform: translateY(-2px);
 }
 
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.btn-gold:hover {
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+  transform: translateY(-2px);
+}
+
 .hero-gradient {
   background: radial-gradient(ellipse at center top, rgba(255, 23, 68, 0.1) 0%, transparent 70%), #0a0a0a;
 }

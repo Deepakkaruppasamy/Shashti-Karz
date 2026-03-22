@@ -65,9 +65,11 @@ export async function POST(request: Request) {
     );
 
     await sendAdminNotification("new_booking", {
-      bookingId: data.id,
+      bookingId: data.booking_id,
       customerName: data.customer_name,
+      customerEmail: data.customer_email,
       serviceName: data.service?.name || body.service_name || "Service",
+      carModel: data.car_model,
       price: data.price,
       date: data.date,
       time: data.time,
@@ -75,10 +77,13 @@ export async function POST(request: Request) {
 
     if (data.price >= 15000) {
       await sendAdminNotification("high_value", {
-        bookingId: data.id,
+        bookingId: data.booking_id,
         customerName: data.customer_name,
+        customerEmail: data.customer_email,
         serviceName: data.service?.name || body.service_name || "Service",
+        carModel: data.car_model,
         price: data.price,
+        date: data.date,
       });
     }
 
