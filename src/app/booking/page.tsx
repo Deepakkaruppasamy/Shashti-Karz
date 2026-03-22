@@ -551,7 +551,15 @@ function BookingForm() {
                     type="date"
                     min={minDate}
                     value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    onChange={(e) => {
+                      const selected = e.target.value;
+                      if (selected && selected < minDate) {
+                        e.target.value = minDate;
+                        setFormData({ ...formData, date: minDate });
+                      } else {
+                        setFormData({ ...formData, date: selected });
+                      }
+                    }}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#ff1744]/50 focus:ring-2 focus:ring-[#ff1744]/20 transition-all"
                   />
                 </div>

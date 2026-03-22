@@ -1,6 +1,6 @@
 // Service Worker for PWA
-const CACHE_NAME = 'shashti-karz-v1';
-const RUNTIME_CACHE = 'runtime-cache';
+const CACHE_NAME = 'shashti-karz-v2';
+const RUNTIME_CACHE = 'runtime-cache-v2';
 
 // Assets to cache on install
 const PRECACHE_ASSETS = [
@@ -15,7 +15,6 @@ const PRECACHE_ASSETS = [
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            // Cache assets individually to avoid failing on missing files
             return Promise.allSettled(
                 PRECACHE_ASSETS.map(asset =>
                     cache.add(asset).catch(err => {
@@ -42,46 +41,74 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// Fetch event - network first, fallback to cache
+// Fetch event
 self.addEventListener('fetch', (event) => {
     const { request } = event;
     const url = new URL(request.url);
 
-    // Skip cross-origin requests
+    // Skip cross-origin requests entirely - let browser handle them
     if (url.origin !== location.origin) {
         return;
     }
 
-    // Skip caching for non-GET requests (POST, PUT, DELETE)
+    // Skip non-GET requests entirely - DO NOT use respondWith for these
+    // This prevents the "message channel closed" error
     if (request.method !== 'GET') {
-        event.respondWith(fetch(request));
         return;
     }
 
-    // API requests - network first (GET only)
+    // API GET requests - network first, return empty JSON on failure (never throw)
     if (url.pathname.startsWith('/api/')) {
-        event.respondWith(networkFirst(request));
+        event.respondWith(networkFirstAPI(request));
         return;
     }
 
     // Static assets - cache first
-    if (request.destination === 'image' || request.destination === 'style' || request.destination === 'script') {
+    if (
+        request.destination === 'image' ||
+        request.destination === 'style' ||
+        request.destination === 'script' ||
+        request.destination === 'font'
+    ) {
         event.respondWith(cacheFirst(request));
         return;
     }
 
     // Pages - network first with offline fallback
-    event.respondWith(networkFirst(request));
+    event.respondWith(networkFirstPage(request));
 });
 
-// Network first strategy (for GET requests only)
-async function networkFirst(request) {
+// Network first for API routes - NEVER throws, always returns a valid Response
+async function networkFirstAPI(request) {
     try {
         const response = await fetch(request);
-        // Only cache successful responses
         if (response && response.status === 200) {
             const cache = await caches.open(RUNTIME_CACHE);
-            // Clone the response before caching
+            cache.put(request, response.clone()).catch((err) => {
+                console.warn('Cache put failed:', err);
+            });
+        }
+        return response;
+    } catch (error) {
+        // Try serving from cache first
+        const cached = await caches.match(request);
+        if (cached) {
+            return cached;
+        }
+        // Return a graceful empty JSON response instead of throwing
+        return new Response(JSON.stringify([]), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+        });
+    }
+}
+
+// Network first for pages - falls back to offline page
+async function networkFirstPage(request) {
+    try {
+        const response = await fetch(request);
+        if (response && response.status === 200) {
+            const cache = await caches.open(RUNTIME_CACHE);
             cache.put(request, response.clone()).catch((err) => {
                 console.warn('Cache put failed:', err);
             });
@@ -99,7 +126,8 @@ async function networkFirst(request) {
                 return offlinePage;
             }
         }
-        throw error;
+        // Return a graceful error response instead of throwing
+        return new Response('Network error', { status: 503 });
     }
 }
 
@@ -112,11 +140,16 @@ async function cacheFirst(request) {
 
     try {
         const response = await fetch(request);
-        const cache = await caches.open(RUNTIME_CACHE);
-        cache.put(request, response.clone());
+        if (response && response.status === 200) {
+            const cache = await caches.open(RUNTIME_CACHE);
+            cache.put(request, response.clone()).catch((err) => {
+                console.warn('Cache put failed:', err);
+            });
+        }
         return response;
     } catch (error) {
-        throw error;
+        // Return graceful error instead of throwing
+        return new Response('Asset not available offline', { status: 503 });
     }
 }
 
@@ -148,13 +181,11 @@ self.addEventListener('notificationclick', (event) => {
 
     event.waitUntil(
         clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-            // Check if there's already a window open
             for (const client of clientList) {
                 if (client.url === urlToOpen && 'focus' in client) {
                     return client.focus();
                 }
             }
-            // Open new window
             if (clients.openWindow) {
                 return clients.openWindow(urlToOpen);
             }
@@ -179,14 +210,12 @@ async function syncBookings() {
             const response = await cache.match(request);
             const data = await response.json();
 
-            // Send to server
             await fetch('/api/bookings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
             });
 
-            // Remove from cache
             await cache.delete(request);
         }
     } catch (error) {
@@ -206,7 +235,6 @@ async function updateBookings() {
         const response = await fetch('/api/bookings');
         const data = await response.json();
 
-        // Update cache
         const cache = await caches.open(RUNTIME_CACHE);
         cache.put('/api/bookings', new Response(JSON.stringify(data)));
     } catch (error) {
