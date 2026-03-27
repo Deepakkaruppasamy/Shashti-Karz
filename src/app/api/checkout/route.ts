@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Booking already paid' }, { status: 400 });
     }
 
-    const origin = request.headers.get('origin') || 'http://localhost:3000';
+    const origin = request.headers.get('origin') || 'https://main.d3va8n93jbpois.amplifyapp.com';
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',

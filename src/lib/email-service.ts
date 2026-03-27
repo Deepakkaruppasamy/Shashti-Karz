@@ -95,7 +95,7 @@ export function generateWelcomeEmail(data: { customerName: string }): string {
         </ul>
       </div>
       
-      <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/dashboard" style="display: block; background: linear-gradient(135deg, #ff1744 0%, #d4af37 100%); color: white; text-decoration: none; padding: 16px 32px; border-radius: 12px; text-align: center; font-weight: 600;">
+      <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://main.d3va8n93jbpois.amplifyapp.com"}/dashboard" style="display: block; background: linear-gradient(135deg, #ff1744 0%, #d4af37 100%); color: white; text-decoration: none; padding: 16px 32px; border-radius: 12px; text-align: center; font-weight: 600;">
         Access Your Dashboard
       </a>
     </div>
@@ -208,7 +208,7 @@ export function generateBookingConfirmationEmail(data: {
         </table>
       </div>
       
-      <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/dashboard" style="display: block; background: linear-gradient(135deg, #ff1744 0%, #d4af37 100%); color: white; text-decoration: none; padding: 16px 32px; border-radius: 12px; text-align: center; font-weight: 600;">
+      <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://main.d3va8n93jbpois.amplifyapp.com"}/dashboard" style="display: block; background: linear-gradient(135deg, #ff1744 0%, #d4af37 100%); color: white; text-decoration: none; padding: 16px 32px; border-radius: 12px; text-align: center; font-weight: 600;">
         View Booking Details
       </a>
     </div>
@@ -255,7 +255,7 @@ export function generateServiceCompletedEmail(data: {
         Hi ${data.customerName}, your car is looking amazing! Thank you for choosing Shashti Karz.
       </p>
       
-      <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/dashboard" style="display: block; background: linear-gradient(135deg, #ff1744 0%, #d4af37 100%); color: white; text-decoration: none; padding: 16px 32px; border-radius: 12px; text-align: center; font-weight: 600; margin-bottom: 16px;">
+      <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://main.d3va8n93jbpois.amplifyapp.com"}/dashboard" style="display: block; background: linear-gradient(135deg, #ff1744 0%, #d4af37 100%); color: white; text-decoration: none; padding: 16px 32px; border-radius: 12px; text-align: center; font-weight: 600; margin-bottom: 16px;">
         View Service Details
       </a>
       
@@ -418,7 +418,7 @@ export function generatePromotionalEmail(data: {
         </div>
         ` : ""}
         
-        <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/booking" style="display: block; background: linear-gradient(135deg, #ff1744 0%, #d4af37 100%); color: white; text-decoration: none; padding: 16px 32px; border-radius: 12px; text-align: center; font-weight: 600;">
+        <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://main.d3va8n93jbpois.amplifyapp.com"}/booking" style="display: block; background: linear-gradient(135deg, #ff1744 0%, #d4af37 100%); color: white; text-decoration: none; padding: 16px 32px; border-radius: 12px; text-align: center; font-weight: 600;">
           Book Now
         </a>
       </div>
@@ -514,7 +514,7 @@ export function generateAdminNewBookingEmail(data: {
         </table>
       </div>
 
-      <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/admin/bookings" style="display: block; background: linear-gradient(135deg, #ff1744 0%, #d4af37 100%); color: white; text-decoration: none; padding: 14px 28px; border-radius: 12px; text-align: center; font-weight: 600; font-size: 15px;">
+      <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://main.d3va8n93jbpois.amplifyapp.com"}/admin/bookings" style="display: block; background: linear-gradient(135deg, #ff1744 0%, #d4af37 100%); color: white; text-decoration: none; padding: 14px 28px; border-radius: 12px; text-align: center; font-weight: 600; font-size: 15px;">
         Manage Booking in Admin Panel
       </a>
     </div>
@@ -585,7 +585,7 @@ export function generateAdminHighValueEmail(data: {
           </table>
         </div>
 
-        <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/admin/bookings" style="display: block; background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%); color: #0a0a0a; text-decoration: none; padding: 14px 28px; border-radius: 12px; text-align: center; font-weight: 700; font-size: 15px;">
+        <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://main.d3va8n93jbpois.amplifyapp.com"}/admin/bookings" style="display: block; background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%); color: #0a0a0a; text-decoration: none; padding: 14px 28px; border-radius: 12px; text-align: center; font-weight: 700; font-size: 15px;">
           View Booking in Admin Panel
         </a>
       </div>
@@ -655,7 +655,7 @@ export function generateAdminServiceCompletedEmail(data: {
         </table>
       </div>
 
-      <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/admin/bookings" style="display: block; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; text-decoration: none; padding: 14px 28px; border-radius: 12px; text-align: center; font-weight: 600; font-size: 15px;">
+      <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://main.d3va8n93jbpois.amplifyapp.com"}/admin/bookings" style="display: block; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; text-decoration: none; padding: 14px 28px; border-radius: 12px; text-align: center; font-weight: 600; font-size: 15px;">
         View in Admin Panel
       </a>
     </div>
@@ -729,7 +729,7 @@ export function generateAdminBookingCancelledEmail(data: {
         </table>
       </div>
 
-      <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/admin/bookings" style="display: block; background: linear-gradient(135deg, #ff1744 0%, #d50032 100%); color: white; text-decoration: none; padding: 14px 28px; border-radius: 12px; text-align: center; font-weight: 600; font-size: 15px;">
+      <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://main.d3va8n93jbpois.amplifyapp.com"}/admin/bookings" style="display: block; background: linear-gradient(135deg, #ff1744 0%, #d50032 100%); color: white; text-decoration: none; padding: 14px 28px; border-radius: 12px; text-align: center; font-weight: 600; font-size: 15px;">
         View in Admin Panel
       </a>
     </div>
@@ -798,7 +798,7 @@ export function generateAdminPaymentReceivedEmail(data: {
         </table>
       </div>
 
-      <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/admin/bookings" style="display: block; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; text-decoration: none; padding: 14px 28px; border-radius: 12px; text-align: center; font-weight: 600; font-size: 15px;">
+      <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://main.d3va8n93jbpois.amplifyapp.com"}/admin/bookings" style="display: block; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; text-decoration: none; padding: 14px 28px; border-radius: 12px; text-align: center; font-weight: 600; font-size: 15px;">
         View in Admin Panel
       </a>
     </div>
