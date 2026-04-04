@@ -46,6 +46,7 @@ pipeline {
                     // Use standard Docker build with build arguments for environment variables
                     bat """
                         docker build ^
+                        --build-arg SUPABASE_KEY=%SUPABASE_KEY% ^
                         --build-arg NEXT_PUBLIC_SUPABASE_URL=%SUPABASE_URL% ^
                         --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=%SUPABASE_KEY% ^
                         --build-arg NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=%STRIPE_KEY% ^
