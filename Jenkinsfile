@@ -27,13 +27,13 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm ci'
+                bat 'npm ci'
             }
         }
 
         stage('Lint') {
             steps {
-                sh 'npm run lint'
+                bat 'npm run lint'
             }
         }
 
@@ -42,16 +42,16 @@ pipeline {
                 script {
                     echo "Building Docker image ${IMAGE_NAME}:${env.BUILD_NUMBER}..."
                     // Use standard Docker build with build arguments for environment variables
-                    sh """
-                        docker build \
-                        --build-arg NEXT_PUBLIC_SUPABASE_URL=${env.SUPABASE_URL} \
-                        --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=${env.SUPABASE_KEY} \
-                        --build-arg NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${env.STRIPE_KEY} \
-                        --build-arg NEXT_PUBLIC_APP_URL=${env.APP_URL} \
-                        -t ${IMAGE_NAME}:${env.BUILD_NUMBER} .
+                    bat """
+                        docker build ^
+                        --build-arg NEXT_PUBLIC_SUPABASE_URL=%SUPABASE_URL% ^
+                        --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=%SUPABASE_KEY% ^
+                        --build-arg NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=%STRIPE_KEY% ^
+                        --build-arg NEXT_PUBLIC_APP_URL=%APP_URL% ^
+                        -t %IMAGE_NAME%:%BUILD_NUMBER% .
                     """
-                    sh "docker tag ${IMAGE_NAME}:${env.BUILD_NUMBER} ${DOCKER_HUB_USER}/${IMAGE_NAME}:latest"
-                    sh "docker tag ${IMAGE_NAME}:${env.BUILD_NUMBER} ${DOCKER_HUB_USER}/${IMAGE_NAME}:${env.BUILD_NUMBER}"
+                    bat "docker tag %IMAGE_NAME%:%BUILD_NUMBER% %DOCKER_HUB_USER%/%IMAGE_NAME%:latest"
+                    bat "docker tag %IMAGE_NAME%:%BUILD_NUMBER% %DOCKER_HUB_USER%/%IMAGE_NAME%:%BUILD_NUMBER%"
                 }
             }
         }
@@ -63,8 +63,8 @@ pipeline {
                     withDockerRegistry([url: "https://${DOCKER_REGISTRY}", credentialsId: "${DOCKER_CREDENTIALS_ID}"]) {
                         echo "Pushing images to ${DOCKER_REGISTRY}..."
                         // Push the latest tag and the specific build number tag
-                        sh "docker push ${DOCKER_HUB_USER}/${IMAGE_NAME}:latest"
-                        sh "docker push ${DOCKER_HUB_USER}/${IMAGE_NAME}:${env.BUILD_NUMBER}"
+                        bat "docker push %DOCKER_HUB_USER%/%IMAGE_NAME%:latest"
+                        bat "docker push %DOCKER_HUB_USER%/%IMAGE_NAME%:%BUILD_NUMBER%"
                     }
                 }
             }
@@ -74,9 +74,9 @@ pipeline {
             steps {
                 echo "Cleaning up local Docker images..."
                 // Remove local images to save disk space
-                sh "docker rmi ${IMAGE_NAME}:${env.BUILD_NUMBER} || true"
-                sh "docker rmi ${DOCKER_HUB_USER}/${IMAGE_NAME}:latest || true"
-                sh "docker rmi ${DOCKER_HUB_USER}/${IMAGE_NAME}:${env.BUILD_NUMBER} || true"
+                bat "docker rmi %IMAGE_NAME%:%BUILD_NUMBER% || exit 0"
+                bat "docker rmi %DOCKER_HUB_USER%/%IMAGE_NAME%:latest || exit 0"
+                bat "docker rmi %DOCKER_HUB_USER%/%IMAGE_NAME%:%BUILD_NUMBER% || exit 0"
             }
         }
     }
