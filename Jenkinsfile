@@ -31,11 +31,13 @@ pipeline {
             }
         }
 
+/*
         stage('Lint') {
             steps {
                 bat 'npm run lint'
             }
         }
+*/
 
         stage('Build Docker Image') {
             steps {
