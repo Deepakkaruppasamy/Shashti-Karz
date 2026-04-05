@@ -63,12 +63,19 @@ pipeline {
         stage('Push to Registry') {
             steps {
                 script {
-                    // Use Jenkins Docker Pipeline plugin's credentials binding
-                    withDockerRegistry([url: "https://${DOCKER_REGISTRY}", credentialsId: "${DOCKER_CREDENTIALS_ID}"]) {
-                        echo "Pushing images to ${DOCKER_REGISTRY}..."
-                        // Push the latest tag and the specific build number tag
-                        bat "docker push %DOCKER_HUB_USER%/%IMAGE_NAME%:latest"
-                        bat "docker push %DOCKER_HUB_USER%/%IMAGE_NAME%:%BUILD_NUMBER%"
+                    echo "Logging into Docker Hub manually..."
+                    withCredentials([usernamePassword(
+                        credentialsId: "${DOCKER_CREDENTIALS_ID}",
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        bat """
+                        docker logout
+                        docker login -u %DOCKER_USER% -p %DOCKER_PASS%
+                        docker push %DOCKER_HUB_USER%/%IMAGE_NAME%:latest
+                        docker push %DOCKER_HUB_USER%/%IMAGE_NAME%:%BUILD_NUMBER%
+                        docker logout
+                        """
                     }
                 }
             }
