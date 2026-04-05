@@ -50,6 +50,7 @@ pipeline {
                         --build-arg NEXT_PUBLIC_SUPABASE_URL=%SUPABASE_URL% ^
                         --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=%SUPABASE_KEY% ^
                         --build-arg NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=%STRIPE_KEY% ^
+                        --build-arg STRIPE_SECRET_KEY=%STRIPE_KEY% ^
                         --build-arg NEXT_PUBLIC_APP_URL=%APP_URL% ^
                         -t %IMAGE_NAME%:%BUILD_NUMBER% .
                     """
