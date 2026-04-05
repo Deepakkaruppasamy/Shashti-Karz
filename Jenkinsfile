@@ -7,7 +7,7 @@ pipeline {
         // Define your Docker Hub username
         DOCKER_HUB_USER = "deepakkaruppasamy"
         // Define your image name
-        IMAGE_NAME = "shashti-karz-platform"
+        IMAGE_NAME = "shashti-karz"
         // Define your credentials ID that was created in Jenkins
         DOCKER_CREDENTIALS_ID = "docker-hub-credentials"
         
