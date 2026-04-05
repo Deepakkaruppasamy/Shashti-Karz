@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
         .from("bookings")
         .select("id")
         .eq("user_id", userId);
-      
+
       const bookingIds = bookings?.map(b => b.id) || [];
       const filtered = data?.filter(t => bookingIds.includes(t.booking_id)) || [];
       return NextResponse.json(filtered);
@@ -60,92 +60,92 @@ export async function POST(request: NextRequest) {
       .select()
       .single();
 
-      if (error) throw error;
+    if (error) throw error;
 
-      const { data: booking } = await supabase
-        .from("bookings")
-        .select("booking_id, customer_name, user_id")
-        .eq("id", booking_id)
-        .single();
+    const { data: booking } = await supabase
+      .from("bookings")
+      .select("booking_id, customer_name, user_id")
+      .eq("id", booking_id)
+      .single();
 
-      await logActivity({
-        type: 'tracking',
-        title: 'New Tracking Stage',
-        description: `Stage ${stage} started for ${booking?.customer_name || 'Booking'} (${booking?.booking_id || ''})`,
-        metadata: { booking_id: booking?.booking_id, stage, status: status || "pending" }
+    await logActivity({
+      type: 'tracking',
+      title: 'New Tracking Stage',
+      description: `Stage ${stage} started for ${booking?.customer_name || 'Booking'} (${booking?.booking_id || ''})`,
+      metadata: { booking_id: booking?.booking_id, stage, status: status || "pending" }
+    });
+
+    // Notify customer that a worker has been assigned to their booking
+    if (booking?.user_id) {
+      await sendNotification({
+        userId: booking.user_id,
+        type: "worker_assigned",
+        title: "Worker Assigned to Your Service",
+        message: `A technician has been assigned and the ${stage} stage of your service is being prepared.`,
+        data: { bookingId: booking_id, stage },
+        actionUrl: `/dashboard`,
       });
-
-      // Notify customer that a worker has been assigned to their booking
-      if (booking?.user_id) {
-        await sendNotification({
-          userId: booking.user_id,
-          type: "worker_assigned",
-          title: "Worker Assigned to Your Service",
-          message: `A technician has been assigned and the ${stage} stage of your service is being prepared.`,
-          data: { bookingId: booking_id, stage },
-          actionUrl: `/dashboard`,
-        });
-      }
-
-      return NextResponse.json(data);
-    } catch (error) {
-      console.error("Error creating service tracking:", error);
-      return NextResponse.json({ error: "Failed to create service tracking" }, { status: 500 });
     }
+
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("Error creating service tracking:", error);
+    return NextResponse.json({ error: "Failed to create service tracking" }, { status: 500 });
+  }
 }
 
 export async function PUT(request: NextRequest) {
-    try {
-      const body = await request.json();
-      const { id, status, notes, image_url } = body;
+  try {
+    const body = await request.json();
+    const { id, status, notes, image_url } = body;
 
-      const updateData: Record<string, unknown> = { status };
-      
-      if (notes !== undefined) updateData.notes = notes;
-      if (image_url !== undefined) updateData.image_url = image_url;
-      
-      if (status === "in_progress") {
-        updateData.started_at = new Date().toISOString();
-      } else if (status === "completed") {
-        updateData.completed_at = new Date().toISOString();
-      }
+    const updateData: Record<string, unknown> = { status };
 
-      const { data, error } = await supabase
-        .from("service_tracking")
-        .update(updateData)
-        .eq("id", id)
-        .select()
-        .single();
+    if (notes !== undefined) updateData.notes = notes;
+    if (image_url !== undefined) updateData.image_url = image_url;
 
-      if (error) throw error;
+    if (status === "in_progress") {
+      updateData.started_at = new Date().toISOString();
+    } else if (status === "completed") {
+      updateData.completed_at = new Date().toISOString();
+    }
 
-      // Fetch booking + user for notification
-      const { data: booking } = await supabase
-        .from("bookings")
-        .select("booking_id, customer_name, user_id")
-        .eq("id", data.booking_id)
-        .single();
+    const { data, error } = await supabase
+      .from("service_tracking")
+      .update(updateData)
+      .eq("id", id)
+      .select()
+      .single();
 
-      await logActivity({
-        type: 'tracking',
-        title: 'Tracking Status Update',
-        description: `Stage ${data.stage} is now ${status} for ${booking?.customer_name || 'Booking'} (${booking?.booking_id || ''})`,
-        metadata: { booking_id: booking?.booking_id, stage: data.stage, status }
+    if (error) throw error;
+
+    // Fetch booking + user for notification
+    const { data: booking } = await supabase
+      .from("bookings")
+      .select("booking_id, customer_name, user_id")
+      .eq("id", data.booking_id)
+      .single();
+
+    await logActivity({
+      type: 'tracking',
+      title: 'Tracking Status Update',
+      description: `Stage ${data.stage} is now ${status} for ${booking?.customer_name || 'Booking'} (${booking?.booking_id || ''})`,
+      metadata: { booking_id: booking?.booking_id, stage: data.stage, status }
+    });
+
+    // Notify customer when their service actually starts
+    if (status === "in_progress" && booking?.user_id) {
+      await sendNotification({
+        userId: booking.user_id,
+        type: "service_started",
+        title: "Your Service Has Started! 🚗",
+        message: `Great news! The ${data.stage} stage of your detailing service is now in progress. We'll keep you updated.`,
+        data: { bookingId: data.booking_id, stage: data.stage },
+        actionUrl: `/dashboard`,
       });
+    }
 
-      // Notify customer when their service actually starts
-      if (status === "in_progress" && booking?.user_id) {
-        await sendNotification({
-          userId: booking.user_id,
-          type: "service_started",
-          title: "Your Service Has Started! 🚗",
-          message: `Great news! The ${data.stage} stage of your detailing service is now in progress. We'll keep you updated.`,
-          data: { bookingId: data.booking_id, stage: data.stage },
-          actionUrl: `/dashboard`,
-        });
-      }
-
-      return NextResponse.json(data);
+    return NextResponse.json(data);
 
   } catch (error) {
     console.error("Error updating service tracking:", error);

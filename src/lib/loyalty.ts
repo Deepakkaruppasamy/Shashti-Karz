@@ -38,7 +38,7 @@ export async function updateLoyaltyPoints(
         .eq("booking_id", booking_id)
         .eq("type", "earned")
         .single();
-      
+
       if (existingTransaction) {
         console.log(`Loyalty points already earned for booking ${booking_id}`);
         return null;
@@ -52,33 +52,33 @@ export async function updateLoyaltyPoints(
       .single();
 
     if (fetchError) {
-        if (fetchError.code === "PGRST116") {
-            // If doesn't exist, create it (should have been created on first GET, but safe to handle)
-            const { data: newData, error: insertError } = await supabase
-                .from("loyalty_points")
-                .insert({
-                    user_id: user_id,
-                    points: 100 + (type === "earned" ? pointsEarned : (points || 0)),
-                    tier: calculateTier(type === "earned" ? amount : 0),
-                    total_spent: type === "earned" ? amount : 0,
-                    total_bookings: type === "earned" ? 1 : 0,
-                    referral_code: `SK${user_id.substring(0, 6).toUpperCase()}`,
-                })
-                .select()
-                .single();
-            
-            if (insertError) throw insertError;
+      if (fetchError.code === "PGRST116") {
+        // If doesn't exist, create it (should have been created on first GET, but safe to handle)
+        const { data: newData, error: insertError } = await supabase
+          .from("loyalty_points")
+          .insert({
+            user_id: user_id,
+            points: 100 + (type === "earned" ? pointsEarned : (points || 0)),
+            tier: calculateTier(type === "earned" ? amount : 0),
+            total_spent: type === "earned" ? amount : 0,
+            total_bookings: type === "earned" ? 1 : 0,
+            referral_code: `SK${user_id.substring(0, 6).toUpperCase()}`,
+          })
+          .select()
+          .single();
 
-            await supabase.from("loyalty_transactions").insert({
-                user_id: user_id,
-                booking_id,
-                points: 100 + (type === "earned" ? pointsEarned : (points || 0)),
-                type: "bonus",
-                description: "Welcome bonus + " + (description || "first points"),
-            });
-            return newData;
-        }
-        throw fetchError;
+        if (insertError) throw insertError;
+
+        await supabase.from("loyalty_transactions").insert({
+          user_id: user_id,
+          booking_id,
+          points: 100 + (type === "earned" ? pointsEarned : (points || 0)),
+          type: "bonus",
+          description: "Welcome bonus + " + (description || "first points"),
+        });
+        return newData;
+      }
+      throw fetchError;
     }
 
     let newPoints = currentData.points;

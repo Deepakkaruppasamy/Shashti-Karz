@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendEmail, generatePromotionalEmail } from "@/lib/email-service";
+export const dynamic = "force-dynamic";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -118,7 +119,7 @@ export async function POST(request: Request) {
       emails_sent: emailsSent,
       total_users: targetUsers.length,
       status: errors.length === 0 ? "success" : "partial",
-    }).then(() => {}).catch(() => {});
+    }).then(() => { }).catch(() => { });
 
     return NextResponse.json({
       success: true,
