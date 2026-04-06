@@ -163,16 +163,30 @@ export async function sendNotification(params: SendNotificationParams): Promise<
     .single();
 
   if (error) {
-    console.error("Failed to create notification:", error);
-    return null;
+    console.error("Failed to create notification record in DB:", error);
+    // Continue with other channels even if DB record fails
   }
 
+  // Send to external channels in parallel (non-blocking)
+  const deliveryPromises: Promise<any>[] = [];
+
   if (channels.includes("email") && params.userId) {
-    await sendEmailNotification(params.userId, params.title, params.message, params.type, params.data || undefined);
+    deliveryPromises.push(sendEmailNotification(params.userId, params.title, params.message, params.type, params.data || undefined));
   }
 
   if (channels.includes("whatsapp") && params.userId) {
-    await sendWhatsAppNotification(params.userId, params.message);
+    deliveryPromises.push(sendWhatsAppNotification(params.userId, params.message));
+  }
+
+  // Use allSettled to ensure all delivery attempts are made regardless of individual failures
+  if (deliveryPromises.length > 0) {
+    Promise.allSettled(deliveryPromises).then(results => {
+      results.forEach((res, idx) => {
+        if (res.status === 'rejected') {
+          console.error(`[Notification Engine] Channel delivery failed:`, res.reason);
+        }
+      });
+    });
   }
 
   return data;
@@ -538,16 +552,20 @@ export async function sendAdminNotification(
     : type === "payment_failed" || type === "payment_received" ? "admin_payment_failed"
     : "admin_new_booking";
 
-  // Step 1: Send in-app notifications to all DB admin users
+  // Step 1 & 2: Send in-app notifications and build email in parallel
+  const adminPromises: Promise<any>[] = [];
+  
   for (const admin of admins) {
-    await sendNotification({
-      userId: admin.id,
-      type: notificationType,
-      title: titles[type],
-      message: messages[type],
-      data,
-      actionUrl: "/admin/bookings",
-    });
+    adminPromises.push(
+      sendNotification({
+        userId: admin.id,
+        type: notificationType,
+        title: titles[type],
+        message: messages[type],
+        data,
+        actionUrl: "/admin/bookings",
+      })
+    );
   }
 
   console.log(`[Admin Notification] Processing ${type} for ${admins.length} DB admins and ${emailRecipients.size} email recipients`);
@@ -618,29 +636,33 @@ export async function sendAdminNotification(
     console.error("[Admin Email] Failed to build email HTML:", buildErr);
   }
 
-  // Step 4: Send email to every unique admin recipient (DB admins + ADMIN_EMAIL env)
+  // Step 4: Send email to every unique admin recipient in parallel
   if (html) {
     for (const recipientEmail of emailRecipients) {
-      try {
-        console.log(`[Admin Email] Attempting send to ${recipientEmail}...`);
-        const result = await sendEmail({
-          to: recipientEmail,
-          subject: `[Shashti Karz Admin] ${titles[type]}`,
-          html,
-        });
-        
-        if (result.success) {
-          console.log(`[Admin Email] SUCCESS: Sent "${titles[type]}" to ${recipientEmail}`);
-        } else {
-          console.error(`[Admin Email] FAILED to ${recipientEmail}: ${result.error}`);
+      adminPromises.push((async () => {
+        try {
+          // console.log(`[Admin Email] Attempting send to ${recipientEmail}...`);
+          const result = await sendEmail({
+            to: recipientEmail,
+            subject: `[Shashti Karz Admin] ${titles[type]}`,
+            html,
+          });
+          
+          if (result.success) {
+            console.log(`[Admin Email] SUCCESS: Sent "${titles[type]}" to ${recipientEmail}`);
+          } else {
+            console.error(`[Admin Email] FAILED to ${recipientEmail}: ${result.error}`);
+          }
+        } catch (emailErr) {
+          console.error(`[Admin Email] EXCEPTION for ${recipientEmail}:`, emailErr);
         }
-      } catch (emailErr) {
-        console.error(`[Admin Email] EXCEPTION for ${recipientEmail}:`, emailErr);
-      }
+      })());
     }
-  } else {
-    console.warn(`[Admin Notification] No HTML generated for ${type}, skipping emails.`);
   }
+
+  // Wait for all admin notification tasks (DB + Email) to complete or fail
+  // Use allSettled so one failure doesn't stop others
+  await Promise.allSettled(adminPromises);
 }
 
 export async function sendAIInsight(

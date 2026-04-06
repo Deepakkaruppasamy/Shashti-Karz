@@ -49,8 +49,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  try {
-    await sendBookingNotification(
+  // Send notifications in parallel to avoid blocking the response
+  // This makes the booking process feel much faster
+  const notificationPromises = [
+    sendBookingNotification(
       data.id,
       "created",
       data.user_id,
@@ -62,9 +64,8 @@ export async function POST(request: Request) {
         customerName: data.customer_name,
         customerEmail: data.customer_email,
       }
-    );
-
-    await sendAdminNotification("new_booking", {
+    ),
+    sendAdminNotification("new_booking", {
       bookingId: data.booking_id,
       customerName: data.customer_name,
       customerEmail: data.customer_email,
@@ -73,10 +74,18 @@ export async function POST(request: Request) {
       price: data.price,
       date: data.date,
       time: data.time,
-    });
+    }),
+    logActivity({
+      type: 'booking',
+      title: 'New Booking Created',
+      description: `${data.customer_name} booked ${data.service?.name || 'a service'} for ₹${data.price}`,
+      metadata: { booking_id: data.booking_id, id: data.id }
+    })
+  ];
 
-    if (data.price >= 15000) {
-      await sendAdminNotification("high_value", {
+  if (data.price >= 15000) {
+    notificationPromises.push(
+      sendAdminNotification("high_value", {
         bookingId: data.booking_id,
         customerName: data.customer_name,
         customerEmail: data.customer_email,
@@ -84,19 +93,13 @@ export async function POST(request: Request) {
         carModel: data.car_model,
         price: data.price,
         date: data.date,
-      });
-    }
-
-    await logActivity({
-      type: 'booking',
-      title: 'New Booking Created',
-      description: `${data.customer_name} booked ${data.service?.name || 'a service'} for ₹${data.price}`,
-      metadata: { booking_id: data.booking_id, id: data.id }
-    });
-  } catch (notifError) {
-
-    console.error("Failed to send notification:", notifError);
+      })
+    );
   }
+
+  // We await them in parallel to ensure reliability on Render before the response is returned.
+  // Using Promise.allSettled ensures that one failed notification doesn't break the booking response.
+  await Promise.allSettled(notificationPromises);
 
   return NextResponse.json(data);
 }

@@ -118,53 +118,57 @@ export async function GET(request: NextRequest) {
           .eq('id', session.metadata.booking_id);
 
         try {
-          await updateLoyaltyPoints(
-            booking.user_id,
-            booking.id,
-            booking.price,
-            "earned",
-            `Earned for booking ${booking.booking_id}`
-          );
-
-          await sendPaymentNotification(
-            booking.user_id,
-            {
-              customerName: session.metadata.customer_name || booking.customer_name,
+          const checkoutPromises = [
+            updateLoyaltyPoints(
+              booking.user_id,
+              booking.id,
+              booking.price,
+              "earned",
+              `Earned for booking ${booking.booking_id}`
+            ),
+            sendPaymentNotification(
+              booking.user_id,
+              {
+                customerName: session.metadata?.customer_name || booking.customer_name,
+                customerEmail: session.customer_details?.email || booking.customer_email,
+                amount: (session.amount_total || 0) / 100,
+                serviceName: session.metadata?.service_name || booking.service?.name || 'Service',
+                paymentId: session.id,
+                bookingId: booking.id,
+              }
+            ),
+            sendAdminNotification("payment_received", {
+              customerName: session.metadata?.customer_name || booking.customer_name,
               customerEmail: session.customer_details?.email || booking.customer_email,
+              serviceName: session.metadata?.service_name || booking.service?.name || 'Service',
               amount: (session.amount_total || 0) / 100,
-              serviceName: session.metadata.service_name || booking.service?.name || 'Service',
               paymentId: session.id,
-              bookingId: booking.id,
-            }
-          );
-
-          // Notify admins about payment received
-          await sendAdminNotification("payment_received", {
-            customerName: session.metadata.customer_name || booking.customer_name,
-            customerEmail: session.customer_details?.email || booking.customer_email,
-            serviceName: session.metadata.service_name || booking.service?.name || 'Service',
-            amount: (session.amount_total || 0) / 100,
-            paymentId: session.id,
-            bookingId: booking.booking_id || booking.id,
-          });
+              bookingId: booking.booking_id || booking.id,
+            })
+          ];
 
           // invoice_generated in-app notification for the customer
           const invoiceUrl = (session.invoice as { hosted_invoice_url?: string })?.hosted_invoice_url || null;
-          await sendNotification({
-            userId: booking.user_id,
-            type: "invoice_generated",
-            title: "Your Invoice is Ready 📄",
-            message: `Invoice for ${session.metadata.service_name || booking.service?.name || 'your service'} — ₹${((session.amount_total || 0) / 100).toLocaleString()} has been generated.`,
-            data: {
-              bookingId: booking.id,
-              amount: (session.amount_total || 0) / 100,
-              invoiceUrl,
-            },
-            actionUrl: invoiceUrl || `/dashboard`,
-            priority: "medium",
-          });
+          checkoutPromises.push(
+            sendNotification({
+              userId: booking.user_id,
+              type: "invoice_generated",
+              title: "Your Invoice is Ready 📄",
+              message: `Invoice for ${session.metadata?.service_name || booking.service?.name || 'your service'} — ₹${((session.amount_total || 0) / 100).toLocaleString()} has been generated.`,
+              data: {
+                bookingId: booking.id,
+                amount: (session.amount_total || 0) / 100,
+                invoiceUrl,
+              },
+              actionUrl: invoiceUrl || `/dashboard`,
+              priority: "medium",
+            })
+          );
+
+          // We await them all in parallel
+          await Promise.allSettled(checkoutPromises);
         } catch (notifError) {
-          console.error('Failed to send payment notification:', notifError);
+          console.error('Failed to process payment notifications:', notifError);
         }
       }
     }

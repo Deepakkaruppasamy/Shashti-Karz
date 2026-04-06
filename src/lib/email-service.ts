@@ -12,7 +12,7 @@ const transporter = process.env.SMTP_HOST ? nodemailer.createTransport({
   tls: {
     // Gmail often requires this to avoid AUTH errors in local/limited envs
     rejectUnauthorized: false,
-    ciphers: 'SSLv3'
+    // ciphers: 'SSLv3' // SSLv3 is very old and insecure, modern SMTP might block it
   },
   pool: true, // Use pooling for better performance
   maxConnections: 5,
@@ -21,16 +21,19 @@ const transporter = process.env.SMTP_HOST ? nodemailer.createTransport({
 
 // Self-test connection on init (Server-side)
 if (transporter && typeof window === 'undefined') {
-  transporter.verify((error) => {
-    if (error) {
-      console.error("[Email Engine] Transporter connection failed:", error);
-    } else {
-      console.log("[Email Engine] Transporter is ready to deliver messages");
-    }
-  });
+  console.log("[Email Engine] Initializing SMTP connection...");
+  // We'll skip the verify block if it's causing slowness on cold starts, 
+  // nodemailer will try to connect on first send anyway.
+  // transporter.verify((error) => {
+  //   if (error) {
+  //     console.error("[Email Engine] Transporter connection failed:", error);
+  //   } else {
+  //     console.log("[Email Engine] Transporter is ready to deliver messages");
+  //   }
+  // });
 }
 
-const FROM_EMAIL = process.env.FROM_EMAIL || "Shashti Karz <updates@shashtikarz.com>";
+const FROM_EMAIL = process.env.FROM_EMAIL || "Shashti Karz <updates@shashtikarz.app>";
 
 interface SendEmailParams {
   to: string;
@@ -41,28 +44,34 @@ interface SendEmailParams {
 
 export async function sendEmail(params: SendEmailParams): Promise<{ success: boolean; id?: string; error?: string }> {
   if (!transporter) {
-    console.error("[Email Engine] Transporter not initialized. Missing SMTP_HOST in .env.local?");
-    console.log("=========================================");
-    console.log(`[EMAIL AUTO-MOCK]`);
-    console.log(`To: ${params.to}`);
-    console.log(`Subject: ${params.subject}`);
-    console.log(`Status: Simulated Success (Check environment variables)`);
-    console.log("=========================================");
+    console.warn("[Email Engine] Transporter not initialized. Missing SMTP_HOST in environment variables.");
     return { success: true, id: "mock-email-id" };
   }
 
-  try {
-    const info = await transporter.sendMail({
-      from: FROM_EMAIL,
-      to: params.to,
-      subject: params.subject,
-      html: params.html,
-      text: params.text || params.html.replace(/<[^>]*>?/gm, ''), // Fallback text if not provided
-    });
+  // Create a timeout promise to prevent hanging the whole app
+  const timeoutPromise = new Promise((_, reject) => 
+    setTimeout(() => reject(new Error("Email sending timed out after 8 seconds")), 8000)
+  );
 
+  try {
+    console.log(`[Email Engine] Attempting to send email to ${params.to} with subject "${params.subject}"`);
+    
+    // Race the email send against the timeout
+    const info = await Promise.race([
+      transporter.sendMail({
+        from: FROM_EMAIL,
+        to: params.to,
+        subject: params.subject,
+        html: params.html,
+        text: params.text || params.html.replace(/<[^>]*>?/gm, ''),
+      }),
+      timeoutPromise
+    ]) as nodemailer.SentMessageInfo;
+
+    console.log(`[Email Engine] Email delivered: ${info.messageId}`);
     return { success: true, id: info.messageId };
   } catch (err) {
-    console.error("[Email Exception]", err);
+    console.error("[Email Engine] Error or Timeout:", (err as Error).message);
     return { success: false, error: (err as Error).message };
   }
 }
