@@ -8,43 +8,45 @@ import { LanguageProvider } from "@/lib/LanguageContext";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { PWARegistration } from "@/components/PWARegistration";
 import { PWAInstallPrompt } from "@/components/pwa/InstallPrompt";
+import { StructuredData } from "@/components/StructuredData";
 
 export const metadata: Metadata = {
   title: {
-    default: "Shashti Karz - Premium Car Detailing Xpert | Tirupur",
+    default: "Shashti Karz - Premium Car Detailing | Ceramic Coating & PPF Tirupur",
     template: "%s | Shashti Karz"
   },
-  description: "Elite car detailing services in Avinashi, Tirupur. Ceramic coating, Graphene coating, Paint Protection Film (PPF), and advanced Paint Correction. Experience BMW-standard care for your vehicle.",
-  keywords: ["car detailing tirupur", "ceramic coating avinashi", "PPF tirupur", "paint correction tamil nadu", "premium car wash", "shashti karz detailing"],
+  description: "Experience premium car detailing at Shashti Karz Tirupur. Specialist in Ceramic Coating, Graphene Coating, Paint Protection Film (PPF), and advanced Paint Correction in Tamil Nadu.",
+  keywords: ["car detailing tirupur", "ceramic coating avinashi", "PPF tirupur", "paint correction tamil nadu", "premium car wash", "shashti karz detailing", "best car detailing in south india", "graphene coating tirupur"],
   authors: [{ name: "Shashti Karz Team" }],
   creator: "Shashti Karz",
   publisher: "Shashti Karz",
   manifest: "/manifest.json",
-  metadataBase: new URL("https://shashtikarz.com"),
+  metadataBase: new URL("https://shashtikarz.app"),
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://shashtikarz.com",
-    title: "Shashti Karz - Premium Car Detailing Xpert",
-    description: "Tirupur's most advanced AI-powered car detailing center. Book premium ceramic coating and PPF online.",
+    url: "https://shashtikarz.app",
+    title: "Shashti Karz - Premium Car Detailing Xpert | Tirupur",
+    description: "Tirupur's most advanced car detailing center. Specialist in Ceramic Coating, PPF, and Graphene Coating. Book online for BMW-standard care.",
     siteName: "Shashti Karz",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Shashti Karz - Experience Premium Detailing",
+        alt: "Shashti Karz - Premium Detailing Showcase",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Shashti Karz - Premium Car Detailing",
-    description: "Advanced detailing for luxury cars in Tirupur. Ceramic, PPF, and Paint Correction.",
+    description: "Advanced detailing for luxury cars in Tirupur. Ceramic, PPF, and Paint Correction. Rank #1 quality in Tamil Nadu.",
     images: ["/og-image.png"],
+    creator: "@shashtikarz",
   },
   appleWebApp: {
     capable: true,
@@ -85,52 +87,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "AutoBodyShop",
-              "name": "Shashti Karz",
-              "image": "https://shashtikarz.com/logo.png",
-              "@id": "https://shashtikarz.com",
-              "url": "https://shashtikarz.com",
-              "telephone": "+91 73583 03550",
-              "priceRange": "₹₹₹",
-              "address": {
-                "@type": "PostalAddress",
-                "streetAddress": "Rajalakshmi Roofing Gundon Left Side 100 Meters",
-                "addressLocality": "Tirupur",
-                "addressRegion": "Tamil Nadu",
-                "postalCode": "641654",
-                "addressCountry": "IN"
-              },
-              "geo": {
-                "@type": "GeoCoordinates",
-                "latitude": 11.1085,
-                "longitude": 77.3411
-              },
-              "openingHoursSpecification": {
-                "@type": "OpeningHoursSpecification",
-                "dayOfWeek": [
-                  "Monday",
-                  "Tuesday",
-                  "Wednesday",
-                  "Thursday",
-                  "Friday",
-                  "Saturday",
-                  "Sunday"
-                ],
-                "opens": "09:00",
-                "closes": "20:00"
-              },
-              "sameAs": [
-                "https://facebook.com/shashtikarz",
-                "https://instagram.com/shashtikarz"
-              ]
-            })
-          }}
-        />
+        <StructuredData />
       </head>
       <body className="antialiased bg-[#0a0a0a] text-white overflow-x-hidden" suppressHydrationWarning>
         <SoundProvider>
