@@ -57,6 +57,15 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: true,
   },
+  icons: {
+    icon: [
+      { url: "/icon.png", sizes: "32x32" },
+      { url: "/logo.png", sizes: "192x192" },
+    ],
+    apple: [
+      { url: "/logo.png", sizes: "180x180" },
+    ],
+  },
   robots: {
     index: true,
     follow: true,
