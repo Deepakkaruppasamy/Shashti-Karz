@@ -3,8 +3,11 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: 'shashti-karz'
-    scrape_interval: 5s
-    static_configs:
-      - targets: ['app:3000']
+  - job_name: 'shashti-karz-prod'
     metrics_path: '/api/metrics'
+    scheme: https
+    static_configs:
+      - targets: ['shashtikarz.app']
+    params:
+      # Replace YOUR_SECRET_TOKEN with the value of METRICS_SECRET set on your hosting platform
+      token: ['YOUR_SECRET_TOKEN']
