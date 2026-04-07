@@ -16,6 +16,7 @@ pipeline {
         SUPABASE_KEY = credentials('SUPABASE_KEY')
         STRIPE_KEY   = credentials('STRIPE_KEY')
         APP_URL      = credentials('APP_URL')
+        METRICS_KEY  = credentials('METRICS_SECRET')
     }
 
     stages {
@@ -52,6 +53,7 @@ pipeline {
                         --build-arg NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=%STRIPE_KEY% ^
                         --build-arg STRIPE_SECRET_KEY=%STRIPE_KEY% ^
                         --build-arg NEXT_PUBLIC_APP_URL=%APP_URL% ^
+                        --build-arg METRICS_SECRET=%METRICS_KEY% ^
                         -t %IMAGE_NAME%:%BUILD_NUMBER% .
                     """
                     bat "docker tag %IMAGE_NAME%:%BUILD_NUMBER% %DOCKER_HUB_USER%/%IMAGE_NAME%:latest"
