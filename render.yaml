@@ -42,6 +42,7 @@ services:
   # Node Exporter (Private)
   - type: pserv
     name: node-exporter
+    env: image
     image:
       url: prom/node-exporter:latest
     envVars:
@@ -51,10 +52,12 @@ services:
   # cAdvisor (Private)
   - type: pserv
     name: cadvisor
+    env: image
     image:
       url: gcr.io/cadvisor/cadvisor:latest
     envVars:
       - key: PORT
         value: 8080
+
 
 
