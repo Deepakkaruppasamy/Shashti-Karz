@@ -1,0 +1,40 @@
+services:
+  # Prometheus Service
+  - type: web
+    name: shashti-prometheus
+    env: docker
+    dockerContext: .
+    dockerfilePath: deployment/prometheus.Dockerfile
+    plan: starter # Starter plan required for persistent disks
+    disk:
+      name: prometheus-data
+      mountPath: /prometheus
+      sizeGB: 10
+    envVars:
+      - key: PORT
+        value: 9090
+
+  # Grafana Service
+  - type: web
+    name: shashti-grafana
+    env: docker
+    dockerContext: .
+    dockerfilePath: deployment/grafana.Dockerfile
+    plan: starter
+    disk:
+      name: grafana-data
+      mountPath: /var/lib/grafana
+      sizeGB: 10
+    envVars:
+      - key: PORT
+        value: 3000
+
+  # Alertmanager Service (Private)
+  - type: pvt
+    name: shashti-alertmanager
+    env: docker
+    dockerContext: .
+    dockerfilePath: deployment/alertmanager.Dockerfile
+    envVars:
+      - key: PORT
+        value: 9093
