@@ -1,7 +1,7 @@
 services:
   # Prometheus Service
   - type: web
-    name: shashti-prometheus
+    name: prometheus
     env: docker
     dockerContext: .
     dockerfilePath: deployment/prometheus.Dockerfile
@@ -16,7 +16,7 @@ services:
 
   # Grafana Service
   - type: web
-    name: shashti-grafana
+    name: grafana
     env: docker
     dockerContext: .
     dockerfilePath: deployment/grafana.Dockerfile
@@ -31,10 +31,28 @@ services:
 
   # Alertmanager Service (Private)
   - type: pvt
-    name: shashti-alertmanager
+    name: alertmanager
     env: docker
     dockerContext: .
     dockerfilePath: deployment/alertmanager.Dockerfile
     envVars:
       - key: PORT
         value: 9093
+
+  # Node Exporter (Private)
+  - type: pvt
+    name: node-exporter
+    env: image
+    image: prom/node_exporter:latest
+    envVars:
+      - key: PORT
+        value: 9100
+
+  # cAdvisor (Private)
+  - type: pvt
+    name: cadvisor
+    env: image
+    image: gcr.io/cadvisor/cadvisor:latest
+    envVars:
+      - key: PORT
+        value: 8080
