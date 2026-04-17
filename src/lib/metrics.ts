@@ -31,10 +31,29 @@ export const httpRequestsTotal = new Counter({
   registers: [register],
 });
 
-// Gauge for app uptime
-export const appUptime = new Counter({
-  name: 'app_uptime_seconds_total',
-  help: 'Total uptime of the application in seconds',
+// Business Metrics for Shashti Karz
+export const totalBookings = new Counter({
+  name: 'shashti_karz_bookings_total',
+  help: 'Total number of bookings made on the platform',
+  registers: [register],
+});
+
+export const totalRevenue = new Counter({
+  name: 'shashti_karz_revenue_total',
+  help: 'Total revenue generated in Rupees',
+  registers: [register],
+});
+
+export const activeUsers = new Summary({
+  name: 'shashti_karz_active_users',
+  help: 'Number of active users on the platform',
+  registers: [register],
+});
+
+export const serviceBookings = new Counter({
+  name: 'shashti_karz_service_bookings_total',
+  help: 'Total bookings per service type',
+  labelNames: ['service_type'],
   registers: [register],
 });
 

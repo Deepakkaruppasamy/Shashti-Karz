@@ -11,3 +11,15 @@ scrape_configs:
     params:
       # Replace YOUR_SECRET_TOKEN with the value of METRICS_SECRET set on your hosting platform
       token: ['YOUR_SECRET_TOKEN']
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  - job_name: 'shashti-karz-local'
+    metrics_path: '/api/metrics'
+    static_configs:
+      - targets: ['app:3000', 'host.docker.internal:3000']
