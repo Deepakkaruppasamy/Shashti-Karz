@@ -19,7 +19,8 @@ scrape_configs:
     static_configs:
       - targets: ['cadvisor:8080']
 
-  - job_name: 'shashti-karz-local'
+  - job_name: 'shashti-karz-prod'
     metrics_path: '/api/metrics'
+    scheme: https
     static_configs:
-      - targets: ['app:3000', 'host.docker.internal:3000']
+      - targets: ['shashtikarz.app']

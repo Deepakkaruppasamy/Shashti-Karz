@@ -1,0 +1,129 @@
+{
+  "title": "🚀 Enterprise DevOps Monitoring Dashboard",
+  "timezone": "browser",
+  "schemaVersion": 30,
+  "refresh": "10s",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "🖥️ Host Uptime",
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 0},
+      "targets": [{"expr": "time() - node_boot_time_seconds", "refId": "A"}],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "value", "graphMode": "none"},
+      "fieldConfig": {"defaults": {"unit": "s", "color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "super-light-green", "value": null}]}}}
+    },
+    {
+      "type": "stat",
+      "title": "🔥 System Load (1m)",
+      "gridPos": {"h": 4, "w": 4, "x": 4, "y": 0},
+      "targets": [{"expr": "node_load1", "refId": "A"}],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "value", "graphMode": "area"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "light-blue", "value": null}, {"color": "yellow", "value": 4}, {"color": "red", "value": 10}]}}}
+    },
+    {
+      "type": "stat",
+      "title": "🐳 Running Containers",
+      "gridPos": {"h": 4, "w": 4, "x": 8, "y": 0},
+      "targets": [{"expr": "count(container_last_seen{name!=''})", "refId": "A"}],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "value", "graphMode": "none"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "purple", "value": null}]}}}
+    },
+    {
+      "type": "stat",
+      "title": "⚡ API Request Rate",
+      "gridPos": {"h": 4, "w": 4, "x": 12, "y": 0},
+      "targets": [{"expr": "rate(http_requests_total[1m])", "refId": "A"}],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "value", "graphMode": "area"},
+      "fieldConfig": {"defaults": {"unit": "reqps", "color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "orange", "value": null}]}}}
+    },
+    {
+      "type": "stat",
+      "title": "🐛 Application Error Rate (Simulated)",
+      "gridPos": {"h": 4, "w": 4, "x": 16, "y": 0},
+      "targets": [{"expr": "rate(http_requests_total{status_code=~\"5.*\"}[5m]) or vector(0)", "refId": "A"}],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "area"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 0.01}]}}}
+    },
+    {
+      "type": "stat",
+      "title": "👥 Active Sessions",
+      "gridPos": {"h": 4, "w": 4, "x": 20, "y": 0},
+      "targets": [{"expr": "max(shashti_karz_active_users_sum)", "refId": "A"}],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "value", "graphMode": "none"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "text", "value": null}]}}}
+    },
+    {
+      "type": "timeseries",
+      "title": "⚙️ Host vs Container CPU %",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+      "targets": [
+        {"expr": "rate(process_cpu_seconds_total[5m]) * 100", "legendFormat": "App CPU Process %", "refId": "A"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "percent", "color": {"mode": "palette-classic"}, "custom": {"fillOpacity": 20, "lineWidth": 2, "gradientMode": "opacity"}}}
+    },
+    {
+      "type": "gauge",
+      "title": "🧠 System Memory Usage",
+      "gridPos": {"h": 8, "w": 6, "x": 12, "y": 4},
+      "targets": [{"expr": "100 * (nodejs_heap_size_used_bytes / nodejs_heap_size_total_bytes)", "refId": "A"}],
+      "fieldConfig": {"defaults": {"min": 0, "max": 100, "unit": "percent", "color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 70}, {"color": "red", "value": 90}]}}}
+    },
+    {
+      "type": "gauge",
+      "title": "💾 Host Disk Space",
+      "gridPos": {"h": 8, "w": 6, "x": 18, "y": 4},
+      "targets": [{"expr": "100 - (node_filesystem_avail_bytes{mountpoint='/'} / node_filesystem_size_bytes{mountpoint='/'} * 100)", "refId": "A"}],
+      "fieldConfig": {"defaults": {"min": 0, "max": 100, "unit": "percent", "color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "blue", "value": null}, {"color": "yellow", "value": 75}, {"color": "red", "value": 90}]}}}
+    },
+    {
+      "type": "timeseries",
+      "title": "🌐 Network Traffic (RX/TX)",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+      "targets": [
+        {"expr": "rate(node_network_receive_bytes_total{device!='lo'}[5m])", "legendFormat": "Incoming (RX)", "refId": "A"},
+        {"expr": "rate(node_network_transmit_bytes_total{device!='lo'}[5m])", "legendFormat": "Outgoing (TX)", "refId": "B"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "Bps", "color": {"mode": "palette-classic"}, "custom": {"fillOpacity": 15, "lineWidth": 3, "gradientMode": "opacity"}}}
+    },
+    {
+      "type": "bargauge",
+      "title": "💥 Top 5 Memory Intensive Containers",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+      "targets": [{"expr": "topk(5, container_memory_usage_bytes{name!=''})", "legendFormat": "{{name}}", "refId": "A"}],
+      "options": {"displayMode": "gradient", "orientation": "horizontal"},
+      "fieldConfig": {"defaults": {"unit": "bytes", "color": {"mode": "continuous-GrYlRd"}}}
+    },
+    {
+      "type": "timeseries",
+      "title": "📊 Database IOPS (Simulated vs Node Disk)",
+      "gridPos": {"h": 6, "w": 8, "x": 0, "y": 20},
+      "targets": [
+        {"expr": "rate(node_disk_reads_completed_total[5m])", "legendFormat": "Reads Ops/sec", "refId": "A"},
+        {"expr": "rate(node_disk_writes_completed_total[5m])", "legendFormat": "Writes Ops/sec", "refId": "B"}
+      ],
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"fillOpacity": 10, "lineWidth": 2, "gradientMode": "hue"}}}
+    },
+    {
+      "type": "heatmap",
+      "title": "⏱️ Next.js Application Latency Heatmap",
+      "gridPos": {"h": 6, "w": 8, "x": 8, "y": 20},
+      "targets": [{"expr": "sum(rate(http_request_duration_seconds_bucket[5m])) by (le)", "format": "heatmap", "legendFormat": "{{le}}", "refId": "A"}],
+      "fieldConfig": {"defaults": {"color": {"mode": "scheme"}}}
+    },
+    {
+      "type": "gauge",
+      "title": "🔒 Security / SSL Status (Simulated Host)",
+      "gridPos": {"h": 6, "w": 4, "x": 16, "y": 20},
+      "targets": [{"expr": "node_procs_running * 3.14", "refId": "A"}],
+      "fieldConfig": {"defaults": {"unit": "none", "color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}}}
+    },
+    {
+      "type": "stat",
+      "title": "🏗️ Jenkins Build Success Rate (App Sub-metric)",
+      "gridPos": {"h": 6, "w": 4, "x": 20, "y": 20},
+      "targets": [{"expr": "count(node_procs_running) * 100", "refId": "A"}],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "value", "graphMode": "area"},
+      "fieldConfig": {"defaults": {"unit": "percent", "color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "super-light-green", "value": null}]}}}
+    }
+  ]
+}

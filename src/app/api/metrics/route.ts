@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { register, totalBookings, totalRevenue, serviceBookings, activeUsers } from '@/lib/metrics';
+import { register, totalBookings, totalRevenue, serviceBookings, activeUsers, httpRequestsTotal, httpRequestDurationMicroseconds } from '@/lib/metrics';
 import { createServiceClient } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
@@ -15,6 +15,10 @@ export async function GET(request: NextRequest) {
 
     // Fetch and update business metrics
     const supabase = await createServiceClient();
+    
+    // Simulate some baseline API tracing for the dashboard
+    httpRequestsTotal.labels('GET', '/api/metrics', '200').inc();
+    const end = httpRequestDurationMicroseconds.labels('GET', '/api/metrics', '200').startTimer();
     
     // 1. Total Bookings
     const { count: bookingsCount } = await supabase
@@ -66,6 +70,8 @@ export async function GET(request: NextRequest) {
     }
 
     const metrics = await register.metrics();
+    end();
+    
     return new NextResponse(metrics, {
       headers: {
         'Content-Type': register.contentType,
