@@ -30,7 +30,7 @@ services:
         value: 3000
 
   # Alertmanager Service (Private)
-  - type: pvt
+  - type: pserv
     name: alertmanager
     env: docker
     dockerContext: .
@@ -40,7 +40,7 @@ services:
         value: 9093
 
   # Node Exporter (Private)
-  - type: pvt
+  - type: pserv
     name: node-exporter
     env: image
     image: prom/node_exporter:latest
@@ -49,10 +49,11 @@ services:
         value: 9100
 
   # cAdvisor (Private)
-  - type: pvt
+  - type: pserv
     name: cadvisor
     env: image
     image: gcr.io/cadvisor/cadvisor:latest
     envVars:
       - key: PORT
         value: 8080
+
