@@ -1,63 +1,33 @@
 services:
-  # Prometheus Service
+  # Prometheus
   - type: web
-    name: prometheus
+    name: shashti-prometheus
     env: docker
     dockerContext: .
     dockerfilePath: deployment/prometheus.Dockerfile
-    plan: starter # Starter plan required for persistent disks
-    disk:
-      name: prometheus-data
-      mountPath: /prometheus
-      sizeGB: 10
+    plan: free
     envVars:
       - key: PORT
         value: 9090
 
-  # Grafana Service
+  # Grafana
   - type: web
-    name: grafana
+    name: shashti-grafana
     env: docker
     dockerContext: .
     dockerfilePath: deployment/grafana.Dockerfile
-    plan: starter
-    disk:
-      name: grafana-data
-      mountPath: /var/lib/grafana
-      sizeGB: 10
+    plan: free
     envVars:
       - key: PORT
         value: 3000
 
-  # Alertmanager Service (Private)
-  - type: pserv
-    name: alertmanager
+  # Alertmanager
+  - type: private_service
+    name: shashti-alertmanager
     env: docker
     dockerContext: .
     dockerfilePath: deployment/alertmanager.Dockerfile
+    plan: free
     envVars:
       - key: PORT
         value: 9093
-
-  # Node Exporter (Private)
-  - type: pserv
-    name: node-exporter
-    env: image
-    image:
-      url: prom/node-exporter:latest
-    envVars:
-      - key: PORT
-        value: 9100
-
-  # cAdvisor (Private)
-  - type: pserv
-    name: cadvisor
-    env: image
-    image:
-      url: gcr.io/cadvisor/cadvisor:latest
-    envVars:
-      - key: PORT
-        value: 8080
-
-
-
