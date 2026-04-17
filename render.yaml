@@ -22,7 +22,7 @@ services:
         value: 3000
 
   # Alertmanager
-  - type: private_service
+  - type: pserv
     name: shashti-alertmanager
     env: docker
     dockerContext: .
