@@ -42,3 +42,8 @@ next-env.d.ts
 .env.local
 .env.*
 !.env.example
+
+# Monitoring secrets and logs
+alertmanager/slack_webhook.txt
+*.log
+

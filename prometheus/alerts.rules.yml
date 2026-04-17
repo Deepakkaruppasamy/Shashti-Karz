@@ -19,6 +19,15 @@ groups:
           summary: "High CPU usage on {{ $labels.instance }}"
           description: "CPU usage is above 80% (current value: {{ $value }}%)"
 
+      - alert: HighSystemLoad
+        expr: node_load1 > 10
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Extreme System Load"
+          description: "System load (1m) is extremely high: {{ $value }}"
+
       - alert: HighMemoryUsage
         expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
         for: 5m
@@ -28,16 +37,43 @@ groups:
           summary: "High Memory usage on {{ $labels.instance }}"
           description: "Memory usage is above 85% (current value: {{ $value }}%)"
 
+      - alert: HostDiskLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 10
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Host Disk Space Low"
+          description: "Root partition has less than 10% space remaining."
+
   - name: application-alerts
     rules:
       - alert: HighApiErrorRate
-        expr: rate(http_requests_total{status_code=~"5.*"}[5m]) > 0.05
+        expr: rate(http_requests_total{status_code=~"5.*"}[5m]) > 0.01
         for: 1m
         labels:
           severity: critical
         annotations:
           summary: "High API Error Rate"
-          description: "More than 5% of requests to {{ $labels.route }} are failing with 5xx errors."
+          description: "More than 1% of requests are failing with 5xx errors (current: {{ $value }})."
+
+      - alert: HighHeapUsage
+        expr: (nodejs_heap_size_used_bytes / nodejs_heap_size_total_bytes) * 100 > 90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High NodeJS Heap Usage"
+          description: "NodeJS heap memory usage is above 90% (current: {{ $value }}%)."
+
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API Latency"
+          description: "95th percentile requests are taking longer than 2 seconds (current: {{ $value }}s)."
 
   - name: business-alerts
     rules:
@@ -49,3 +85,4 @@ groups:
         annotations:
           summary: "No bookings received in the last 24 hours"
           description: "Business anomaly detected: 0 bookings processed in 24 hours."
+
