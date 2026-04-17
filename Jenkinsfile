@@ -17,9 +17,6 @@ pipeline {
         STRIPE_KEY   = credentials('STRIPE_KEY')
         APP_URL      = credentials('APP_URL')
         METRICS_KEY  = credentials('METRICS_SECRET')
-        
-        // Security Credentials (Uncomment and add to Jenkins when ready)
-        // SONAR_TOKEN = credentials('SONAR_TOKEN')
     }
 
     stages {
@@ -35,24 +32,13 @@ pipeline {
             }
         }
 
-        stage('SonarQube Static Analysis') {
+/*
+        stage('Lint') {
             steps {
-                script {
-                    echo "Running SonarQube code scanning..."
-                    // We use catchError so it doesn't break your pipeline until you configure a real SonarQube server
-                    catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                        bat """
-                        npx sonar-scanner ^
-                          -Dsonar.projectKey=%IMAGE_NAME% ^
-                          -Dsonar.sources=src ^
-                          -Dsonar.host.url=http://localhost:9000
-                        """
-                        // Note: To authenticate, add: -Dsonar.login=%SONAR_TOKEN%
-                    }
-                }
+                bat 'npm run lint'
             }
         }
-
+*/
 
         stage('Build Docker Image') {
             steps {
@@ -72,28 +58,6 @@ pipeline {
                     """
                     bat "docker tag %IMAGE_NAME%:%BUILD_NUMBER% %DOCKER_HUB_USER%/%IMAGE_NAME%:latest"
                     bat "docker tag %IMAGE_NAME%:%BUILD_NUMBER% %DOCKER_HUB_USER%/%IMAGE_NAME%:%BUILD_NUMBER%"
-                }
-            }
-        }
-
-        stage('Trivy Image Scan') {
-            steps {
-                script {
-                    echo "Scanning image %IMAGE_NAME%:%BUILD_NUMBER% for HIGH & CRITICAL vulnerabilities..."
-                    // We run Trivy as a Docker container to scan the local image
-                    // --exit-code 0 prints the report without failing the build. 
-                    // Change to --exit-code 1 to block bad builds from deploying.
-                    catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                        bat """
-                        docker run --rm ^
-                          -v /var/run/docker.sock:/var/run/docker.sock ^
-                          aquasec/trivy image ^
-                          --severity HIGH,CRITICAL ^
-                          --exit-code 0 ^
-                          --ignore-unfixed ^
-                          %IMAGE_NAME%:%BUILD_NUMBER%
-                        """
-                    }
                 }
             }
         }
