@@ -13,14 +13,24 @@ alerting:
           - "alertmanager:9093"
 
 scrape_configs:
-  - job_name: 'shashti-karz-prod'
+  - job_name: 'shashti-karz-local'
     metrics_path: '/api/metrics'
-    scheme: https
     static_configs:
-      - targets: ['shashtikarz.app']
+      - targets: ['app:3000']
     params:
-      # Replace YOUR_SECRET_TOKEN with the value of METRICS_SECRET set on your hosting platform
-      token: ['YOUR_SECRET_TOKEN']
+      token: ['your_metrics_secret_here']
+
+  # Production scrape disabled until METRICS_SECRET on Render is updated
+  # - job_name: 'shashti-karz-prod'
+  #   metrics_path: '/api/metrics'
+  #   scheme: https
+  #   static_configs:
+  #     - targets: ['shashtikarz.app']
+  #   params:
+  #     token: ['your_metrics_secret_here']
+
+ 
+
   - job_name: 'node-exporter'
     static_configs:
       - targets: ['node-exporter:9100']
@@ -28,4 +38,5 @@ scrape_configs:
   - job_name: 'cadvisor'
     static_configs:
       - targets: ['cadvisor:8080']
+
 
