@@ -31,11 +31,10 @@ resource "render_web_service" "shashti_karz" {
   region = "oregon"
 
   runtime_source = {
-    docker = {
-      registry_credential_id = var.render_docker_credential_id
-      image = {
-        image_url = "docker.io/${var.docker_hub_user}/${var.image_name}:latest"
-      }
+    image = {
+      image_url              = "docker.io/${var.docker_hub_user}/${var.image_name}"
+      tag                    = "latest"
+      registry_credential_id = var.render_docker_credential_id != "" ? var.render_docker_credential_id : null
     }
   }
 
@@ -66,13 +65,10 @@ resource "render_web_service" "shashti_karz" {
     }
   }
 
-  secret_files = {}
-}
+  custom_domains = [
+    {
+      name = var.custom_domain
+    }
+  ]
 
-# ─────────────────────────────────────────────
-# Custom Domain: shashtikarz.app
-# ─────────────────────────────────────────────
-resource "render_custom_domain" "primary_domain" {
-  service_id  = render_web_service.shashti_karz.id
-  name        = var.custom_domain
 }
