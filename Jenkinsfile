@@ -17,6 +17,9 @@ pipeline {
         // Terraform credentials for Render
         RENDER_API_KEY  = credentials('RENDER_API_KEY')    // Add in Jenkins > Credentials
         RENDER_OWNER_ID = credentials('RENDER_OWNER_ID')   // Add in Jenkins > Credentials
+ 
+        // Kubernetes config from Secret File
+        KUBECONFIG_PATH = credentials('KUBECONFIG_FILE')   // Add in Jenkins > Credentials (Secret File)
 
         // Terraform configuration
         TF_DIR     = "terraform"
@@ -134,45 +137,48 @@ pipeline {
         // ─────────────────────────────────────────
         stage('Deploy to Kubernetes') {
             when {
-                // Only run K8s deploy if KUBECONFIG env var is set
-                expression { return env.KUBECONFIG != null && env.KUBECONFIG != '' }
+                // Only run K8s deploy if KUBECONFIG_PATH is available
+                expression { return env.KUBECONFIG_PATH != null && env.KUBECONFIG_PATH != '' }
             }
             steps {
                 script {
                     echo "Deploying to Kubernetes cluster..."
+                    
+                    // Set KUBECONFIG for this block
+                    withEnv(["KUBECONFIG=${env.KUBECONFIG_PATH}"]) {
+                        // Apply namespace first
+                        bat "kubectl apply -f k8s/namespace.yaml"
 
-                    // Apply namespace first
-                    bat "kubectl apply -f k8s/namespace.yaml"
+                        // Inject secrets from Jenkins credentials
+                        bat """
+                            kubectl create secret generic shashti-karz-secrets ^
+                            --from-literal=NEXT_PUBLIC_SUPABASE_URL=%SUPABASE_URL% ^
+                            --from-literal=NEXT_PUBLIC_SUPABASE_ANON_KEY=%SUPABASE_KEY% ^
+                            --from-literal=SUPABASE_SERVICE_ROLE_KEY=%SUPABASE_KEY% ^
+                            --from-literal=NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=%STRIPE_KEY% ^
+                            --from-literal=STRIPE_SECRET_KEY=%STRIPE_KEY% ^
+                            --from-literal=NEXT_PUBLIC_APP_URL=%APP_URL% ^
+                            --from-literal=METRICS_SECRET=%METRICS_KEY% ^
+                            -n shashti-karz ^
+                            --dry-run=client -o yaml | kubectl apply -f -
+                        """
 
-                    // Inject secrets from Jenkins credentials
-                    bat """
-                        kubectl create secret generic shashti-karz-secrets ^
-                        --from-literal=NEXT_PUBLIC_SUPABASE_URL=%SUPABASE_URL% ^
-                        --from-literal=NEXT_PUBLIC_SUPABASE_ANON_KEY=%SUPABASE_KEY% ^
-                        --from-literal=SUPABASE_SERVICE_ROLE_KEY=%SUPABASE_KEY% ^
-                        --from-literal=NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=%STRIPE_KEY% ^
-                        --from-literal=STRIPE_SECRET_KEY=%STRIPE_KEY% ^
-                        --from-literal=NEXT_PUBLIC_APP_URL=%APP_URL% ^
-                        --from-literal=METRICS_SECRET=%METRICS_KEY% ^
-                        -n shashti-karz ^
-                        --dry-run=client -o yaml | kubectl apply -f -
-                    """
+                        // Apply all manifests
+                        bat "kubectl apply -f k8s/app-deployment.yaml"
+                        bat "kubectl apply -f k8s/prometheus-deployment.yaml"
+                        bat "kubectl apply -f k8s/grafana-deployment.yaml"
+                        bat "kubectl apply -f k8s/alertmanager-deployment.yaml"
+                        bat "kubectl apply -f k8s/ingress.yaml"
+                        bat "kubectl apply -f k8s/hpa.yaml"
 
-                    // Apply all manifests
-                    bat "kubectl apply -f k8s/app-deployment.yaml"
-                    bat "kubectl apply -f k8s/prometheus-deployment.yaml"
-                    bat "kubectl apply -f k8s/grafana-deployment.yaml"
-                    bat "kubectl apply -f k8s/alertmanager-deployment.yaml"
-                    bat "kubectl apply -f k8s/ingress.yaml"
-                    bat "kubectl apply -f k8s/hpa.yaml"
+                        // Force pull the latest image
+                        bat "kubectl rollout restart deployment/shashti-karz-app -n shashti-karz"
 
-                    // Force pull the latest image
-                    bat "kubectl rollout restart deployment/shashti-karz-app -n shashti-karz"
-
-                    // Wait for rollout to complete
-                    bat "kubectl rollout status deployment/shashti-karz-app -n shashti-karz --timeout=120s"
-
-                    echo "Kubernetes deployment complete!"
+                        // Wait for rollout to complete
+                        bat "kubectl rollout status deployment/shashti-karz-app -n shashti-karz --timeout=120s"
+ 
+                        echo "Kubernetes deployment complete!"
+                    }
                 }
             }
         }
