@@ -1,0 +1,106 @@
+# ─────────────────────────────────────────────────────────────
+# Alertmanager — Deployment + Service
+# Sends Slack alerts from Prometheus rules
+# ─────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: shashti-karz
+data:
+  config.yml: |
+    global:
+      resolve_timeout: 5m
+
+    route:
+      group_by: ['alertname', 'severity']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'slack-notifications'
+
+    receivers:
+      - name: 'slack-notifications'
+        slack_configs:
+          - api_url_file: /etc/alertmanager/slack_webhook.txt
+            channel: '#shashti-karz-alerts'
+            send_resolved: true
+            title: '{{ if eq .Status "firing" }}🔴 ALERT{{ else }}✅ RESOLVED{{ end }}: {{ .CommonAnnotations.summary }}'
+            text: '{{ .CommonAnnotations.description }}'
+
+    inhibit_rules:
+      - source_match:
+          severity: 'critical'
+        target_match:
+          severity: 'warning'
+        equal: ['alertname']
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager
+  namespace: shashti-karz
+  labels:
+    app: alertmanager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alertmanager
+  template:
+    metadata:
+      labels:
+        app: alertmanager
+    spec:
+      containers:
+        - name: alertmanager
+          image: prom/alertmanager:latest
+          args:
+            - "--config.file=/etc/alertmanager/config.yml"
+          ports:
+            - containerPort: 9093
+          volumeMounts:
+            - name: alertmanager-config
+              mountPath: /etc/alertmanager/config.yml
+              subPath: config.yml
+            - name: slack-webhook
+              mountPath: /etc/alertmanager/slack_webhook.txt
+              subPath: slack_webhook.txt
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+      volumes:
+        - name: alertmanager-config
+          configMap:
+            name: alertmanager-config
+        - name: slack-webhook
+          secret:
+            secretName: alertmanager-slack-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager-service
+  namespace: shashti-karz
+  labels:
+    app: alertmanager
+spec:
+  selector:
+    app: alertmanager
+  ports:
+    - protocol: TCP
+      port: 9093
+      targetPort: 9093
+  type: ClusterIP
+---
+# ─────────────────────────────────────────────────────────────
+# Alertmanager Slack Webhook Secret
+# Create with: kubectl create secret generic alertmanager-slack-secret \
+#   --from-file=slack_webhook.txt=./alertmanager/slack_webhook.txt \
+#   -n shashti-karz
+# ─────────────────────────────────────────────────────────────
+# (Create this secret via kubectl, NOT by committing values here)

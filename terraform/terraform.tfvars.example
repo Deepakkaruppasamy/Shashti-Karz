@@ -1,0 +1,30 @@
+# ─────────────────────────────────────────────────────────────
+# terraform.tfvars.example
+# Copy this to terraform.tfvars and fill in your real values.
+# NEVER commit terraform.tfvars to Git — it's in .gitignore!
+# ─────────────────────────────────────────────────────────────
+
+# Render account credentials
+render_api_key   = "rnd_xxxxxxxxxxxxxxxxxxxx"
+render_owner_id  = "usr-xxxxxxxxxxxxxxxxxxxx"
+render_docker_credential_id = ""   # Optional: only if your Docker Hub image is private
+
+# Docker Hub
+docker_hub_user = "deepakkaruppasamy"
+image_name      = "shashti-karz"
+
+# Domain
+custom_domain = "shashtikarz.app"
+app_url       = "https://shashtikarz.app"
+
+# Supabase
+supabase_url              = "https://your-project.supabase.co"
+supabase_anon_key         = "your-anon-key"
+supabase_service_role_key = "your-service-role-key"
+
+# Stripe
+stripe_publishable_key = "pk_live_xxxxxxxxxxxx"
+stripe_secret_key      = "sk_live_xxxxxxxxxxxx"
+
+# Metrics
+metrics_secret = "your-metrics-secret-token"

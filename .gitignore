@@ -47,3 +47,15 @@ next-env.d.ts
 alertmanager/slack_webhook.txt
 *.log
 
+# ── Terraform ──────────────────────────────────
+# Never commit real tfvars or state files
+terraform/terraform.tfvars
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/tfplan
+
+# ── Kubernetes ─────────────────────────────────
+# Never commit real secrets YAML with values
+k8s/secrets-values.yaml

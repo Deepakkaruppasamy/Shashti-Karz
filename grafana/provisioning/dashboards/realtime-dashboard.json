@@ -1,0 +1,469 @@
+{
+  "uid": "shashti-karz-realtime",
+  "title": "Shashti Karz — Live Monitoring",
+  "description": "Comprehensive realtime monitoring for Shashti Karz platform",
+  "tags": ["shashti-karz", "realtime", "production"],
+  "timezone": "browser",
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "timepicker": { "refresh_intervals": ["5s", "10s", "30s", "1m"] },
+  "schemaVersion": 38,
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "🟢 App Health Overview",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 1 },
+      "collapsed": false
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "App Status",
+      "gridPos": { "x": 0, "y": 1, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }
+          ],
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [{ "value": 0, "color": "red" }, { "value": 1, "color": "green" }] }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "textMode": "value", "graphMode": "none", "colorMode": "background" },
+      "targets": [{ "expr": "up{job=\"shashti-karz-local\"}", "legendFormat": "App" }]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "HTTP Request Rate",
+      "gridPos": { "x": 4, "y": 1, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 10, "color": "yellow" }, { "value": 50, "color": "red" }] }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "area", "colorMode": "background" },
+      "targets": [{ "expr": "rate(http_requests_total{job=\"shashti-karz-local\"}[1m])", "legendFormat": "req/s" }]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Total Bookings",
+      "gridPos": { "x": 8, "y": 1, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [{ "value": 0, "color": "blue" }] }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "area", "colorMode": "background" },
+      "targets": [{ "expr": "shashti_karz_bookings_total{job=\"shashti-karz-local\"}", "legendFormat": "Bookings" }]
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Total Revenue (₹)",
+      "gridPos": { "x": 12, "y": 1, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyINR",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [{ "value": 0, "color": "green" }] }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "area", "colorMode": "background" },
+      "targets": [{ "expr": "shashti_karz_revenue_total{job=\"shashti-karz-local\"}", "legendFormat": "Revenue" }]
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Node.js Heap Used",
+      "gridPos": { "x": 16, "y": 1, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 200000000, "color": "yellow" }, { "value": 400000000, "color": "red" }] }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "area", "colorMode": "value" },
+      "targets": [{ "expr": "nodejs_heap_size_used_bytes{job=\"shashti-karz-local\"}", "legendFormat": "Heap Used" }]
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "Process Uptime",
+      "gridPos": { "x": 20, "y": 1, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [{ "value": 0, "color": "blue" }] }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "none", "colorMode": "background" },
+      "targets": [{ "expr": "process_uptime_seconds{job=\"shashti-karz-local\"}", "legendFormat": "Uptime" }]
+    },
+    {
+      "id": 10,
+      "type": "row",
+      "title": "⚡ Performance & Latency",
+      "gridPos": { "x": 0, "y": 5, "w": 24, "h": 1 },
+      "collapsed": false
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "API Response Time (Latency)",
+      "gridPos": { "x": 0, "y": 6, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": { "lineWidth": 2, "fillOpacity": 15, "gradientMode": "opacity" },
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{job=\"shashti-karz-local\"}[2m])) by (le))", "legendFormat": "p50 Latency" },
+        { "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"shashti-karz-local\"}[2m])) by (le))", "legendFormat": "p95 Latency" },
+        { "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{job=\"shashti-karz-local\"}[2m])) by (le))", "legendFormat": "p99 Latency" }
+      ]
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "HTTP Request Rate (req/s)",
+      "gridPos": { "x": 12, "y": 6, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": { "lineWidth": 2, "fillOpacity": 20, "gradientMode": "opacity" },
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        { "expr": "sum(rate(http_requests_total{job=\"shashti-karz-local\", status_code=\"200\"}[1m]))", "legendFormat": "2xx Success" },
+        { "expr": "sum(rate(http_requests_total{job=\"shashti-karz-local\", status_code=~\"4..\"}[1m]))", "legendFormat": "4xx Errors" },
+        { "expr": "sum(rate(http_requests_total{job=\"shashti-karz-local\", status_code=~\"5..\"}[1m]))", "legendFormat": "5xx Errors" }
+      ]
+    },
+    {
+      "id": 20,
+      "type": "row",
+      "title": "🧠 Memory & CPU",
+      "gridPos": { "x": 0, "y": 14, "w": 24, "h": 1 },
+      "collapsed": false
+    },
+    {
+      "id": 21,
+      "type": "timeseries",
+      "title": "Node.js Heap Memory Over Time",
+      "gridPos": { "x": 0, "y": 15, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "custom": { "lineWidth": 2, "fillOpacity": 20, "gradientMode": "opacity" },
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        { "expr": "nodejs_heap_size_used_bytes{job=\"shashti-karz-local\"}", "legendFormat": "Heap Used" },
+        { "expr": "nodejs_heap_size_total_bytes{job=\"shashti-karz-local\"}", "legendFormat": "Heap Total" },
+        { "expr": "nodejs_external_memory_bytes{job=\"shashti-karz-local\"}", "legendFormat": "External Memory" }
+      ]
+    },
+    {
+      "id": 22,
+      "type": "timeseries",
+      "title": "Process CPU Usage",
+      "gridPos": { "x": 12, "y": 15, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "custom": { "lineWidth": 2, "fillOpacity": 20, "gradientMode": "opacity" },
+          "color": { "mode": "palette-classic" },
+          "min": 0,
+          "max": 1
+        }
+      },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        { "expr": "rate(process_cpu_seconds_total{job=\"shashti-karz-local\"}[1m])", "legendFormat": "CPU Usage" },
+        { "expr": "rate(process_cpu_user_seconds_total{job=\"shashti-karz-local\"}[1m])", "legendFormat": "User CPU" },
+        { "expr": "rate(process_cpu_system_seconds_total{job=\"shashti-karz-local\"}[1m])", "legendFormat": "System CPU" }
+      ]
+    },
+    {
+      "id": 23,
+      "type": "gauge",
+      "title": "Heap Usage %",
+      "gridPos": { "x": 0, "y": 23, "w": 8, "h": 6 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 0.7, "color": "yellow" }, { "value": 0.9, "color": "red" }] },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "showThresholdLabels": true, "showThresholdMarkers": true },
+      "targets": [{ "expr": "nodejs_heap_size_used_bytes{job=\"shashti-karz-local\"} / nodejs_heap_size_total_bytes{job=\"shashti-karz-local\"}", "legendFormat": "Heap %" }]
+    },
+    {
+      "id": 24,
+      "type": "gauge",
+      "title": "Active Event Loop Lag",
+      "gridPos": { "x": 8, "y": 23, "w": 8, "h": 6 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 0.1, "color": "yellow" }, { "value": 0.5, "color": "red" }] },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "showThresholdLabels": false, "showThresholdMarkers": true },
+      "targets": [{ "expr": "nodejs_eventloop_lag_seconds{job=\"shashti-karz-local\"}", "legendFormat": "Event Loop Lag" }]
+    },
+    {
+      "id": 25,
+      "type": "stat",
+      "title": "Active Handles",
+      "gridPos": { "x": 16, "y": 23, "w": 8, "h": 6 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 50, "color": "yellow" }, { "value": 100, "color": "red" }] }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "area", "colorMode": "background" },
+      "targets": [{ "expr": "nodejs_active_handles_total{job=\"shashti-karz-local\"}", "legendFormat": "Active Handles" }]
+    },
+    {
+      "id": 30,
+      "type": "row",
+      "title": "💼 Business KPIs",
+      "gridPos": { "x": 0, "y": 29, "w": 24, "h": 1 },
+      "collapsed": false
+    },
+    {
+      "id": 31,
+      "type": "timeseries",
+      "title": "Bookings Over Time",
+      "gridPos": { "x": 0, "y": 30, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": { "lineWidth": 2, "fillOpacity": 25, "gradientMode": "opacity", "drawStyle": "bars" },
+          "color": { "fixedColor": "#5794F2", "mode": "fixed" }
+        }
+      },
+      "options": { "tooltip": { "mode": "single" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        { "expr": "increase(shashti_karz_bookings_total{job=\"shashti-karz-local\"}[5m])", "legendFormat": "New Bookings (5m)" }
+      ]
+    },
+    {
+      "id": 32,
+      "type": "timeseries",
+      "title": "Revenue Over Time",
+      "gridPos": { "x": 12, "y": 30, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyINR",
+          "custom": { "lineWidth": 2, "fillOpacity": 25, "gradientMode": "opacity" },
+          "color": { "fixedColor": "#73BF69", "mode": "fixed" }
+        }
+      },
+      "options": { "tooltip": { "mode": "single" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        { "expr": "shashti_karz_revenue_total{job=\"shashti-karz-local\"}", "legendFormat": "Total Revenue (₹)" }
+      ]
+    },
+    {
+      "id": 33,
+      "type": "piechart",
+      "title": "Service Popularity",
+      "gridPos": { "x": 0, "y": 38, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "palette-classic" } } },
+      "options": { "pieType": "donut", "tooltip": { "mode": "single" }, "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] } },
+      "targets": [
+        { "expr": "shashti_karz_service_bookings_total{job=\"shashti-karz-local\"}", "legendFormat": "{{service_type}}" }
+      ]
+    },
+    {
+      "id": 34,
+      "type": "bargauge",
+      "title": "Service Bookings Breakdown",
+      "gridPos": { "x": 12, "y": 38, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "palette-classic" },
+          "thresholds": { "steps": [{ "value": 0, "color": "blue" }] }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "orientation": "horizontal", "displayMode": "gradient", "valueMode": "color" },
+      "targets": [
+        { "expr": "shashti_karz_service_bookings_total{job=\"shashti-karz-local\"}", "legendFormat": "{{service_type}}" }
+      ]
+    },
+    {
+      "id": 40,
+      "type": "row",
+      "title": "🏗️ Infrastructure (Node Exporter)",
+      "gridPos": { "x": 0, "y": 46, "w": 24, "h": 1 },
+      "collapsed": false
+    },
+    {
+      "id": 41,
+      "type": "timeseries",
+      "title": "System CPU Usage %",
+      "gridPos": { "x": 0, "y": 47, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "custom": { "lineWidth": 2, "fillOpacity": 20, "gradientMode": "opacity" },
+          "color": { "mode": "palette-classic" },
+          "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 70, "color": "yellow" }, { "value": 90, "color": "red" }] }
+        }
+      },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        { "expr": "100 - (avg(irate(node_cpu_seconds_total{mode=\"idle\", job=\"node-exporter\"}[2m])) * 100)", "legendFormat": "CPU Used %" },
+        { "expr": "avg(irate(node_cpu_seconds_total{mode=\"user\", job=\"node-exporter\"}[2m])) * 100", "legendFormat": "User %" },
+        { "expr": "avg(irate(node_cpu_seconds_total{mode=\"system\", job=\"node-exporter\"}[2m])) * 100", "legendFormat": "System %" }
+      ]
+    },
+    {
+      "id": 42,
+      "type": "timeseries",
+      "title": "System Memory Usage",
+      "gridPos": { "x": 12, "y": 47, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "custom": { "lineWidth": 2, "fillOpacity": 20, "gradientMode": "opacity" },
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        { "expr": "node_memory_MemTotal_bytes{job=\"node-exporter\"}", "legendFormat": "Total RAM" },
+        { "expr": "node_memory_MemAvailable_bytes{job=\"node-exporter\"}", "legendFormat": "Available RAM" },
+        { "expr": "node_memory_MemTotal_bytes{job=\"node-exporter\"} - node_memory_MemAvailable_bytes{job=\"node-exporter\"}", "legendFormat": "Used RAM" }
+      ]
+    },
+    {
+      "id": 43,
+      "type": "timeseries",
+      "title": "Network I/O (bytes/s)",
+      "gridPos": { "x": 0, "y": 55, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": { "lineWidth": 2, "fillOpacity": 15, "gradientMode": "opacity" },
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        { "expr": "rate(node_network_receive_bytes_total{job=\"node-exporter\", device!=\"lo\"}[2m])", "legendFormat": "Receive {{device}}" },
+        { "expr": "rate(node_network_transmit_bytes_total{job=\"node-exporter\", device!=\"lo\"}[2m])", "legendFormat": "Transmit {{device}}" }
+      ]
+    },
+    {
+      "id": 44,
+      "type": "timeseries",
+      "title": "Disk I/O (bytes/s)",
+      "gridPos": { "x": 12, "y": 55, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": { "lineWidth": 2, "fillOpacity": 15, "gradientMode": "opacity" },
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        { "expr": "rate(node_disk_read_bytes_total{job=\"node-exporter\"}[2m])", "legendFormat": "Read {{device}}" },
+        { "expr": "rate(node_disk_written_bytes_total{job=\"node-exporter\"}[2m])", "legendFormat": "Write {{device}}" }
+      ]
+    },
+    {
+      "id": 50,
+      "type": "row",
+      "title": "📊 Prometheus Self-Monitoring",
+      "gridPos": { "x": 0, "y": 63, "w": 24, "h": 1 },
+      "collapsed": false
+    },
+    {
+      "id": 51,
+      "type": "timeseries",
+      "title": "Prometheus Scrape Duration",
+      "gridPos": { "x": 0, "y": 64, "w": 12, "h": 6 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": { "lineWidth": 2, "fillOpacity": 10 },
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        { "expr": "scrape_duration_seconds", "legendFormat": "{{job}}" }
+      ]
+    },
+    {
+      "id": 52,
+      "type": "timeseries",
+      "title": "Prometheus Samples Ingested/s",
+      "gridPos": { "x": 12, "y": 64, "w": 12, "h": 6 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": { "lineWidth": 2, "fillOpacity": 10 },
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        { "expr": "rate(prometheus_tsdb_head_samples_appended_total[1m])", "legendFormat": "Samples/s" }
+      ]
+    }
+  ]
+}

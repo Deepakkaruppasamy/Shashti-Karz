@@ -1,0 +1,117 @@
+# ─────────────────────────────────────────────────────────────
+# Prometheus — Deployment + Service
+# Scrapes metrics from the Shashti Karz app
+# ─────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: shashti-karz
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets: ['alertmanager-service:9093']
+
+    rule_files:
+      - /etc/prometheus/alerts.rules.yml
+
+    scrape_configs:
+      - job_name: 'shashti-karz-app'
+        static_configs:
+          - targets: ['shashti-karz-service:80']
+        metrics_path: '/api/metrics'
+        params:
+          token: ['$(METRICS_SECRET)']
+
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+
+  alerts.rules.yml: |
+    groups:
+      - name: shashti-karz-alerts
+        rules:
+          - alert: AppHighResponseTime
+            expr: http_request_duration_seconds_p95 > 2
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High response time on Shashti Karz"
+              description: "P95 response time is above 2 seconds."
+
+          - alert: AppDown
+            expr: up{job="shashti-karz-app"} == 0
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Shashti Karz app is down"
+              description: "The app has been unreachable for 1 minute."
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: shashti-karz
+  labels:
+    app: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus:latest
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+            - "--web.enable-lifecycle"
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/prometheus
+            - name: prometheus-storage
+              mountPath: /prometheus
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: prometheus-config
+        - name: prometheus-storage
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-service
+  namespace: shashti-karz
+  labels:
+    app: prometheus
+spec:
+  selector:
+    app: prometheus
+  ports:
+    - protocol: TCP
+      port: 9090
+      targetPort: 9090
+  type: ClusterIP

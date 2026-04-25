@@ -1,0 +1,84 @@
+# ─────────────────────────────────────────────────────────────
+# Shashti Karz — Next.js App Deployment
+# Image pulled from Docker Hub: deepakkaruppasamy/shashti-karz
+# ─────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shashti-karz-app
+  namespace: shashti-karz
+  labels:
+    app: shashti-karz
+    tier: frontend
+spec:
+  replicas: 2                        # 2 pods for high availability
+  selector:
+    matchLabels:
+      app: shashti-karz
+      tier: frontend
+  strategy:
+    type: RollingUpdate              # Zero-downtime deployments
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: shashti-karz
+        tier: frontend
+    spec:
+      containers:
+        - name: shashti-karz
+          image: deepakkaruppasamy/shashti-karz:latest
+          imagePullPolicy: Always    # Always pull latest from Docker Hub
+          ports:
+            - containerPort: 3000
+              name: http
+          envFrom:
+            - secretRef:
+                name: shashti-karz-secrets
+          env:
+            - name: NODE_ENV
+              value: "production"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+      restartPolicy: Always
+---
+# ─────────────────────────────────────────────────────────────
+# Shashti Karz App — ClusterIP Service
+# ─────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: shashti-karz-service
+  namespace: shashti-karz
+  labels:
+    app: shashti-karz
+spec:
+  selector:
+    app: shashti-karz
+    tier: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+      name: http
+  type: ClusterIP

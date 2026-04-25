@@ -21,13 +21,13 @@ scrape_configs:
       token: ['your_metrics_secret_here']
 
   # Production scrape disabled until METRICS_SECRET on Render is updated
-  # - job_name: 'shashti-karz-prod'
-  #   metrics_path: '/api/metrics'
-  #   scheme: https
-  #   static_configs:
-  #     - targets: ['shashtikarz.app']
-  #   params:
-  #     token: ['your_metrics_secret_here']
+  - job_name: 'shashti-karz-prod'
+    metrics_path: '/api/metrics'
+    scheme: https
+    static_configs:
+      - targets: ['shashtikarz.app']
+    params:
+      token: ['your_metrics_secret_here']
 
  
 
