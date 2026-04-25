@@ -18,8 +18,9 @@ pipeline {
         RENDER_API_KEY  = credentials('RENDER_API_KEY')    // Add in Jenkins > Credentials
         RENDER_OWNER_ID = credentials('RENDER_OWNER_ID')   // Add in Jenkins > Credentials
 
-        // Terraform working dir
-        TF_DIR = "terraform"
+        // Terraform configuration
+        TF_DIR     = "terraform"
+        TF_COMMAND = "C:\\terraform\\terraform.exe" // Absolute path for Jenkins service
     }
 
     stages {
@@ -91,7 +92,7 @@ pipeline {
             steps {
                 script {
                     echo "Initializing Terraform..."
-                    bat "cd %TF_DIR% && terraform init -input=false"
+                    bat "cd %TF_DIR% && %TF_COMMAND% init -input=false"
                 }
             }
         }
@@ -101,7 +102,7 @@ pipeline {
                 script {
                     echo "Running Terraform plan..."
                     bat """
-                        cd %TF_DIR% && terraform plan ^
+                        cd %TF_DIR% && %TF_COMMAND% plan ^
                         -var="render_api_key=%RENDER_API_KEY%" ^
                         -var="render_owner_id=%RENDER_OWNER_ID%" ^
                         -var="supabase_url=%SUPABASE_URL%" ^
@@ -121,7 +122,7 @@ pipeline {
             steps {
                 script {
                     echo "Applying Terraform — updating Render service..."
-                    bat "cd %TF_DIR% && terraform apply -input=false -auto-approve tfplan"
+                    bat "cd %TF_DIR% && %TF_COMMAND% apply -input=false -auto-approve tfplan"
                 }
             }
         }
