@@ -144,9 +144,9 @@ pipeline {
                 script {
                     echo "Deploying to Kubernetes cluster..."
                     
-                    // Set KUBECONFIG for this block
-                    withEnv(["KUBECONFIG=${env.KUBECONFIG_PATH}"]) {
-                        // Apply namespace first
+                    // Set KUBECONFIG to the local physical path for stability
+                    withEnv(["KUBECONFIG=C:\\Users\\deepa\\.kube\\config"]) {
+                        // Apply namespace first (skip validation for speed)
                         bat "kubectl apply -f k8s/namespace.yaml --insecure-skip-tls-verify=true --validate=false"
 
                         // Inject secrets from Jenkins credentials

@@ -53,7 +53,7 @@ The project uses a sophisticated **Jenkins Pipeline** (`Jenkinsfile`):
 2. **Build**: Creates a production Docker image using `Dockerfile`.
 3. **Push**: Uploads the versioned image to Docker Hub.
 4. **Terraform**: Automatically updates the infrastructure on **Render**.
-5. **K8s Deploy**: Deploys manifests to the Kubernetes cluster.
+5. **K8s Deploy**: (Optional) Deploys manifests to the Kubernetes cluster.
 
 ---
 
