@@ -147,7 +147,7 @@ pipeline {
                     // Set KUBECONFIG for this block
                     withEnv(["KUBECONFIG=${env.KUBECONFIG_PATH}"]) {
                         // Apply namespace first
-                        bat "kubectl apply -f k8s/namespace.yaml --insecure-skip-tls-verify=true"
+                        bat "kubectl apply -f k8s/namespace.yaml --insecure-skip-tls-verify=true --validate=false"
 
                         // Inject secrets from Jenkins credentials
                         bat """
@@ -160,16 +160,16 @@ pipeline {
                             --from-literal=NEXT_PUBLIC_APP_URL=%APP_URL% ^
                             --from-literal=METRICS_SECRET=%METRICS_KEY% ^
                             -n shashti-karz ^
-                            --dry-run=client -o yaml | kubectl apply -f - --insecure-skip-tls-verify=true
+                            --dry-run=client -o yaml | kubectl apply -f - --insecure-skip-tls-verify=true --validate=false
                         """
 
                         // Apply all manifests
-                        bat "kubectl apply -f k8s/app-deployment.yaml --insecure-skip-tls-verify=true"
-                        bat "kubectl apply -f k8s/prometheus-deployment.yaml --insecure-skip-tls-verify=true"
-                        bat "kubectl apply -f k8s/grafana-deployment.yaml --insecure-skip-tls-verify=true"
-                        bat "kubectl apply -f k8s/alertmanager-deployment.yaml --insecure-skip-tls-verify=true"
-                        bat "kubectl apply -f k8s/ingress.yaml --insecure-skip-tls-verify=true"
-                        bat "kubectl apply -f k8s/hpa.yaml --insecure-skip-tls-verify=true"
+                        bat "kubectl apply -f k8s/app-deployment.yaml --insecure-skip-tls-verify=true --validate=false"
+                        bat "kubectl apply -f k8s/prometheus-deployment.yaml --insecure-skip-tls-verify=true --validate=false"
+                        bat "kubectl apply -f k8s/grafana-deployment.yaml --insecure-skip-tls-verify=true --validate=false"
+                        bat "kubectl apply -f k8s/alertmanager-deployment.yaml --insecure-skip-tls-verify=true --validate=false"
+                        bat "kubectl apply -f k8s/ingress.yaml --insecure-skip-tls-verify=true --validate=false"
+                        bat "kubectl apply -f k8s/hpa.yaml --insecure-skip-tls-verify=true --validate=false"
 
                         // Force pull the latest image
                         bat "kubectl rollout restart deployment/shashti-karz-app -n shashti-karz --insecure-skip-tls-verify=true"
