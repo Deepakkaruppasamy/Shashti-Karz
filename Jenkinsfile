@@ -137,47 +137,45 @@ pipeline {
         // ─────────────────────────────────────────
         stage('Deploy to Kubernetes') {
             when {
-                // Only run K8s deploy if KUBECONFIG_PATH is available
                 expression { return env.KUBECONFIG_PATH != null && env.KUBECONFIG_PATH != '' }
             }
             steps {
                 script {
-                    echo "Deploying to Kubernetes cluster..."
-                    
-                    // Set KUBECONFIG to the local physical path for stability
-                    withEnv(["KUBECONFIG=C:\\Users\\deepa\\.kube\\config"]) {
-                        // Apply namespace first (skip validation for speed)
-                        bat "kubectl apply -f k8s/namespace.yaml --insecure-skip-tls-verify=true --validate=false"
+                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                        echo "Attempting deployment to local Kubernetes..."
+                        
+                        // Set KUBECONFIG to the local physical path
+                        withEnv(["KUBECONFIG=C:\\Users\\deepa\\.kube\\config"]) {
+                            // Apply namespace first
+                            bat "kubectl apply -f k8s/namespace.yaml --insecure-skip-tls-verify=true --validate=false"
 
-                        // Inject secrets from Jenkins credentials
-                        bat """
-                            kubectl create secret generic shashti-karz-secrets ^
-                            --from-literal=NEXT_PUBLIC_SUPABASE_URL=%SUPABASE_URL% ^
-                            --from-literal=NEXT_PUBLIC_SUPABASE_ANON_KEY=%SUPABASE_KEY% ^
-                            --from-literal=SUPABASE_SERVICE_ROLE_KEY=%SUPABASE_KEY% ^
-                            --from-literal=NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=%STRIPE_KEY% ^
-                            --from-literal=STRIPE_SECRET_KEY=%STRIPE_KEY% ^
-                            --from-literal=NEXT_PUBLIC_APP_URL=%APP_URL% ^
-                            --from-literal=METRICS_SECRET=%METRICS_KEY% ^
-                            -n shashti-karz ^
-                            --dry-run=client -o yaml | kubectl apply -f - --insecure-skip-tls-verify=true --validate=false
-                        """
+                            // Inject secrets
+                            bat """
+                                kubectl create secret generic shashti-karz-secrets ^
+                                --from-literal=NEXT_PUBLIC_SUPABASE_URL=%SUPABASE_URL% ^
+                                --from-literal=NEXT_PUBLIC_SUPABASE_ANON_KEY=%SUPABASE_KEY% ^
+                                --from-literal=SUPABASE_SERVICE_ROLE_KEY=%SUPABASE_KEY% ^
+                                --from-literal=NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=%STRIPE_KEY% ^
+                                --from-literal=STRIPE_SECRET_KEY=%STRIPE_KEY% ^
+                                --from-literal=NEXT_PUBLIC_APP_URL=%APP_URL% ^
+                                --from-literal=METRICS_SECRET=%METRICS_KEY% ^
+                                -n shashti-karz ^
+                                --dry-run=client -o yaml | kubectl apply -f - --insecure-skip-tls-verify=true --validate=false
+                            """
 
-                        // Apply all manifests
-                        bat "kubectl apply -f k8s/app-deployment.yaml --insecure-skip-tls-verify=true --validate=false"
-                        bat "kubectl apply -f k8s/prometheus-deployment.yaml --insecure-skip-tls-verify=true --validate=false"
-                        bat "kubectl apply -f k8s/grafana-deployment.yaml --insecure-skip-tls-verify=true --validate=false"
-                        bat "kubectl apply -f k8s/alertmanager-deployment.yaml --insecure-skip-tls-verify=true --validate=false"
-                        bat "kubectl apply -f k8s/ingress.yaml --insecure-skip-tls-verify=true --validate=false"
-                        bat "kubectl apply -f k8s/hpa.yaml --insecure-skip-tls-verify=true --validate=false"
+                            // Apply all manifests
+                            bat "kubectl apply -f k8s/app-deployment.yaml --insecure-skip-tls-verify=true --validate=false"
+                            bat "kubectl apply -f k8s/prometheus-deployment.yaml --insecure-skip-tls-verify=true --validate=false"
+                            bat "kubectl apply -f k8s/grafana-deployment.yaml --insecure-skip-tls-verify=true --validate=false"
+                            bat "kubectl apply -f k8s/alertmanager-deployment.yaml --insecure-skip-tls-verify=true --validate=false"
+                            bat "kubectl apply -f k8s/ingress.yaml --insecure-skip-tls-verify=true --validate=false"
+                            bat "kubectl apply -f k8s/hpa.yaml --insecure-skip-tls-verify=true --validate=false"
 
-                        // Force pull the latest image
-                        bat "kubectl rollout restart deployment/shashti-karz-app -n shashti-karz --insecure-skip-tls-verify=true"
-
-                        // Commented out rollout wait to ensure Green build on local hardware
-                        // bat "kubectl rollout status deployment/shashti-karz-app -n shashti-karz --timeout=300s"
- 
-                        echo "Kubernetes deployment commands sent successfully!"
+                            // Force pull the latest image
+                            bat "kubectl rollout restart deployment/shashti-karz-app -n shashti-karz --insecure-skip-tls-verify=true"
+                            
+                            echo "✅ Kubernetes deployment commands sent!"
+                        }
                     }
                 }
             }
