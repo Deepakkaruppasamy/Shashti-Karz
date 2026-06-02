@@ -1,6 +1,3 @@
-# ─────────────────────────────────────────
-# Render Provider Variables
-# ─────────────────────────────────────────
 
 variable "render_api_key" {
   description = "Render API key — found in Render Dashboard > Account Settings > API Keys"
@@ -19,9 +16,6 @@ variable "render_docker_credential_id" {
   default     = ""
 }
 
-# ─────────────────────────────────────────
-# Docker Hub Variables
-# ─────────────────────────────────────────
 
 variable "docker_hub_user" {
   description = "Docker Hub username"
@@ -35,9 +29,6 @@ variable "image_name" {
   default     = "shashti-karz"
 }
 
-# ─────────────────────────────────────────
-# App Config Variables
-# ─────────────────────────────────────────
 
 variable "custom_domain" {
   description = "Custom domain for the app"
@@ -51,9 +42,6 @@ variable "app_url" {
   default     = "https://shashtikarz.app"
 }
 
-# ─────────────────────────────────────────
-# Application Secrets (mark all sensitive)
-# ─────────────────────────────────────────
 
 variable "supabase_url" {
   description = "Supabase project URL"

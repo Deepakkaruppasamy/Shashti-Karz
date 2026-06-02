@@ -46,7 +46,6 @@ export default function LTVAdminPage() {
 
     const router = useRouter();
 
-    // Real-time subscription
     useRealtimeSubscription<Customer>({
         table: "customer_lifetime_value",
         onUpdate: (updatedItem) => {
@@ -156,7 +155,7 @@ export default function LTVAdminPage() {
                     </div>
                 </div>
 
-                {/* AI Retention Engine */}
+                {}
                 <div className="glass-card rounded-2xl lg:rounded-[2rem] p-6 lg:p-8 border border-white/5 bg-gradient-to-br from-[#1a1a1a] to-transparent relative overflow-hidden mb-8 group">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 rounded-full blur-[80px]" />
                     <div className="flex flex-col lg:flex-row items-start justify-between gap-6 lg:gap-8 relative z-10">
@@ -196,7 +195,7 @@ export default function LTVAdminPage() {
                     </div>
                 </div>
 
-                {/* Segment Filter */}
+                {}
                 <div className="flex overflow-x-auto pb-4 gap-3 mb-8 scrollbar-hide no-scrollbar -mx-4 px-4 lg:mx-0 lg:px-0">
                     {segments.map((segment) => (
                         <button
@@ -232,7 +231,7 @@ export default function LTVAdminPage() {
                     </button>
                 </div>
 
-                {/* Stats Grid */}
+                {}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                     {[
                         { label: "Total LTV", value: `₹${customers.reduce((sum, c) => sum + c.actual_ltv, 0).toLocaleString()}`, icon: TrendingUp, color: "text-purple-500", bg: "bg-purple-500/10" },
@@ -252,7 +251,7 @@ export default function LTVAdminPage() {
                     ))}
                 </div>
 
-                {/* Main Portfolio */}
+                {}
                 <div className="glass-card rounded-2xl lg:rounded-[2rem] overflow-hidden border border-white/5">
                     <div className="p-6 border-b border-white/5 flex items-center justify-between">
                         <h3 className="font-bold text-lg">Customer Portfolio</h3>
@@ -262,7 +261,7 @@ export default function LTVAdminPage() {
                         </div>
                     </div>
 
-                    {/* Mobile Card List */}
+                    {}
                     <div className="lg:hidden divide-y divide-white/5">
                         {customers.map((customer) => (
                             <div key={customer.user_id} className="p-6 space-y-4">
@@ -306,7 +305,7 @@ export default function LTVAdminPage() {
                         ))}
                     </div>
 
-                    {/* Desktop Table View */}
+                    {}
                     <div className="hidden lg:block overflow-x-auto">
                         <table className="w-full">
                             <thead className="bg-black/20 text-left">

@@ -23,26 +23,22 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  // Core
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/admin" },
   { id: "global-analytics", label: "Global Analytics", icon: TrendingUp, href: "/admin/analytics", badge: "Master", badgeColor: "bg-blue-500/20 text-blue-500" },
   { id: "analytics", label: "AI Analytics", icon: Brain, href: "/admin?tab=analytics", ai: true },
   { id: "bookings", label: "Bookings", icon: Calendar, href: "/admin?tab=bookings" },
   { id: "tracking", label: "Service Tracking", icon: Play, href: "/admin?tab=tracking" },
 
-  // Financial
   { id: "finance", label: "Finance", icon: DollarSign, href: "/admin?tab=finance" },
   { id: "billing", label: "Billing", icon: Receipt, href: "/admin/billing" },
 
 
-  // Services & Products
   { id: "services", label: "Services", icon: Package, href: "/admin?tab=services" },
   { id: "packages", label: "Packages", icon: Box, href: "/admin/packages", badge: "New", badgeColor: "bg-purple-500/20 text-purple-500" },
   { id: "pricing", label: "Pricing Rules", icon: Tag, href: "/admin/pricing", badge: "New", badgeColor: "bg-purple-500/20 text-purple-500" },
   { id: "slots", label: "Time Slots", icon: Clock, href: "/admin/slots", badge: "New", badgeColor: "bg-purple-500/20 text-purple-500" },
   { id: "rescheduling", label: "Smart Rescheduling", icon: RefreshCw, href: "/admin/rescheduling", badge: "AI", badgeColor: "bg-blue-500/20 text-blue-500" },
 
-  // Customer Management
   { id: "users", label: "Customers", icon: Users, href: "/admin?tab=users" },
   { id: "reviews", label: "Reviews", icon: Star, href: "/admin/reviews", badge: "New", badgeColor: "bg-yellow-500/20 text-yellow-500" },
   { id: "ltv", label: "Customer LTV", icon: TrendingUp, href: "/admin/ltv", badge: "New", badgeColor: "bg-green-500/20 text-green-500" },
@@ -50,7 +46,6 @@ const navItems: NavItem[] = [
   { id: "dinesh-support", label: "Dinesh Support", icon: Headphones, href: "/admin/dinesh-support", badge: "Voice", badgeColor: "bg-purple-500/20 text-purple-500" },
   { id: "pulse", label: "Admin Pulse", icon: Activity, href: "/admin/pulse", badge: "Live", badgeColor: "bg-red-500/20 text-red-500" },
 
-  // Marketing & Communication
   { id: "campaigns", label: "Ad Campaigns", icon: Play, href: "/admin/ads", badge: "Video", badgeColor: "bg-blue-500/20 text-blue-500" },
   { id: "showroom", label: "Showroom", icon: LucideImage, href: "/admin/showroom" },
   { id: "marketing", label: "Marketing", icon: Send, href: "/admin/campaigns" },
@@ -58,7 +53,6 @@ const navItems: NavItem[] = [
   { id: "whatsapp", label: "WhatsApp", icon: MessageCircle, href: "/admin/whatsapp", badge: "New", badgeColor: "bg-green-500/20 text-green-500" },
   { id: "notifications", label: "Notifications", icon: Bell, href: "/admin/notifications", badge: "Send", badgeColor: "bg-orange-500/20 text-orange-500" },
 
-  // Operations
   { id: "workers", label: "Workers", icon: Users, href: "/admin/workers" },
 
   { id: "worker-portal", label: "Worker Portal", icon: Hammer, href: "/worker", badge: "Live", badgeColor: "bg-[#ff1744]/20 text-[#ff1744]" },
@@ -66,7 +60,6 @@ const navItems: NavItem[] = [
   { id: "inventory", label: "Inventory", icon: Package, href: "/admin/inventory" },
   { id: "gallery", label: "Gallery", icon: ImageIcon, href: "/admin?tab=gallery" },
 
-  // Settings
   { id: "settings", label: "Settings", icon: Settings, href: "/admin/settings" },
 ];
 

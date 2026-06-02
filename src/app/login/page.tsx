@@ -29,7 +29,6 @@ import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/LanguageContext";
 import Image from "next/image";
 
-// --- Advanced Components ---
 
 const GlassShards = () => {
   const [mounted, setMounted] = useState(false);
@@ -361,7 +360,7 @@ export default function LoginPage() {
         </AnimatePresence>
       </motion.div>
 
-      {/* Mobile-Friendly Bottom Info */}
+      {}
       <div className="mt-12 flex flex-wrap items-center justify-center gap-4 sm:gap-8 opacity-40">
         <div className="flex items-center gap-2">
           <ShieldCheck size={14} className="text-purple-500" />

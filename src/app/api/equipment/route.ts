@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 
-// GET /api/equipment - Get equipment list
 export async function GET(request: NextRequest) {
     try {
         const isAdminSession = request.cookies.get("admin_session");
@@ -44,7 +43,6 @@ export async function GET(request: NextRequest) {
     }
 }
 
-// POST /api/equipment - Add equipment
 export async function POST(request: NextRequest) {
     try {
         const isAdminSession = request.cookies.get("admin_session");

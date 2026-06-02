@@ -47,7 +47,6 @@ export async function POST(request: NextRequest) {
             would_recommend = true,
         } = body;
 
-        // Validate required fields
         if (!customer_name || !feedback_type || !message) {
             return NextResponse.json(
                 { error: "Missing required fields" },
@@ -55,7 +54,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Get user if authenticated
         const { data: { user } } = await supabase.auth.getUser();
 
         const { data, error } = await supabase

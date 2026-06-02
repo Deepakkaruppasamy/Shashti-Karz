@@ -75,7 +75,6 @@ export async function POST(request: NextRequest) {
       metadata: { booking_id: booking?.booking_id, stage, status: status || "pending" }
     });
 
-    // Notify customer that a worker has been assigned to their booking
     if (booking?.user_id) {
       await sendNotification({
         userId: booking.user_id,
@@ -119,7 +118,6 @@ export async function PUT(request: NextRequest) {
 
     if (error) throw error;
 
-    // Fetch booking + user for notification
     const { data: booking } = await supabase
       .from("bookings")
       .select("booking_id, customer_name, user_id")
@@ -133,7 +131,6 @@ export async function PUT(request: NextRequest) {
       metadata: { booking_id: booking?.booking_id, stage: data.stage, status }
     });
 
-    // Notify customer when their service actually starts
     if (status === "in_progress" && booking?.user_id) {
       await sendNotification({
         userId: booking.user_id,

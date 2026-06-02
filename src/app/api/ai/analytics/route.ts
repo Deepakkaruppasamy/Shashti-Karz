@@ -78,14 +78,11 @@ async function getAnalyticsData(timeRange: string) {
     ? Math.round(((totalRevenue - prevRevenue) / prevRevenue) * 100)
     : 0;
 
-  // Advanced Revenue Forecast (using growth rate and seasonal weight)
   const daysInPeriod = timeRange === "today" ? 1 : timeRange === "week" ? 7 : timeRange === "month" ? 30 : 90;
   const dailyAvg = totalRevenue / daysInPeriod;
   const growthFactor = 1 + (revenueChange / 100);
-  // Add 10% safety margin and weight recent trends more
   const revenueForecast = Math.round(dailyAvg * 7 * Math.max(0.8, Math.min(1.5, growthFactor)));
 
-  // Service Duration Analytics
   const { data: trackingData } = await supabase
     .from("service_tracking")
     .select("*")
@@ -97,7 +94,7 @@ async function getAnalyticsData(timeRange: string) {
       .filter(t => t.started_at && t.completed_at)
       .map(t => new Date(t.completed_at).getTime() - new Date(t.started_at).getTime());
     if (durations.length > 0) {
-      avgServiceDuration = Math.round(durations.reduce((a, b) => a + b, 0) / durations.length / (1000 * 60)); // in minutes
+      avgServiceDuration = Math.round(durations.reduce((a, b) => a + b, 0) / durations.length / (1000 * 60));
     }
   }
 

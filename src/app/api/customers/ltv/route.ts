@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-// GET /api/customers/ltv - Get customer lifetime value data
 export async function GET(request: NextRequest) {
     try {
         const supabase = await createClient();
@@ -16,7 +15,6 @@ export async function GET(request: NextRequest) {
         const segment = searchParams.get("segment");
 
         if (userId) {
-            // Get specific user LTV
             const { data, error } = await supabase
                 .from("customer_lifetime_value")
                 .select("*")
@@ -30,7 +28,6 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ ltv: data });
         }
 
-        // Get all customers (admin only)
         const { data: profile } = await supabase
             .from("profiles")
             .select("role")
@@ -56,8 +53,7 @@ export async function GET(request: NextRequest) {
         const { data, error } = await query;
 
         if (error) {
-            // Check if error is due to missing table
-            if (error.code === '42P01') { // Postgres code for undefined table
+            if (error.code === '42P01') {
                 console.warn("LTV table missing, returning empty data. Please run sql/customer_ltv.sql");
                 return NextResponse.json({ customers: [], segments: [] });
             }
@@ -65,7 +61,6 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
-        // Get segment summary
         const { data: segments, error: segmentsError } = await supabase
             .from("customer_segments")
             .select("*");

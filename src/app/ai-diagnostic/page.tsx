@@ -94,7 +94,6 @@ export default function AiDiagnosticPage() {
                 setNewVehicle({ name: "", brand: "", model: "", number_plate: "", year: new Date().getFullYear() });
                 toast.success("Vehicle added successfully!");
             } else {
-                // Display detailed error from API
                 const errorMsg = responseData.error || responseData.message || "Failed to add vehicle";
                 console.error("API Error:", responseData);
                 toast.error(errorMsg);
@@ -126,7 +125,7 @@ export default function AiDiagnosticPage() {
                     overall_score: overallScore,
                     recommendations: detections.map(d => d.recommendedService),
                     detections: detections,
-                    diagnostic_image: selectedImage // Include the uploaded image
+                    diagnostic_image: selectedImage
                 })
             });
 
@@ -161,17 +160,14 @@ export default function AiDiagnosticPage() {
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            // Show preview immediately
             const reader = new FileReader();
             reader.onloadend = () => {
                 setSelectedImage(reader.result as string);
             };
             reader.readAsDataURL(file);
 
-            // Start scanning animation
             startScanning();
 
-            // Upload to Supabase Storage in background
             try {
                 const formData = new FormData();
                 formData.append("file", file);
@@ -185,12 +181,10 @@ export default function AiDiagnosticPage() {
                 if (uploadRes.ok) {
                     const { url } = await uploadRes.json();
                     console.log("Image uploaded:", url);
-                    // Store the URL for later use when saving results
                     setSelectedImage(url);
                 }
             } catch (error) {
                 console.error("Failed to upload image:", error);
-                // Continue with local preview even if upload fails
             }
         }
     };
@@ -208,7 +202,6 @@ export default function AiDiagnosticPage() {
     useEffect(() => {
         if (step === "analysis") {
             setTimeout(() => {
-                // Generate 2-4 random detections
                 const count = Math.floor(Math.random() * 3) + 2;
                 const shuffled = [...possibleDetections].sort(() => 0.5 - Math.random());
                 const selected = shuffled.slice(0, count).map((d, i) => ({
@@ -216,7 +209,6 @@ export default function AiDiagnosticPage() {
                     id: (i + 1).toString()
                 })) as Detection[];
 
-                // Calculate score
                 let score = 100;
                 selected.forEach(d => {
                     if (d.severity === "high") score -= 15;
@@ -224,7 +216,6 @@ export default function AiDiagnosticPage() {
                     else score -= 4;
                 });
 
-                // Add some randomness to score
                 score = Math.max(30, Math.min(98, score - Math.floor(Math.random() * 5)));
 
                 setDetections(selected);
@@ -239,7 +230,7 @@ export default function AiDiagnosticPage() {
             <Navbar />
 
             <main className="pt-24 pb-20 px-4 max-w-7xl mx-auto">
-                {/* HUD Header */}
+                {}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
@@ -463,7 +454,7 @@ export default function AiDiagnosticPage() {
                                 )}
                                 <div className="absolute inset-0 bg-black/40" />
 
-                                {/* Scanning Beam */}
+                                {}
                                 <motion.div
                                     initial={{ top: "-10%" }}
                                     animate={{ top: "110%" }}
@@ -471,7 +462,7 @@ export default function AiDiagnosticPage() {
                                     className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#ff1744] to-transparent shadow-[0_0_20px_#ff1744] z-20"
                                 />
 
-                                {/* HUD Elements */}
+                                {}
                                 <div className="absolute inset-0 z-30 pointer-events-none p-8 font-mono">
                                     <div className="absolute top-8 left-8 border-t-2 border-l-2 border-[#ff1744] w-8 h-8" />
                                     <div className="absolute top-8 right-8 border-t-2 border-r-2 border-[#ff1744] w-8 h-8" />
@@ -676,7 +667,7 @@ export default function AiDiagnosticPage() {
                                         </Link>
                                     </div>
 
-                                    {/* Decorative Elements */}
+                                    {}
                                     <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-[#ff1744]/10 rounded-full blur-3xl" />
                                 </div>
 

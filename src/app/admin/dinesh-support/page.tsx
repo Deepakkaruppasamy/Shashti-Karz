@@ -52,17 +52,14 @@ export default function DineshSupportPage() {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const supabase = createClient();
 
-    // Initial Load
     useEffect(() => {
         loadData();
     }, []);
 
-    // Scroll to bottom of chat
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, selectedSupport]);
 
-    // Load messages when selecting a ticket
     useEffect(() => {
         if (selectedSupport) {
             loadMessages(selectedSupport.id);
@@ -96,7 +93,6 @@ export default function DineshSupportPage() {
         if (data) setMessages(data as SupportMessage[]);
     };
 
-    // Real-time Subscriptions
     useRealtimeSubscription<SupportRequest>({
         table: 'support_requests',
         onInsert: (newReq) => {
@@ -106,7 +102,7 @@ export default function DineshSupportPage() {
         onUpdate: (updatedReq) => {
             setSupportRequests(prev => prev.map(req => req.id === updatedReq.id ? updatedReq : req));
             if (selectedSupport?.id === updatedReq.id) {
-                setSelectedSupport(updatedReq); // Update selected view
+                setSelectedSupport(updatedReq);
             }
         }
     });
@@ -122,12 +118,10 @@ export default function DineshSupportPage() {
         }
     });
 
-    // Subscribe to messages for the active ticket
     useRealtimeSubscription<SupportMessage>({
         table: 'support_messages',
         filter: selectedSupport ? `request_id=eq.${selectedSupport.id}` : undefined,
         onInsert: (newMsg) => {
-            // Only add if not already present (dedup)
             setMessages(prev => {
                 if (prev.some(m => m.id === newMsg.id)) return prev;
                 return [...prev, newMsg];
@@ -140,7 +134,6 @@ export default function DineshSupportPage() {
         setSending(true);
 
         try {
-            // 1. Insert message
             const { error: msgError } = await supabase
                 .from("support_messages")
                 .insert({
@@ -152,11 +145,10 @@ export default function DineshSupportPage() {
 
             if (msgError) throw msgError;
 
-            // 2. Update status if needed
             if (selectedSupport.status !== 'resolved' && selectedSupport.status !== 'pending') {
                 await supabase
                     .from("support_requests")
-                    .update({ status: "pending", admin_response: responseText }) // pending user reply
+                    .update({ status: "pending", admin_response: responseText })
                     .eq("id", selectedSupport.id);
             }
 
@@ -219,7 +211,7 @@ export default function DineshSupportPage() {
         <div className="flex min-h-screen bg-[#0a0a0a] text-white">
             <div className="flex-1 overflow-auto pb-24 lg:pb-8">
                 <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-                    {/* Header */}
+                    {}
                     <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
                         <div>
                             <h1 className="text-3xl lg:text-4xl font-black tracking-tighter flex items-center gap-3">
@@ -240,7 +232,7 @@ export default function DineshSupportPage() {
                         </div>
                     </div>
 
-                    {/* Stats */}
+                    {}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                         {[
                             { label: "Total Requests", value: supportRequests.length, icon: MessageSquare, color: "text-purple-500", bg: "bg-purple-500/10" },
@@ -260,7 +252,7 @@ export default function DineshSupportPage() {
                         ))}
                     </div>
 
-                    {/* Filters */}
+                    {}
                     <div className="flex flex-col sm:flex-row gap-4 mb-8">
                         <div className="flex-1 relative group">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#333] group-focus-within:text-purple-500 transition-colors" size={16} />
@@ -274,7 +266,7 @@ export default function DineshSupportPage() {
                         </select>
                     </div>
 
-                    {/* Feed */}
+                    {}
                     <div className="grid lg:grid-cols-2 gap-8 items-start">
                         <div className="glass-card rounded-[2.5rem] p-4 lg:p-8 border border-white/5 h-[600px] flex flex-col">
                             <h3 className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em] mb-4 px-2">Deployment Feed</h3>
@@ -313,7 +305,7 @@ export default function DineshSupportPage() {
                             </div>
                         </div>
 
-                        {/* Inspector */}
+                        {}
                         <div className="glass-card rounded-[2.5rem] p-6 lg:p-10 border border-white/5 relative min-h-[600px] flex flex-col">
                             <AnimatePresence mode="wait">
                                 {selectedSupport ? (
@@ -323,9 +315,9 @@ export default function DineshSupportPage() {
                                             <button onClick={() => setSelectedSupport(null)} className="p-2 bg-white/5 rounded-xl"><X size={18} /></button>
                                         </div>
 
-                                        {/* Messages Area */}
+                                        {}
                                         <div className="flex-1 bg-black/20 rounded-3xl border border-white/5 p-4 mb-4 overflow-y-auto space-y-4">
-                                            {/* Original Ticket */}
+                                            {}
                                             <div className="flex justify-start">
                                                 <div className="bg-white/10 rounded-2xl rounded-tl-sm p-4 max-w-[80%]">
                                                     <p className="text-[10px] font-black text-purple-400 uppercase mb-1">{selectedSupport.customer_name} • Ticket</p>
@@ -333,7 +325,7 @@ export default function DineshSupportPage() {
                                                 </div>
                                             </div>
 
-                                            {/* Chat History */}
+                                            {}
                                             {messages.map((msg) => (
                                                 <div key={msg.id} className={`flex ${msg.sender === 'admin' ? 'justify-end' : 'justify-start'}`}>
                                                     <div className={`rounded-2xl p-4 max-w-[80%] ${msg.sender === 'admin' ? 'bg-purple-600 rounded-tr-sm' : 'bg-white/10 rounded-tl-sm'}`}>

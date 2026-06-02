@@ -207,7 +207,7 @@ export default function AdminNotificationsPage() {
     <div className="flex min-h-screen bg-[#0a0a0a] text-white">
       <div className="flex-1 overflow-auto pb-24 lg:pb-8">
         <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-          {/* Header */}
+          {}
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
             <div>
               <h1 className="text-3xl lg:text-4xl font-black tracking-tighter flex items-center gap-3">

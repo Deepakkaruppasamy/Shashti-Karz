@@ -9,7 +9,6 @@ export async function GET(request: NextRequest) {
         const searchParams = request.nextUrl.searchParams;
         const limit = parseInt(searchParams.get("limit") || "10");
 
-        // Try to fetch from customer_leaderboard which has points, bookings, etc.
         const { data, error } = await supabase
             .from("customer_leaderboard")
             .select(`
@@ -22,7 +21,6 @@ export async function GET(request: NextRequest) {
         if (error) {
             console.error("Supabase Error [Customer Leaderboard]:", error);
 
-            // Fallback to simpler select if profiles join fails
             const { data: simpleData, error: simpleError } = await supabase
                 .from("customer_leaderboard")
                 .select("*")

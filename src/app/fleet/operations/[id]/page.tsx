@@ -43,7 +43,6 @@ export default function FleetOperationsPage() {
     const [showBulkWizard, setShowBulkWizard] = useState(false);
     const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
 
-    // Bulk Booking State
     const [bulkBookingStep, setBulkBookingStep] = useState(1);
     const [bulkForm, setBulkForm] = useState({
         service_id: "express-wash",
@@ -70,7 +69,7 @@ export default function FleetOperationsPage() {
 
     useRealtimeSubscription({
         table: 'user_vehicles',
-        onUpdate: () => fetchData() // Update vehicle health/status
+        onUpdate: () => fetchData()
     });
 
     useRealtimeSubscription({
@@ -111,7 +110,7 @@ export default function FleetOperationsPage() {
             <Navbar />
 
             <main className="pt-24 pb-20 px-4 max-w-7xl mx-auto">
-                {/* HUD Header */}
+                {}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
                     <div className="flex items-center gap-6">
                         <Link href="/fleet" className="p-3 rounded-full bg-white/5 hover:bg-white/10 transition-colors">
@@ -140,7 +139,7 @@ export default function FleetOperationsPage() {
                     </div>
                 </div>
 
-                {/* Dashboard Navigation */}
+                {}
                 <nav className="flex gap-4 mb-10 border-b border-white/5 pb-4 overflow-x-auto no-scrollbar">
                     {[
                         { id: "overview", label: "Fleet Intelligence", icon: LayoutDashboard },
@@ -164,7 +163,7 @@ export default function FleetOperationsPage() {
 
                 {activeTab === "overview" && (
                     <div className="space-y-8">
-                        {/* Quick Stats Grid */}
+                        {}
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                             {[
                                 { label: "Fleet Strength", value: data.totalVehicles, sub: "Vehicles", icon: Car, color: "text-blue-500" },
@@ -188,7 +187,7 @@ export default function FleetOperationsPage() {
                         </div>
 
                         <div className="grid lg:grid-cols-3 gap-8">
-                            {/* Health Grid */}
+                            {}
                             <div className="lg:col-span-2 glass-card rounded-[3rem] p-8 border border-white/5">
                                 <div className="flex justify-between items-center mb-8">
                                     <h3 className="text-sm font-black uppercase tracking-[0.3em]">Vehicle Health Monitor</h3>
@@ -197,7 +196,7 @@ export default function FleetOperationsPage() {
 
                                 <div className="grid sm:grid-cols-2 gap-4">
                                     {data.vehicles.map((vehicle: any, i: number) => {
-                                        const health = Math.floor(Math.random() * 30) + 70; // Mock health for now
+                                        const health = Math.floor(Math.random() * 30) + 70;
                                         return (
                                             <div key={i} className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all group">
                                                 <div className="flex justify-between items-start mb-4">
@@ -219,7 +218,7 @@ export default function FleetOperationsPage() {
                                 </div>
                             </div>
 
-                            {/* Maintenance Feed */}
+                            {}
                             <div className="glass-card rounded-[3rem] p-8 border border-white/5">
                                 <h3 className="text-sm font-black uppercase tracking-[0.3em] mb-8">Service History</h3>
                                 <div className="space-y-6">
@@ -252,7 +251,7 @@ export default function FleetOperationsPage() {
                     </div>
                 )}
 
-                {/* Bulk Deployment Wizard Overlay */}
+                {}
                 <AnimatePresence>
                     {showBulkWizard && (
                         <motion.div
@@ -269,7 +268,7 @@ export default function FleetOperationsPage() {
                                 className="w-full max-w-4xl bg-[#0a0a0a] rounded-[3rem] border border-white/10 overflow-hidden relative"
                                 onClick={e => e.stopPropagation()}
                             >
-                                {/* Wizard Header */}
+                                {}
                                 <div className="bg-white/5 p-8 flex justify-between items-center border-b border-white/5">
                                     <div>
                                         <span className="text-[10px] font-black text-[#ff1744] uppercase tracking-[0.4em] mb-2 block">Enterprise Scheduler</span>
@@ -281,7 +280,7 @@ export default function FleetOperationsPage() {
                                 </div>
 
                                 <div className="grid lg:grid-cols-5 h-[600px]">
-                                    {/* Sidebar Steps */}
+                                    {}
                                     <div className="lg:col-span-1 border-r border-white/5 p-6 bg-white/[0.02]">
                                         {[
                                             { step: 1, label: "Selection", icon: Car },
@@ -299,7 +298,7 @@ export default function FleetOperationsPage() {
                                         ))}
                                     </div>
 
-                                    {/* Wizard Content */}
+                                    {}
                                     <div className="lg:col-span-4 p-8 overflow-y-auto">
                                         {bulkBookingStep === 1 && (
                                             <div className="space-y-6">
@@ -424,7 +423,7 @@ export default function FleetOperationsPage() {
                                     </div>
                                 </div>
 
-                                {/* Wizard Footer */}
+                                {}
                                 <div className="bg-white/5 p-8 flex justify-between items-center border-t border-white/5">
                                     <div className="flex items-center gap-2">
                                         {selectedVehicles.length > 0 && (

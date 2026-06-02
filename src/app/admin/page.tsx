@@ -131,13 +131,11 @@ function AdminDashboardContent() {
   const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
   const [showMetricModal, setShowMetricModal] = useState(false);
 
-  // Real-time hooks
   const { playSound } = useNotificationSound();
   const { onlineCount, updatePresence } = useOnlineUsers();
   const [showConfetti, setShowConfetti] = useState(false);
   const [realtimeConnected, setRealtimeConnected] = useState(false);
 
-  // Real-time: Bookings
   const { isConnected: bookingsConnected, lastUpdate: bookingsLastUpdate } = useRealtimeSubscription<Booking>({
     table: 'bookings',
     event: '*',
@@ -167,7 +165,6 @@ function AdminDashboardContent() {
     }
   });
 
-  // Real-time: Reviews
   useRealtimeSubscription({
     table: 'reviews',
     event: 'INSERT',
@@ -185,7 +182,6 @@ function AdminDashboardContent() {
     }
   });
 
-  // Real-time: Payments
   useRealtimeSubscription({
     table: 'payments',
     event: 'INSERT',
@@ -205,23 +201,20 @@ function AdminDashboardContent() {
     }
   });
 
-  // Update online presence
   useEffect(() => {
     if (user && profile) {
       updatePresence(user.id, (profile as any).role || 'admin', '/admin');
       const interval = setInterval(() => {
         updatePresence(user.id, (profile as any).role || 'admin', '/admin');
-      }, 60000); // Update every minute
+      }, 60000);
       return () => clearInterval(interval);
     }
   }, [user, profile, updatePresence]);
 
-  // Set overall connection status
   useEffect(() => {
     setRealtimeConnected(bookingsConnected);
   }, [bookingsConnected]);
 
-  // Real-time analytics
   const { analytics: liveAnalytics, isLoading: analyticsLoading, lastUpdate: analyticsLastUpdate } = useRealtimeAnalytics(timeRange);
 
 
@@ -701,8 +694,8 @@ function AdminDashboardContent() {
   }
 
   return (
-    <div>{/* Bottom padding now handled in layout */}
-      {/* Confetti for celebrations */}
+    <div>{}
+      {}
       <SuccessConfetti trigger={showConfetti} />
 
       <header className="sticky top-0 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 z-40">
@@ -750,7 +743,7 @@ function AdminDashboardContent() {
               {analytics && analytics.anomalies.length > 0 && <span className="absolute top-1 right-1 w-2 h-2 bg-[#ff1744] rounded-full animate-pulse" />}
             </button>
 
-            {/* Real-time Indicator */}
+            {}
             <div className="hidden lg:block">
               <RealtimeIndicator
                 isConnected={realtimeConnected}
@@ -886,10 +879,10 @@ function AdminDashboardContent() {
                   </div>
                 </div>
 
-                {/* NEW: World-Class Real-time Analytics */}
+                {}
                 {liveAnalytics && (
                   <>
-                    {/* Animated Metric Cards */}
+                    {}
                     <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4">
                       <AnimatedMetricCard
                         title="Revenue Today"
@@ -943,7 +936,7 @@ function AdminDashboardContent() {
                       />
                     </div>
 
-                    {/* Live Charts Grid */}
+                    {}
                     <div className="grid lg:grid-cols-2 gap-6">
                       <RevenueChart
                         data={liveAnalytics.revenueByHour}
@@ -958,7 +951,7 @@ function AdminDashboardContent() {
                       />
                     </div>
 
-                    {/* Service Popularity & Activity Feed */}
+                    {}
                     <div className="grid lg:grid-cols-2 gap-6">
                       <ServicePopularityChart
                         data={liveAnalytics.popularServices}
@@ -966,7 +959,7 @@ function AdminDashboardContent() {
                       <LiveActivityFeed maxItems={8} />
                     </div>
 
-                    {/* Additional Metrics Row */}
+                    {}
                     <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4">
                       <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}

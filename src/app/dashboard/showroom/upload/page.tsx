@@ -41,14 +41,12 @@ function UploadForm() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch active contests
                 const contestsRes = await fetch("/api/showroom/contests?status=active");
                 const contestsData = await contestsRes.json();
                 if (Array.isArray(contestsData)) {
                     setActiveContests(contestsData);
                 }
 
-                // Fetch user vehicles
                 const vehiclesRes = await fetch("/api/vehicles");
                 const vehiclesData = await vehiclesRes.json();
                 if (Array.isArray(vehiclesData)) {
@@ -65,7 +63,6 @@ function UploadForm() {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Validate file type
         if (file.type.startsWith("image/")) {
             setMediaType("photo");
         } else if (file.type.startsWith("video/")) {
@@ -75,7 +72,6 @@ function UploadForm() {
             return;
         }
 
-        // Validate file size (e.g., 50MB limit)
         if (file.size > 50 * 1024 * 1024) {
             toast.error("File size must be less than 50MB");
             return;
@@ -92,13 +88,10 @@ function UploadForm() {
         setIsLoading(true);
 
         try {
-            // 1. Upload file to Supabase Storage
             const fileExt = mediaFile.name.split('.').pop();
             const fileName = `${user.id}/${Date.now()}.${fileExt}`;
             const bucket = "showroom-media";
 
-            // Check if bucket exists, if not use a fallback or public URL for demo
-            // In a real app, ensure 'showroom-media' bucket exists
             const { error: uploadError, data: uploadData } = await supabase.storage
                 .from(bucket)
                 .upload(fileName, mediaFile);
@@ -121,7 +114,6 @@ function UploadForm() {
                 mediaUrl = publicUrl;
             }
 
-            // 2. Create Post Record
             const hashtagsArray = formData.hashtags
                 .split(" ")
                 .filter(tag => tag.startsWith("#"))
@@ -135,13 +127,13 @@ function UploadForm() {
                     description: formData.description,
                     media_type: mediaType,
                     media_url: mediaUrl,
-                    vehicle_id: formData.vehicle_id || null, // Optional
+                    vehicle_id: formData.vehicle_id || null,
                     service_type: formData.service_type || null,
                     car_model: formData.car_model,
                     contest_id: formData.contest_id || null,
                     contest_entry: !!formData.contest_id,
                     hashtags: hashtagsArray,
-                    status: "approved" // Auto-approved for immediate visibility
+                    status: "approved"
                 });
 
             if (dbError) throw dbError;
@@ -160,7 +152,7 @@ function UploadForm() {
     return (
         <div className="glass-card rounded-2xl p-6 sm:p-8">
             <div className="grid lg:grid-cols-2 gap-12">
-                {/* Left Column: Media Upload */}
+                {}
                 <div>
                     <div
                         onClick={() => fileInputRef.current?.click()}
@@ -204,9 +196,9 @@ function UploadForm() {
                     </div>
                 </div>
 
-                {/* Right Column: Details Form */}
+                {}
                 <form onSubmit={handleUpload} className="space-y-6">
-                    {/* Title */}
+                    {}
                     <div>
                         <label className="block text-sm font-medium mb-2 text-[#888]">Title</label>
                         <input
@@ -219,7 +211,7 @@ function UploadForm() {
                         />
                     </div>
 
-                    {/* Description */}
+                    {}
                     <div>
                         <label className="block text-sm font-medium mb-2 text-[#888]">Description</label>
                         <textarea
@@ -231,7 +223,7 @@ function UploadForm() {
                         />
                     </div>
 
-                    {/* Car Selection */}
+                    {}
                     <div>
                         <label className="block text-sm font-medium mb-2 text-[#888]">Select Vehicle</label>
                         <div className="relative">
@@ -256,7 +248,7 @@ function UploadForm() {
                         </div>
                     </div>
 
-                    {/* Car Model (if not selecting from garage) */}
+                    {}
                     {!formData.vehicle_id && (
                         <div>
                             <label className="block text-sm font-medium mb-2 text-[#888]">Car Model</label>
@@ -274,7 +266,7 @@ function UploadForm() {
                         </div>
                     )}
 
-                    {/* Contest Selection (Optional) */}
+                    {}
                     <div>
                         <label className="block text-sm font-medium mb-2 text-[#888]">Enter Contest (Optional)</label>
                         <div className="relative">
@@ -300,7 +292,7 @@ function UploadForm() {
                         )}
                     </div>
 
-                    {/* Hashtags */}
+                    {}
                     <div>
                         <label className="block text-sm font-medium mb-2 text-[#888]">Hashtags</label>
                         <div className="relative">
@@ -315,7 +307,7 @@ function UploadForm() {
                         </div>
                     </div>
 
-                    {/* Submit Button */}
+                    {}
                     <div className="pt-4">
                         <button
                             type="submit"

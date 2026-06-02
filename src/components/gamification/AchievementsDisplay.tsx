@@ -35,14 +35,13 @@ export function AchievementsDisplay({ userId }: AchievementsDisplayProps) {
         fetchAchievements();
     }, []);
 
-    // Real-time updates
     useRealtimeSubscription({
-        table: 'points_transactions', // Activity usually triggers unlocks
+        table: 'points_transactions',
         onInsert: () => fetchAchievements(),
     });
 
     useRealtimeSubscription({
-        table: 'achievements', // New achievements added to system
+        table: 'achievements',
         onInsert: () => fetchAchievements(),
         onUpdate: () => fetchAchievements(),
     });
@@ -114,7 +113,7 @@ export function AchievementsDisplay({ userId }: AchievementsDisplayProps) {
 
     return (
         <div className="space-y-8">
-            {/* Header / Level Progress */}
+            {}
             <div className="relative overflow-hidden rounded-[2.5rem] p-8 glass-card border-none bg-gradient-to-br from-[#1a1a1a] to-[#0d0d0d]">
                 <div className="absolute top-0 right-0 p-12 -mr-12 -mt-12 bg-[#ff1744]/10 blur-[80px] rounded-full" />
                 <div className="absolute bottom-0 left-0 p-12 -ml-12 -mb-12 bg-[#d4af37]/10 blur-[80px] rounded-full" />
@@ -166,7 +165,7 @@ export function AchievementsDisplay({ userId }: AchievementsDisplayProps) {
                 </div>
             </div>
 
-            {/* Achievements Grid */}
+            {}
             {achievements.length === 0 ? (
                 <div className="text-center py-20 glass-card rounded-[2.5rem] border-white/5">
                     <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6 opacity-20">
@@ -193,7 +192,7 @@ export function AchievementsDisplay({ userId }: AchievementsDisplayProps) {
                                         : "bg-white/[0.02] border-white/5 opacity-60 grayscale hover:grayscale-0"
                                         }`}
                                 >
-                                    {/* Background Icon Watermark */}
+                                    {}
                                     <div className="absolute -right-4 -bottom-4 text-white/[0.03] rotate-12 group-hover:rotate-0 transition-transform duration-700">
                                         <span className="text-9xl tracking-tighter select-none">{achievement.badge_icon}</span>
                                     </div>

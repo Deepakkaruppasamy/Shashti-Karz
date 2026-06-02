@@ -25,7 +25,6 @@ interface LiveActivityFeedProps {
 export function LiveActivityFeed({ maxItems = 10 }: LiveActivityFeedProps) {
     const [activities, setActivities] = useState<Activity[]>([]);
 
-    // This will be populated by real-time events
     const addActivity = (activity: Omit<Activity, 'id' | 'timestamp'>) => {
         const newActivity: Activity = {
             ...activity,
@@ -36,9 +35,7 @@ export function LiveActivityFeed({ maxItems = 10 }: LiveActivityFeedProps) {
         setActivities(prev => [newActivity, ...prev].slice(0, maxItems));
     };
 
-    // Export function for external use
     useEffect(() => {
-        // @ts-ignore
         window.addAdminActivity = addActivity;
     }, []);
 

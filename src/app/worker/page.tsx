@@ -49,7 +49,6 @@ export default function WorkerDashboard() {
             if (bookingsError) throw bookingsError;
             setAssignedBookings(bookingsData || []);
 
-            // Fetch tracking for each booking
             for (const booking of bookingsData || []) {
                 const { data: trackData } = await supabase
                     .from("service_tracking")
@@ -79,7 +78,6 @@ export default function WorkerDashboard() {
     useEffect(() => {
         fetchWorkerData();
 
-        // Set up real-time subscription for bookings assigned to this worker
         if (selectedWorkerId) {
             const subscription = supabase
                 .channel(`worker-tasks-${selectedWorkerId}`)
@@ -131,12 +129,10 @@ export default function WorkerDashboard() {
                     }]);
             }
 
-            // If it's the first stage, update booking status to in_progress
             if (stageId === "received" && nextStatus === "in_progress") {
                 await supabase.from("bookings").update({ status: "in_progress" }).eq("id", bookingId);
             }
 
-            // If it's the last stage and completed, update booking status to completed
             if (stageId === "delivered" && nextStatus === "completed") {
                 await supabase.from("bookings").update({ status: "completed" }).eq("id", bookingId);
                 toast.success("Job Completed & Delivered!");

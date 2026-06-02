@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-// POST /api/feedback/features - Submit feature request
 export async function POST(request: NextRequest) {
     try {
         const supabase = await createClient();
@@ -36,7 +35,6 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// GET /api/feedback/features - Get feature requests
 export async function GET(request: NextRequest) {
     try {
         const supabase = await createClient();

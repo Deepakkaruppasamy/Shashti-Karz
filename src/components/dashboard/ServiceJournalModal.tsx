@@ -96,7 +96,6 @@ export function ServiceJournalModal({ isOpen, onClose, vehicleId, onSuccess, ini
 
                 if (error) throw error;
 
-                // Handle Certificate Issuance
                 if (formData.issue_certificate && entry) {
                     const serviceConfigs: Record<string, { warranty: number, terms: string }> = {
                         "detailing": { warranty: 6, terms: "Includes surface restoration and professional paint depth measurement." },
@@ -123,7 +122,7 @@ export function ServiceJournalModal({ isOpen, onClose, vehicleId, onSuccess, ini
                             warranty_terms: config.terms,
                             certificate_type: 'service_warranty',
                             status: 'active',
-                            pdf_url: `https://shashtikarz.com/verify/cert/${Math.random().toString(36).substring(7)}` // Realistic looking verification URL
+                            pdf_url: `https://shashtikarz.com/verify/cert/${Math.random().toString(36).substring(7)}`
                         })
                     });
 
@@ -135,7 +134,6 @@ export function ServiceJournalModal({ isOpen, onClose, vehicleId, onSuccess, ini
             }
             onSuccess();
             onClose();
-            // Reset form
             setFormData({
                 service_name: "",
                 service_date: new Date().toISOString().split('T')[0],

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-// POST /api/checklists/[id]/complete - Complete a checklist for a booking
 export async function POST(
     request: NextRequest,
     { params }: { params: { id: string } }
@@ -25,7 +24,6 @@ export async function POST(
             );
         }
 
-        // Get worker ID from profiles
         const { data: profile } = await supabase
             .from("profiles")
             .select("id")
@@ -36,7 +34,6 @@ export async function POST(
             return NextResponse.json({ error: "Profile not found" }, { status: 404 });
         }
 
-        // Check if completion already exists
         const { data: existing } = await supabase
             .from("checklist_completions")
             .select("id")
@@ -47,7 +44,6 @@ export async function POST(
         let result;
 
         if (existing) {
-            // Update existing completion
             const { data, error } = await supabase
                 .from("checklist_completions")
                 .update({
@@ -65,7 +61,6 @@ export async function POST(
             }
             result = data;
         } else {
-            // Create new completion
             const { data, error } = await supabase
                 .from("checklist_completions")
                 .insert({
@@ -95,7 +90,6 @@ export async function POST(
     }
 }
 
-// GET /api/checklists/[id]/complete - Get completion status for a booking
 export async function GET(
     request: NextRequest,
     { params }: { params: { id: string } }
@@ -137,7 +131,6 @@ export async function GET(
     }
 }
 
-// PUT /api/checklists/[id]/complete - Approve checklist (manager only)
 export async function PUT(
     request: NextRequest,
     { params }: { params: { id: string } }
@@ -150,7 +143,6 @@ export async function PUT(
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Check if user is admin or manager
         const { data: profile } = await supabase
             .from("profiles")
             .select("role")

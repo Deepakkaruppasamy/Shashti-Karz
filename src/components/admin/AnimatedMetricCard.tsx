@@ -51,7 +51,7 @@ export function AnimatedMetricCard({
             onClick={onClick}
             className="glass-card rounded-2xl p-4 sm:p-6 border border-white/5 relative overflow-hidden"
         >
-            {/* Background gradient effect */}
+            {}
             <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-5`} />
 
             <div className="relative z-10">

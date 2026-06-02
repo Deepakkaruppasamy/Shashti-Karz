@@ -5,7 +5,6 @@ export async function POST(request: Request) {
     try {
         const supabase = await createClient();
 
-        // 1. Verify Authentication
         const { data: { user }, error: authError } = await supabase.auth.getUser();
         if (authError || !user) {
             console.error("Auth error in diagnostic save:", authError);
@@ -19,7 +18,6 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Vehicle ID is required" }, { status: 400 });
         }
 
-        // 2. Verify Vehicle Ownership
         const { data: vehicle, error: vehicleError } = await supabase
             .from("user_vehicles")
             .select("id")
@@ -32,11 +30,8 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Vehicle not found or access denied" }, { status: 403 });
         }
 
-        // 3. Use Service Client to bypass RLS for UPSERT
-        // This ensures the health score is saved even if the user's RLS policy for vehicle_health_scores is too restrictive
         const adminSupabase = await createServiceClient();
 
-        // Check if a health score already exists for this vehicle
         const { data: existingScore } = await adminSupabase
             .from("vehicle_health_scores")
             .select("id")
@@ -81,9 +76,8 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: result.error.message }, { status: 500 });
         }
 
-        // 4. Generate a Digital Health Certificate for the AI Analysis
         const expiryDate = new Date();
-        expiryDate.setMonth(expiryDate.getMonth() + 3); // AI scans valid for 3 months
+        expiryDate.setMonth(expiryDate.getMonth() + 3);
 
         await adminSupabase.from("service_certificates").insert({
             vehicle_id,

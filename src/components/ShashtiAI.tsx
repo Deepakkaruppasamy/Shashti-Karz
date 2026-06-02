@@ -152,7 +152,7 @@ export function ShashtiAI() {
   }
 
   function formatMessage(content: string) {
-    return content; // No longer needed for HTML
+    return content;
   }
 
   const currentQuickActions = quickActions[userRole] || quickActions.guest;

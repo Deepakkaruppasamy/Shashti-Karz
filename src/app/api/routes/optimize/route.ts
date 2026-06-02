@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-// POST /api/routes/optimize - Optimize worker route
 export async function POST(request: NextRequest) {
     try {
         const supabase = await createClient();
@@ -14,7 +13,6 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { worker_id, date } = body;
 
-        // Call optimization function
         const { data, error } = await supabase.rpc("optimize_worker_route", {
             worker_id_param: worker_id,
             route_date_param: date,
@@ -34,7 +32,6 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// GET /api/routes/optimize - Get optimized route
 export async function GET(request: NextRequest) {
     try {
         const supabase = await createClient();

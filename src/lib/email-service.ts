@@ -1,36 +1,23 @@
 import nodemailer from "nodemailer";
 
-// Using Nodemailer for maximum flexibility (Gmail, Zoho, AWS SES, etc.)
 const transporter = process.env.SMTP_HOST ? nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: parseInt(process.env.SMTP_PORT || "587"),
   secure: process.env.SMTP_PORT === "465",
   auth: {
     user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS?.replace(/\s/g, ""), // Remove any spaces from App Passwords
+    pass: process.env.SMTP_PASS?.replace(/\s/g, ""),
   },
   tls: {
-    // Gmail often requires this to avoid AUTH errors in local/limited envs
     rejectUnauthorized: false,
-    // ciphers: 'SSLv3' // SSLv3 is very old and insecure, modern SMTP might block it
   },
-  pool: true, // Use pooling for better performance
+  pool: true,
   maxConnections: 5,
   maxMessages: 100,
 }) : null;
 
-// Self-test connection on init (Server-side)
 if (transporter && typeof window === 'undefined') {
   console.log("[Email Engine] Initializing SMTP connection...");
-  // We'll skip the verify block if it's causing slowness on cold starts, 
-  // nodemailer will try to connect on first send anyway.
-  // transporter.verify((error) => {
-  //   if (error) {
-  //     console.error("[Email Engine] Transporter connection failed:", error);
-  //   } else {
-  //     console.log("[Email Engine] Transporter is ready to deliver messages");
-  //   }
-  // });
 }
 
 const FROM_EMAIL = process.env.FROM_EMAIL || "Shashti Karz <updates@shashtikarz.app>";
@@ -48,7 +35,6 @@ export async function sendEmail(params: SendEmailParams): Promise<{ success: boo
     return { success: true, id: "mock-email-id" };
   }
 
-  // Create a timeout promise to prevent hanging the whole app
   const timeoutPromise = new Promise((_, reject) => 
     setTimeout(() => reject(new Error("Email sending timed out after 8 seconds")), 8000)
   );
@@ -56,7 +42,6 @@ export async function sendEmail(params: SendEmailParams): Promise<{ success: boo
   try {
     console.log(`[Email Engine] Attempting to send email to ${params.to} with subject "${params.subject}"`);
     
-    // Race the email send against the timeout
     const info = await Promise.race([
       transporter.sendMail({
         from: FROM_EMAIL,
@@ -443,9 +428,6 @@ export function generatePromotionalEmail(data: {
   `.trim();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ADMIN EMAIL TEMPLATES
-// ─────────────────────────────────────────────────────────────────────────────
 
 export function generateAdminNewBookingEmail(data: {
   customerName: string;

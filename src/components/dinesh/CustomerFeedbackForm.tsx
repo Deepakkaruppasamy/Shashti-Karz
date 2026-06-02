@@ -38,7 +38,6 @@ export function CustomerFeedbackForm({ userName, userEmail, onSuccess }: Feedbac
 
             if (!response.ok) throw new Error("Failed to submit feedback");
 
-            // Trigger Email Notification
             if (formData.customer_email) {
                 try {
                     await fetch("/api/notifications/email", {

@@ -29,7 +29,6 @@ export default function CampaignsAdminPage() {
     const [aiInsight, setAiInsight] = useState<string>("");
     const [isAiLoading, setIsAiLoading] = useState(false);
 
-    // New Campaign Form State
     const [newCampaign, setNewCampaign] = useState({
         name: "",
         campaign_type: "email",
@@ -40,7 +39,6 @@ export default function CampaignsAdminPage() {
 
     const router = useRouter();
 
-    // Real-time subscription
     useRealtimeSubscription<Campaign>({
         table: "marketing_campaigns",
         onInsert: (newItem) => {
@@ -134,7 +132,7 @@ export default function CampaignsAdminPage() {
         <div className="flex min-h-screen bg-[#0a0a0a] text-white">
             <div className="flex-1 overflow-auto pb-24 lg:pb-8">
                 <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-                    {/* Header */}
+                    {}
                     <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
                         <div>
                             <h1 className="text-3xl lg:text-4xl font-black tracking-tighter flex items-center gap-3">
@@ -155,7 +153,7 @@ export default function CampaignsAdminPage() {
                         </button>
                     </div>
 
-                    {/* AI Strategist Section */}
+                    {}
                     <div className="glass-card rounded-[2rem] p-6 lg:p-10 border border-[#d4af37]/20 bg-gradient-to-br from-[#d4af37]/5 to-transparent relative overflow-hidden mb-8">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-[#d4af37]/5 rounded-full blur-[80px]" />
                         <div className="flex flex-col md:flex-row items-start justify-between gap-8 relative z-10">
@@ -195,7 +193,7 @@ export default function CampaignsAdminPage() {
                         </div>
                     </div>
 
-                    {/* Stats Overview */}
+                    {}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                         {[
                             { label: "Sequences", value: campaigns.length, icon: Send, color: "text-blue-500", bg: "bg-blue-500/10" },
@@ -215,7 +213,7 @@ export default function CampaignsAdminPage() {
                         ))}
                     </div>
 
-                    {/* Campaigns Feed */}
+                    {}
                     <div className="glass-card rounded-2xl lg:rounded-[2.5rem] p-4 lg:p-8 border border-white/5">
                         <div className="flex items-center justify-between mb-8 px-2">
                             <h3 className="text-[10px] font-black text-[#555] uppercase tracking-[0.3em]">Tactical Feed</h3>
@@ -282,7 +280,7 @@ export default function CampaignsAdminPage() {
                 </div>
             </div>
 
-            {/* Launch Modal - Bottom Sheet */}
+            {}
             <AnimatePresence>
                 {showCreateForm && (
                     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/95 backdrop-blur-md" onClick={() => setShowCreateForm(false)}>

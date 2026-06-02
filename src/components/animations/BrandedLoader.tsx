@@ -6,31 +6,31 @@ import Image from "next/image";
 interface BrandedLoaderProps {
     size?: number;
     fullPage?: boolean;
-    className?: string; // Add className prop
+    className?: string;
 }
 
 export function BrandedLoader({ size = 120, fullPage = false, className = "" }: BrandedLoaderProps) {
     const loaderContent = (
         <div className={`relative flex flex-col items-center justify-center ${className}`}>
 
-            {/* Logo Container */}
+            {}
             <div className="relative flex items-center justify-center" style={{ width: size + 40, height: size + 40 }}>
 
-                {/* Rotating Outer Ring */}
+                {}
                 <motion.div
                     className="absolute inset-0 rounded-full border border-transparent border-t-[#ff1744]/60 border-r-[#d4af37]/60"
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
                 />
 
-                {/* Counter-Rotating Inner Ring (Subtle) */}
+                {}
                 <motion.div
                     className="absolute inset-2 rounded-full border border-transparent border-b-[#ff1744]/30 border-l-[#d4af37]/30"
                     animate={{ rotate: -360 }}
                     transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
                 />
 
-                {/* Static Logo with Pulse */}
+                {}
                 <motion.div
                     className="relative z-10 rounded-full overflow-hidden"
                     style={{ width: size, height: size }}
@@ -52,7 +52,7 @@ export function BrandedLoader({ size = 120, fullPage = false, className = "" }: 
                         priority
                     />
 
-                    {/* Shimmer Effect */}
+                    {}
                     <motion.div
                         className="absolute inset-0 pointer-events-none"
                         style={{
@@ -71,7 +71,7 @@ export function BrandedLoader({ size = 120, fullPage = false, className = "" }: 
                 </motion.div>
             </div>
 
-            {/* Loading Text */}
+            {}
             <motion.p
                 className="mt-8 text-[#888] text-[10px] tracking-[0.2em] uppercase font-bold"
                 animate={{ opacity: [0.4, 0.8, 0.4] }}

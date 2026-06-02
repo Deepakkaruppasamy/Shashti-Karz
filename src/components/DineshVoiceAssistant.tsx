@@ -47,13 +47,11 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
 
     useEffect(() => {
         if (typeof window !== "undefined") {
-            // Initialize Speech Recognition
             const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
             if (SpeechRecognition) {
                 recognitionRef.current = new SpeechRecognition();
                 recognitionRef.current.continuous = false;
                 recognitionRef.current.interimResults = true;
-                // Use the selected language from settings
                 recognitionRef.current.lang = settings.language;
 
                 recognitionRef.current.onresult = (event: any) => {
@@ -76,11 +74,9 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
                 };
             }
 
-            // Initialize Speech Synthesis
             synthRef.current = window.speechSynthesis;
         }
 
-        // Greet user when opened
         if (isOpen) {
             sounds.setEnabled(settings.soundEffectsEnabled);
             if (conversation.length === 0) {
@@ -90,7 +86,6 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
                     ? welcomeMsg.replace("Hello!", `Hi ${userName}!`)
                     : welcomeMsg;
                 addMessage("assistant", greeting);
-                // Speak greeting in the selected language
                 speak(greeting, settings.language);
             }
         }
@@ -102,7 +97,6 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             setIsListening(false);
             sounds.playListeningStop();
         } else {
-            // Ensure correct language is set before starting
             if (recognitionRef.current) {
                 recognitionRef.current.lang = settings.language;
             }
@@ -116,7 +110,6 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
     const speak = (text: string, lang: string = settings.language) => {
         if (isMuted || !synthRef.current) return;
 
-        // Cancel any ongoing speech
         synthRef.current.cancel();
 
         const utterance = new SpeechSynthesisUtterance(text);
@@ -125,7 +118,6 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
         utterance.volume = 1.0;
         utterance.lang = lang;
 
-        // Try to find matching voice for gender if voiceName not set
         if (!settings.voiceName && synthRef.current) {
             const voices = synthRef.current.getVoices();
             const preferredVoice = voices.find(v =>
@@ -157,14 +149,12 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
         addMessage("user", query);
         setTranscript("");
 
-        // Process query and get response + detected language
         const { text: reply, lang } = await processQuery(query);
 
         addMessage("assistant", reply);
         setResponse(reply);
         speak(reply, lang);
 
-        // Log interaction
         logInteraction(query, reply);
     };
 
@@ -178,15 +168,12 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
     };
 
     const processQuery = async (query: string): Promise<{ text: string, lang: string }> => {
-        // Step 1: Detect language from the query string (for typed input or auto-switching)
         const detectedLang = detectLanguage(query);
 
-        // Use detected language if it's strictly non-English (strong signal), otherwise use settings
         const activeLang = detectedLang !== "en-US" ? detectedLang : settings.language;
 
         const lowerQuery = query.toLowerCase();
 
-        // Step 2: Check for AI service recommendations if it's a problem query
         if (isProblemQuery(query)) {
             const recs = getServiceRecommendations(query, activeLang);
             if (recs.length > 0) {
@@ -198,9 +185,7 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             }
         }
 
-        // ========== MULTI-LANGUAGE NAVIGATION ==========
 
-        // Homepage
         if (matchesCategory(query, "home", activeLang)) {
             setTimeout(() => router.push("/"), 1000);
             return {
@@ -209,7 +194,6 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             };
         }
 
-        // Booking
         if (matchesCategory(query, "booking", activeLang)) {
             setTimeout(() => router.push("/booking"), 1000);
             return {
@@ -218,7 +202,6 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             };
         }
 
-        // Services
         if (matchesCategory(query, "services", activeLang) && !lowerQuery.includes("track")) {
             setTimeout(() => router.push("/services"), 1000);
             return {
@@ -227,7 +210,6 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             };
         }
 
-        // Pricing
         if (matchesCategory(query, "pricing", activeLang)) {
             setTimeout(() => router.push("/booking"), 1000);
             return {
@@ -236,7 +218,6 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             };
         }
 
-        // Support/Help
         if (matchesCategory(query, "help", activeLang)) {
             return {
                 text: languageResponses[activeLang].supportResponse,
@@ -244,7 +225,6 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             };
         }
 
-        // Thanks
         if (matchesCategory(query, "thanks", activeLang)) {
             return {
                 text: languageResponses[activeLang].thanksResponse,
@@ -252,149 +232,120 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             };
         }
 
-        // Track/Orders
         if (matchesCategory(query, "track", activeLang)) {
             setTimeout(() => router.push("/dashboard"), 1000);
             return {
-                text: "Opening your dashboard to track bookings.", // TODO: Add to languageResponses
-                lang: "en-US" // Partial fallback
+                text: "Opening your dashboard to track bookings.",
+                lang: "en-US"
             };
         }
 
-        // If we are here, we might need English fallback for specific complex queries not yet localized
-        // or generic responses.
-
-        // For Hindi/Tamil specific unhandled queries, give a generic help response in that language
 
 
-        // ... existing English logic ...
 
-        // Gallery
+
         if (lowerQuery.includes("gallery") || lowerQuery.includes("photos") || lowerQuery.includes("pictures") || lowerQuery.includes("before after")) {
             setTimeout(() => router.push("/gallery"), 1000);
             return { text: "Opening our gallery to show you amazing before and after transformations of vehicles we've worked on.", lang: "en-US" };
         }
 
-        // About Us
         if (lowerQuery.includes("about") || lowerQuery.includes("who are you") || lowerQuery.includes("your company")) {
             setTimeout(() => router.push("/about"), 1000);
             return { text: "Let me tell you about Shashti Karz. We're a premium car detailing service with years of experience in automotive care.", lang: "en-US" };
         }
 
-        // Contact
         if (lowerQuery.includes("contact") || lowerQuery.includes("reach you") || lowerQuery.includes("phone number")) {
             setTimeout(() => router.push("/contact"), 1000);
             return { text: "Here's our contact information. You can call us, send a message, or visit our location.", lang: "en-US" };
         }
 
-        // Virtual Tour
         if (lowerQuery.includes("virtual tour") || lowerQuery.includes("360") || lowerQuery.includes("tour")) {
             setTimeout(() => router.push("/virtual-tour"), 1000);
             return { text: "Let me show you our 360-degree virtual tour! You can explore our facility virtually.", lang: "en-US" };
         }
 
-        // ========== CUSTOMER DASHBOARD ==========
 
-        // My Bookings
         if (lowerQuery.includes("my booking") || lowerQuery.includes("track") || lowerQuery.includes("order status") || lowerQuery.includes("booking history")) {
             setTimeout(() => router.push("/dashboard"), 1000);
             return { text: "Opening your dashboard where you can track all your bookings and services.", lang: "en-US" };
         }
 
-        // Profile
         if (lowerQuery.includes("profile") || lowerQuery.includes("account") || lowerQuery.includes("my account") || lowerQuery.includes("settings")) {
             setTimeout(() => router.push("/dashboard"), 1000);
             return { text: "Opening your profile page where you can manage your account settings.", lang: "en-US" };
         }
 
-        // Rewards & Loyalty
         if (lowerQuery.includes("reward") || lowerQuery.includes("loyalty") || lowerQuery.includes("points") || lowerQuery.includes("gamification")) {
             setTimeout(() => router.push("/rewards"), 1000);
             return { text: "Let me show you your loyalty rewards and points! You can redeem them for discounts and exclusive benefits.", lang: "en-US" };
         }
 
-        // Vehicles
         if (lowerQuery.includes("my car") || lowerQuery.includes("my vehicle") || lowerQuery.includes("add vehicle") || lowerQuery.includes("manage vehicle")) {
             setTimeout(() => router.push("/dashboard/vehicles"), 1000);
             return { text: "Opening your vehicle management page where you can add and manage your cars.", lang: "en-US" };
         }
 
-        // Invoices
         if (lowerQuery.includes("invoice") || lowerQuery.includes("bill") || lowerQuery.includes("receipt")) {
             setTimeout(() => router.push("/dashboard/invoices"), 1000);
             return { text: "Opening your invoices page where you can view and download all your payment receipts.", lang: "en-US" };
         }
 
-        // Notifications
         if (lowerQuery.includes("notification") || lowerQuery.includes("alerts") || lowerQuery.includes("updates")) {
             setTimeout(() => router.push("/dashboard/notifications"), 1000);
             return { text: "Opening your notifications to show you all updates and alerts.", lang: "en-US" };
         }
 
-        // Referrals
         if (lowerQuery.includes("referral") || lowerQuery.includes("refer") || lowerQuery.includes("invite friend")) {
             setTimeout(() => router.push("/dashboard/referrals"), 1000);
             return { text: "Opening your referral page! Refer friends and earn rewards for every successful referral.", lang: "en-US" };
         }
 
-        // ========== SERVICE INFORMATION ==========
 
-        // Service Duration
         if (lowerQuery.includes("how long") || lowerQuery.includes("duration") || lowerQuery.includes("time take")) {
             return { text: "Service duration varies: Basic wash takes 30-45 minutes, interior cleaning takes 1-2 hours, full detailing takes 3-4 hours, and premium ceramic coating can take 6-8 hours for the best results.", lang: "en-US" };
         }
 
-        // Ceramic Coating
         if (lowerQuery.includes("ceramic") || lowerQuery.includes("coating") || lowerQuery.includes("protection")) {
             return { text: "Our ceramic coating provides long-lasting protection with a brilliant shine! It lasts 2-5 years and protects against UV rays, chemicals, water spots, and minor scratches. It's like armor for your car's paint. Would you like to book this service?", lang: "en-US" };
         }
 
-        // Paint Protection Film (PPF)
         if (lowerQuery.includes("ppf") || lowerQuery.includes("paint protection film") || lowerQuery.includes("clear bra")) {
             return { text: "Paint Protection Film is a transparent, thermoplastic urethane film that protects your car's paint from rock chips, scratches, and environmental damage. It's self-healing and virtually invisible. Perfect for new cars or high-end vehicles!", lang: "en-US" };
         }
 
-        // Detailing
         if (lowerQuery.includes("detail") || lowerQuery.includes("deep clean")) {
             return { text: "Our full detailing service includes deep interior cleaning, exterior wash and wax, engine bay cleaning, tire dressing, and more. We'll make your car look brand new! It typically takes 3-4 hours.", lang: "en-US" };
         }
 
-        // Interior Cleaning
         if (lowerQuery.includes("interior") && (lowerQuery.includes("clean") || lowerQuery.includes("service"))) {
             return { text: "Our interior cleaning includes vacuuming, steam cleaning, leather conditioning, dashboard polishing, and odor removal. We'll make your cabin spotless and fresh!", lang: "en-US" };
         }
 
-        // Headlight Restoration
         if (lowerQuery.includes("headlight") || lowerQuery.includes("foggy light") || lowerQuery.includes("yellow headlight")) {
             return { text: "Headlight restoration removes yellowing and cloudiness, improving visibility and appearance. The process includes sanding, polishing, and UV-protective coating. Takes about 1 hour.", lang: "en-US" };
         }
 
-        // ========== FLEET SERVICES ==========
 
         if (lowerQuery.includes("fleet") || lowerQuery.includes("business") || lowerQuery.includes("commercial") || lowerQuery.includes("multiple cars")) {
             setTimeout(() => router.push("/fleet"), 1000);
             return { text: "We offer special fleet services for businesses! Get volume discounts, priority scheduling, and dedicated account management. Let me show you our fleet packages.", lang: "en-US" };
         }
 
-        // ========== SUBSCRIPTIONS ==========
 
         if (lowerQuery.includes("subscription") || lowerQuery.includes("monthly plan") || lowerQuery.includes("package")) {
             return { text: "We offer convenient subscription plans for regular car care! Choose from monthly or quarterly packages with unlimited washes, discounts on premium services, and priority booking. Would you like to see our plans?", lang: "en-US" };
         }
 
-        // ========== OFFERS & PROMOTIONS ==========
 
         if (lowerQuery.includes("offer") || lowerQuery.includes("deal") || lowerQuery.includes("discount") || lowerQuery.includes("promo") || lowerQuery.includes("coupon")) {
             return { text: "We have exciting offers running! Check our homepage for current promotions. New customers get 20% off their first service, and we have seasonal discounts too!", lang: "en-US" };
         }
 
-        // ========== REVIEWS & TESTIMONIALS ==========
 
         if (lowerQuery.includes("review") || lowerQuery.includes("rating") || lowerQuery.includes("testimonial") || lowerQuery.includes("customer feedback")) {
             return { text: "We have a 5-star rating on Google! Our customers love our attention to detail and premium service. You can read reviews on our website or check out video testimonials from happy customers.", lang: "en-US" };
         }
 
-        // ========== PAYMENT & BILLING ==========
 
         if (lowerQuery.includes("payment method") || lowerQuery.includes("how to pay") || lowerQuery.includes("pay")) {
             return { text: "We accept all major payment methods: Credit/Debit cards, UPI (Google Pay, PhonePe, Paytm), Net Banking, and Digital Wallets. Payment is secure and processed after service completion.", lang: "en-US" };
@@ -404,7 +355,6 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             return { text: "We have a flexible cancellation policy. If you cancel 24 hours before your appointment, you'll get a full refund. For cancellations within 24 hours, a small processing fee applies. Your satisfaction is our priority!", lang: "en-US" };
         }
 
-        // ========== OPERATING INFORMATION ==========
 
         if (lowerQuery.includes("open") || lowerQuery.includes("hours") || lowerQuery.includes("timing") || lowerQuery.includes("when") || lowerQuery.includes("schedule")) {
             return { text: "We're open Monday to Friday 9 AM to 7 PM, Saturday 9 AM to 6 PM, and Sunday 10 AM to 5 PM. We're closed on public holidays. Would you like to book an appointment?", lang: "en-US" };
@@ -419,11 +369,8 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             return { text: "You can reach us on WhatsApp at +91 73583 03550. Just send us a message and we'll respond quickly! You can also use the WhatsApp button on our website.", lang: "en-US" };
         }
 
-        // ========== SUPPORT & FEEDBACK ==========
 
-        // ========== SUPPORT & FEEDBACK INTEGRATION ==========
 
-        // Open Feedback Form
         if (lowerQuery.includes("feedback") || lowerQuery.includes("suggest") || lowerQuery.includes("complaint") || lowerQuery.includes("improve")) {
             setTimeout(() => setActiveView("feedback"), 800);
             return {
@@ -436,9 +383,7 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             };
         }
 
-        // Open Support Form
         if (lowerQuery.includes("support") || lowerQuery.includes("help") || lowerQuery.includes("issue") || (matchesCategory(query, "help", activeLang))) {
-            // If user specifically asks to "open support ticket" or "contact support"
             if (lowerQuery.includes("open") || lowerQuery.includes("ticket") || lowerQuery.includes("contact") || lowerQuery.includes("form")) {
                 setTimeout(() => setActiveView("support"), 800);
                 return {
@@ -450,7 +395,6 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
                     lang: activeLang
                 };
             }
-            // Otherwise give generic help text usually, but for now let's be smart
             if (lowerQuery.includes("support")) {
                 setTimeout(() => setActiveView("support"), 1500);
                 return {
@@ -460,7 +404,6 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             }
         }
 
-        // ========== CAR CARE ADVICE ==========
 
         if (lowerQuery.includes("maintain") || lowerQuery.includes("care for") || lowerQuery.includes("protect my car")) {
             return { text: "Regular maintenance is key! We recommend washing every 2 weeks, waxing every 3 months, and ceramic coating every 2-3 years for best protection. Interior should be detailed every 6 months.", lang: "en-US" };
@@ -470,7 +413,6 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             return { text: "For optimal care, wash your car every 1-2 weeks, especially if you drive in dusty conditions or park outdoors. Regular washing prevents dirt buildup and paint damage.", lang: "en-US" };
         }
 
-        // ========== SPECIFIC SERVICE QUERIES ==========
 
         if (lowerQuery.includes("polish") || lowerQuery.includes("buffing")) {
             return { text: "Our polishing service removes minor scratches, swirl marks, and oxidation to restore your paint's shine. We use professional-grade compounds and machines for a perfect finish!", lang: "en-US" };
@@ -488,7 +430,6 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             return { text: "We offer odor removal and AC sanitization! Using ozone treatment and enzymatic cleaners, we eliminate bad smells from smoke, pets, food, and mold. Your cabin will smell fresh again!", lang: "en-US" };
         }
 
-        // ========== VEHICLE TYPE QUESTIONS ==========
 
         if (lowerQuery.includes("luxury car") || lowerQuery.includes("premium car") || lowerQuery.includes("bmw") || lowerQuery.includes("mercedes") || lowerQuery.includes("audi")) {
             return { text: "We specialize in luxury and premium vehicles! Our technicians are trained in handling high-end cars with extra care, using premium products specifically designed for luxury vehicles.", lang: "en-US" };
@@ -502,7 +443,6 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             return { text: "We handle all vehicle sizes including SUVs, MUVs, and large vehicles. Pricing varies based on vehicle size, and we ensure thorough cleaning even for the biggest vehicles!", lang: "en-US" };
         }
 
-        // ========== BOOKING PROCESS ==========
 
         if (lowerQuery.includes("how to book") || lowerQuery.includes("booking process")) {
             setTimeout(() => router.push("/booking"), 1000);
@@ -517,7 +457,6 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             return { text: "We try to accommodate same-day bookings based on availability! Check our booking page for available slots today, or call us directly for urgent requests.", lang: "en-US" };
         }
 
-        // ========== QUALITY & GUARANTEE ==========
 
         if (lowerQuery.includes("guarantee") || lowerQuery.includes("warranty") || lowerQuery.includes("quality")) {
             return { text: "We stand behind our work with a satisfaction guarantee! If you're not happy with any service, we'll redo it free of charge. Some services like ceramic coating come with multi-year warranties.", lang: "en-US" };
@@ -527,7 +466,6 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             return { text: "All our technicians are certified professionals with years of experience. We use only premium, branded products and follow international detailing standards for the best results.", lang: "en-US" };
         }
 
-        // ========== TECHNOLOGY & AI ==========
 
         if (lowerQuery.includes("ai") || lowerQuery.includes("technology") || lowerQuery.includes("shashti ai")) {
             return { text: "We use AI-powered systems for service recommendations, real-time tracking, and smart scheduling. However, I'm Dinesh, your voice assistant - separate from Shashti AI. I help you navigate and find information!", lang: "en-US" };
@@ -537,7 +475,6 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             return { text: "Yes! We have live service tracking. Once your service starts, you can see real-time progress with photos at each stage. It's like tracking a food delivery, but for your car!", lang: "en-US" };
         }
 
-        // ========== GENERAL HELP ==========
 
         if (lowerQuery.includes("what can you do") || lowerQuery.includes("capabilities") || lowerQuery.includes("features")) {
             return { text: "I can help you navigate the website, book services, answer questions about our services, explain pricing, share our hours and location, help with support requests, collect feedback, and much more! Just ask me anything about Shashti Karz.", lang: "en-US" };
@@ -551,29 +488,23 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
             return { text: "You're very welcome! I'm always here to help. Is there anything else you'd like to know about our services?", lang: "en-US" };
         }
 
-        // ========== DEFAULT RESPONSES ==========
 
-        // If query seems like a question, try AI first before generic response
         if (lowerQuery.includes("?") || lowerQuery.includes("what") || lowerQuery.includes("how") || lowerQuery.includes("when") || lowerQuery.includes("where") || lowerQuery.includes("why") || lowerQuery.includes("can you") || lowerQuery.includes("tell me")) {
-            // Use AI to answer the question
             const aiResponse = await callAI(query, activeLang);
             if (aiResponse) {
                 return { text: aiResponse, lang: activeLang };
             }
         }
 
-        // Generic greeting
         if (lowerQuery.includes("hi") || lowerQuery.includes("hello") || lowerQuery.includes("hey")) {
             return { text: "Hello! How can I assist you today? You can ask me about our services, book an appointment, track your order, check pricing, or get support.", lang: "en-US" };
         }
 
-        // For any other unmatched query, try AI fallback
         const aiResponse = await callAI(query, activeLang);
         if (aiResponse) {
             return { text: aiResponse, lang: activeLang };
         }
 
-        // Final fallback if AI fails
         return { text: languageResponses[activeLang].defaultResponse || languageResponses["en-US"].defaultResponse, lang: activeLang };
     };
 
@@ -605,7 +536,6 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
         try {
             const supabase = createClient();
 
-            // Detect intent
             const lowerQuery = query.toLowerCase();
             let interactionType: "navigation" | "service_query" | "booking" | "support" | "feedback" | "general" = "general";
 
@@ -647,7 +577,7 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
 
     return (
         <>
-            {/* Floating Button */}
+            {}
             {!isOpen && (
                 <button
                     onClick={() => setIsOpen(true)}
@@ -659,7 +589,7 @@ export function DineshVoiceAssistant({ userName, userId }: DineshProps) {
                     <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-ping"></span>
                     <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></span>
 
-                    {/* Tooltip */}
+                    {}
                     <span className="absolute left-full ml-4 px-4 py-2 rounded-lg bg-black/90 text-white text-sm font-semibold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                         👋 Hi! I'm Dinesh
                     </span>

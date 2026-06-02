@@ -1,10 +1,6 @@
-/**
- * Deep AI Service Recommendations for Dinesh
- * Analyzes user queries and suggests relevant services
- */
 
 export interface ServiceRecommendation {
-    id: string; // specialized ID for looking up translations
+    id: string;
     serviceName: string;
     reason: string;
     priority: "high" | "medium" | "low";
@@ -13,7 +9,6 @@ export interface ServiceRecommendation {
     keywords_hi: string[];
 }
 
-// Translations for Service Names and Reasons
 const translations = {
     "ceramic_coating": {
         name: {
@@ -173,11 +168,7 @@ const translations = {
     }
 };
 
-/**
- * Service recommendation rules based on query analysis
- */
 const recommendationRules: ServiceRecommendation[] = [
-    // Paint-related issues
     {
         id: "ceramic_coating",
         serviceName: "Ceramic Coating",
@@ -206,10 +197,9 @@ const recommendationRules: ServiceRecommendation[] = [
         keywords_hi: ["मामूली खरोंच", "पॉलिश", "चमक"]
     },
 
-    // Water and cleanliness issues
     {
         id: "ceramic_coating",
-        serviceName: "Ceramic Coating", // Duplicate for different context, handled by ID
+        serviceName: "Ceramic Coating",
         reason: "Creates a hydrophobic surface for easy water beading and self-cleaning effect",
         priority: "high",
         keywords: ["water spot", "hard water", "rain marks", "water bead", "easy clean", "hydrophobic"],
@@ -226,7 +216,6 @@ const recommendationRules: ServiceRecommendation[] = [
         keywords_hi: ["गंदा", "गहरी सफाई", "पूरी सर्विस", "नई जैसी"]
     },
 
-    // Interior issues
     {
         id: "interior_cleaning",
         serviceName: "Interior Deep Cleaning",
@@ -255,7 +244,6 @@ const recommendationRules: ServiceRecommendation[] = [
         keywords_hi: ["लेदर", "चमड़े की सीट"]
     },
 
-    // Lighting issues
     {
         id: "headlight",
         serviceName: "Headlight Restoration",
@@ -266,7 +254,6 @@ const recommendationRules: ServiceRecommendation[] = [
         keywords_hi: ["हेडलाइट", "पीला", "धुंधला"]
     },
 
-    // Wheels
     {
         id: "wheels",
         serviceName: "Wheel & Tire Detailing",
@@ -277,7 +264,6 @@ const recommendationRules: ServiceRecommendation[] = [
         keywords_hi: ["पहिया", "टायर", "रिम"]
     },
 
-    // Engine
     {
         id: "engine",
         serviceName: "Engine Bay Detailing",
@@ -288,7 +274,6 @@ const recommendationRules: ServiceRecommendation[] = [
         keywords_hi: ["इंजन", "इंजन सफाई"]
     },
 
-    // Regular maintenance
     {
         id: "wash_wax",
         serviceName: "Exterior Wash & Wax",
@@ -299,7 +284,6 @@ const recommendationRules: ServiceRecommendation[] = [
         keywords_hi: ["धुलाई", "वॉश", "सफाई"]
     },
 
-    // New car
     {
         id: "new_car",
         serviceName: "New Car Protection Package",
@@ -310,7 +294,6 @@ const recommendationRules: ServiceRecommendation[] = [
         keywords_hi: ["नई कार", "नई गाड़ी"]
     },
 
-    // Luxury
     {
         id: "luxury",
         serviceName: "Premium Detailing Package",
@@ -322,9 +305,6 @@ const recommendationRules: ServiceRecommendation[] = [
     }
 ];
 
-/**
- * Analyze query and recommend services
- */
 export function getServiceRecommendations(query: string, lang: "en-US" | "ta-IN" | "hi-IN" = "en-US"): ServiceRecommendation[] {
     const lowerQuery = query.toLowerCase();
     const recommendations: ServiceRecommendation[] = [];
@@ -339,27 +319,21 @@ export function getServiceRecommendations(query: string, lang: "en-US" | "ta-IN"
         );
 
         if (matches.length > 0) {
-            // Add recommendation if not already added
             if (!recommendations.find(r => r.id === rule.id)) {
                 recommendations.push({
                     ...rule,
-                    // Store ALL matches for debug/highlighting if needed, but primarily we used it to trigger
                     keywords: matches
                 });
             }
         }
     });
 
-    // Sort by priority: high > medium > low
     return recommendations.sort((a, b) => {
         const priorityOrder = { high: 3, medium: 2, low: 1 };
         return priorityOrder[b.priority] - priorityOrder[a.priority];
     });
 }
 
-/**
- * Generate a natural response with service recommendation in target language
- */
 export function generateRecommendationResponse(
     query: string,
     recommendations: ServiceRecommendation[],
@@ -372,7 +346,6 @@ export function generateRecommendationResponse(
     const topRec = recommendations[0];
     const topRecData = translations[topRec.id as keyof typeof translations];
 
-    // Safety check if translation key is missing
     const serviceName = topRecData?.name[lang] || topRec.serviceName;
     const reason = topRecData?.reason[lang] || topRec.reason;
 
@@ -401,7 +374,6 @@ export function generateRecommendationResponse(
         message += " क्या मैं बुकिंग पेज खोलूं?";
     }
     else {
-        // English Default
         message = `Based on your query, I recommend our **${serviceName}** service. ${reason}.`;
         if (recommendations.length > 1) {
             const otherServices = recommendations.slice(1, 3).map(r => {
@@ -416,19 +388,14 @@ export function generateRecommendationResponse(
     return message;
 }
 
-/**
- * Check if query is asking about a problem/issue
- */
 export function isProblemQuery(query: string): boolean {
     const problemKeywords = [
         "problem", "issue", "damaged", "broken", "not working",
         "dirty", "stain", "smell", "odor", "scratch", "faded",
         "dull", "cloudy", "foggy", "yellow", "crack", "leak",
         "water spot", "swirl", "oxidation", "rust",
-        // Tamil
         "பிரச்சினை", "சேதம்", "உடைந்தது", "வேலை செய்யவில்லை",
         "அழுக்கு", "கறைகள்", "நாற்றம்", "கீறல்", "மங்கிய",
-        // Hindi
         "समस्या", "मुद्दा", "क्षतिग्रस्त", "टूटा हुआ", "काम नहीं कर रहा",
         "गंदा", "दाग", "बदबू", "खरोंच", "फीका"
     ];
@@ -438,12 +405,7 @@ export function isProblemQuery(query: string): boolean {
     );
 }
 
-/**
- * Extract problem description from query (English only mostly/regex is simpler)
- */
 export function extractProblemDescription(query: string): string | null {
-    // Common problem patterns - mostly English supported for now, 
-    // extending to other languages requires complex NLP or simply returning exact match
     const patterns = [
         /(?:my|the)\s+([\w\s]+)\s+(?:is|are|has|have|looks?)\s+([\w\s]+)/i,
         /(?:i have|there is|there are)\s+a?\s*([\w\s]+)/i

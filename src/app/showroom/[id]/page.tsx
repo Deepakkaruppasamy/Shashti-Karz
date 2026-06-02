@@ -132,7 +132,7 @@ export default function PostDetailPage() {
 
             <div className="pt-24 pb-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Navigation */}
+                    {}
                     <button
                         onClick={() => router.back()}
                         className="flex items-center gap-2 text-[#888] hover:text-white transition-colors mb-8 group"
@@ -142,7 +142,7 @@ export default function PostDetailPage() {
                     </button>
 
                     <div className="grid lg:grid-cols-12 gap-8">
-                        {/* Media Section */}
+                        {}
                         <div className="lg:col-span-8 space-y-6">
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.95 }}
@@ -174,7 +174,7 @@ export default function PostDetailPage() {
                                 </div>
                             </motion.div>
 
-                            {/* Additional Info */}
+                            {}
                             <div className="glass-card rounded-2xl p-8">
                                 <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
                                 <p className="text-[#ccc] text-lg leading-relaxed whitespace-pre-wrap">
@@ -190,7 +190,7 @@ export default function PostDetailPage() {
                                 </div>
                             </div>
 
-                            {/* Transformation Comparison (If available) */}
+                            {}
                             {post.before_photo_url && (
                                 <div className="glass-card rounded-2xl p-8">
                                     <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
@@ -215,9 +215,9 @@ export default function PostDetailPage() {
                             )}
                         </div>
 
-                        {/* Sidebar / Interaction Section */}
+                        {}
                         <div className="lg:col-span-4 space-y-6">
-                            {/* User & Stats Card */}
+                            {}
                             <div className="glass-card rounded-2xl p-6">
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff1744] to-[#d4af37] p-0.5">
@@ -266,7 +266,7 @@ export default function PostDetailPage() {
                                 </div>
                             </div>
 
-                            {/* Contest Status (If applicable) */}
+                            {}
                             {post.contest_entry && (
                                 <div className="glass-card rounded-2xl p-6 border-l-4 border-[#ff1744]">
                                     <div className="flex items-center gap-3 mb-2">
@@ -281,7 +281,7 @@ export default function PostDetailPage() {
                                 </div>
                             )}
 
-                            {/* Comments Section */}
+                            {}
                             <div className="glass-card rounded-2xl p-6 h-[500px] flex flex-col">
                                 <h3 className="font-bold text-lg mb-6 flex items-center gap-2">
                                     <MessageCircle size={20} className="text-[#ff1744]" />

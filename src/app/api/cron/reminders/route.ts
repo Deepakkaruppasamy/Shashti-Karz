@@ -13,32 +13,19 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-/**
- * GET /api/cron/reminders
- *
- * Scheduled daily by Vercel Cron (see vercel.json).
- * Finds all active bookings scheduled for tomorrow and
- * sends an appointment reminder email + in-app notification
- * to each customer.
- *
- * Protected by CRON_SECRET so only Vercel can call it.
- */
 export async function GET(request: NextRequest) {
-  // Verify cron secret to prevent public abuse
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
   if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Calculate tomorrow's date in YYYY-MM-DD format
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowStr = tomorrow.toISOString().split("T")[0];
 
   console.log(`[Reminders Cron] Running for date: ${tomorrowStr}`);
 
-  // Fetch all bookings scheduled for tomorrow that are active (not cancelled/completed)
   const { data: bookings, error } = await supabase
     .from("bookings")
     .select("*, service:services(*)")
@@ -71,7 +58,6 @@ export async function GET(request: NextRequest) {
     const bookingTime = booking.time || "10:00 AM";
 
     try {
-      // 1. Send reminder email directly to the customer's email
       if (customerEmail) {
         const html = generateReminderEmail({
           customerName,
@@ -97,7 +83,6 @@ export async function GET(request: NextRequest) {
         console.log(`[Reminders Cron] Reminder email sent to ${customerEmail} (Booking: ${booking.booking_id})`);
       }
 
-      // 2. Also send an in-app notification (if user has an account)
       if (booking.user_id) {
         await sendNotification({
           userId: booking.user_id,

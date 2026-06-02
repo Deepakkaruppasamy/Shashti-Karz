@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 
-// POST /api/campaigns - Create campaign
 export async function POST(request: NextRequest) {
     try {
         const adminSession = request.cookies.get("admin_session");
@@ -17,7 +16,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Check admin role if authenticated via Supabase session but no admin cookie
         if (user && !isAdmin) {
             const { data: profile } = await supabase
                 .from("profiles")
@@ -45,7 +43,6 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
-        // Identify recipients
         if (data.status === "active") {
             await supabase.rpc("identify_campaign_recipients", {
                 campaign_id_param: data.id,
@@ -62,7 +59,6 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// GET /api/campaigns - Get campaigns
 export async function GET(request: NextRequest) {
     try {
         const adminSession = request.cookies.get("admin_session");

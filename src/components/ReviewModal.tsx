@@ -94,7 +94,7 @@ export function ReviewModal({ booking, isOpen, onClose, onSuccess }: ReviewModal
             </div>
 
             <div className="p-6 space-y-8">
-              {/* Star Rating */}
+              {}
               <div className="text-center">
                 <p className="text-sm text-[#888] mb-4">How was your experience?</p>
                 <div className="flex justify-center gap-2">
@@ -122,7 +122,7 @@ export function ReviewModal({ booking, isOpen, onClose, onSuccess }: ReviewModal
                 </p>
               </div>
 
-              {/* Comment */}
+              {}
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
                   <MessageSquare size={16} className="text-[#ff1744]" />
@@ -136,7 +136,7 @@ export function ReviewModal({ booking, isOpen, onClose, onSuccess }: ReviewModal
                 />
               </div>
 
-              {/* Recommendation */}
+              {}
               <div className="flex items-center justify-between p-4 rounded-xl bg-white/5">
                 <div>
                   <h4 className="text-sm font-medium">Would you recommend us?</h4>

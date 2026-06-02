@@ -205,7 +205,6 @@ export function generateAIInsights(analyticsData: any): AIInsight[] {
     });
   }
 
-  // Inventory Health Insights
   if (analyticsData.lowStockItems && analyticsData.lowStockItems.length > 0) {
     insights.push({
       type: "alert",
@@ -218,7 +217,6 @@ export function generateAIInsights(analyticsData: any): AIInsight[] {
     });
   }
 
-  // Forecast Insight
   if (analyticsData.revenueForecast) {
     insights.push({
       type: "revenue",
@@ -296,7 +294,6 @@ export function detectAnomalies(bookings: any[], previousBookings: any[]): AIIns
 export function detectRiskPatterns(bookings: any[]): AIInsight[] {
   const risks: AIInsight[] = [];
 
-  // 1. Repeated Cancellations
   const customerCancellations: Record<string, number> = {};
   bookings.filter(b => b.status === "cancelled").forEach(b => {
     customerCancellations[b.customer_email] = (customerCancellations[b.customer_email] || 0) + 1;
@@ -313,7 +310,6 @@ export function detectRiskPatterns(bookings: any[]): AIInsight[] {
     });
   }
 
-  // 2. Payment Failures
   const paymentFailures = bookings.filter(b => b.payment_status === "failed").length;
   if (paymentFailures > 3) {
     risks.push({
@@ -325,7 +321,6 @@ export function detectRiskPatterns(bookings: any[]): AIInsight[] {
     });
   }
 
-  // 3. Drop-offs (Pending for more than 24h)
   const now = new Date();
   const dropOffs = bookings.filter(b =>
     b.status === "pending" &&
@@ -348,7 +343,6 @@ export function detectRiskPatterns(bookings: any[]): AIInsight[] {
 export function generateSmartDiscounts(analyticsData: any): AIInsight[] {
   const recommendations: AIInsight[] = [];
 
-  // 1. Loyalty-based discounts
   if (analyticsData.returningCustomers > 0) {
     recommendations.push({
       type: "recommendation",
@@ -359,7 +353,6 @@ export function generateSmartDiscounts(analyticsData: any): AIInsight[] {
     });
   }
 
-  // 2. Low-performing service discount
   if (analyticsData.lowPerformingService) {
     recommendations.push({
       type: "recommendation",
@@ -370,7 +363,6 @@ export function generateSmartDiscounts(analyticsData: any): AIInsight[] {
     });
   }
 
-  // 3. Peak hour optimization
   if (analyticsData.slowestDay) {
     recommendations.push({
       type: "recommendation",

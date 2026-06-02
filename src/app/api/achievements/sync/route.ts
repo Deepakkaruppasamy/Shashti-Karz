@@ -11,7 +11,6 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // 1. Try RPC first (cleanest way)
         const { error: rpcError } = await supabase.rpc('check_achievements', {
             user_id_param: user.id
         });
@@ -23,8 +22,6 @@ export async function POST(request: NextRequest) {
 
         console.warn("RPC check_achievements failed, falling back to JS implementation:", rpcError.message);
 
-        // 2. JS Fallback Implementation
-        // Get user stats
         const { data: bookings } = await supabase
             .from("bookings")
             .select("price")
@@ -34,16 +31,13 @@ export async function POST(request: NextRequest) {
         const stats = {
             booking_count: bookings?.length || 0,
             total_spent: bookings?.reduce((sum, b) => sum + (Number(b.price) || 0), 0) || 0,
-            // Add other stats as needed (referrals, reviews etc.)
         };
 
-        // Get all achievements
         const { data: achievements } = await supabase
             .from("achievements")
             .select("*")
             .eq("active", true);
 
-        // Get already unlocked
         const { data: unlocked } = await supabase
             .from("user_achievements")
             .select("achievement_id")
@@ -68,14 +62,12 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        // Apply new unlocks
         for (const ach of newUnlocks) {
             await supabase.from("user_achievements").insert({
                 user_id: user.id,
                 achievement_id: ach.id
             });
 
-            // Add points transaction
             await supabase.from("points_transactions").insert({
                 user_id: user.id,
                 points: ach.points,
@@ -85,7 +77,6 @@ export async function POST(request: NextRequest) {
                 description: `Unlocked: ${ach.name}`
             });
 
-            // Update user points
             const { data: currentPoints } = await supabase
                 .from("user_points")
                 .select("total_points, lifetime_points")

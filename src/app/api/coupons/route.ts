@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-// GET /api/coupons - Get active coupons
 export async function GET(request: NextRequest) {
     try {
         const supabase = await createClient();
@@ -9,7 +8,6 @@ export async function GET(request: NextRequest) {
         const code = searchParams.get("code");
 
         if (code) {
-            // Get specific coupon
             const { data, error } = await supabase
                 .from("coupons")
                 .select("*")
@@ -24,7 +22,6 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ coupon: data });
         }
 
-        // Get all active coupons
         const { data, error } = await supabase
             .from("coupons")
             .select("*")
@@ -45,7 +42,6 @@ export async function GET(request: NextRequest) {
     }
 }
 
-// POST /api/coupons/validate - Validate coupon
 export async function POST(request: NextRequest) {
     try {
         const supabase = await createClient();
@@ -58,7 +54,6 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { code, amount, service_ids } = body;
 
-        // Call validation function
         const { data, error } = await supabase.rpc("validate_coupon", {
             coupon_code: code,
             user_id_param: user.id,

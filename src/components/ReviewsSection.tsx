@@ -9,7 +9,6 @@ interface ReviewsSectionProps {
 }
 
 export function ReviewsSection({ reviews }: ReviewsSectionProps) {
-    // Sort by rating and featured
     const topReviews = [...reviews]
         .sort((a, b) => b.rating - a.rating)
         .slice(0, 6);

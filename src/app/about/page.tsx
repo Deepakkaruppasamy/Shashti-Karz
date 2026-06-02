@@ -16,7 +16,7 @@ export default function AboutPage() {
 
       <main className="container mx-auto px-4 py-32">
         <div className="max-w-4xl mx-auto">
-          {/* Header */}
+          {}
           <div className="text-center mb-16">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-red-500 via-pink-500 to-red-600 bg-clip-text text-transparent italic tracking-tighter">
               About <span className="text-white">Shashti Karz</span>
@@ -26,9 +26,9 @@ export default function AboutPage() {
             </p>
           </div>
 
-          {/* Content Sections */}
+          {}
           <div className="space-y-12">
-            {/* Our Story */}
+            {}
             <section className="bg-white/[0.02] backdrop-blur-lg rounded-3xl p-8 border border-white/5">
               <h2 className="text-3xl font-bold text-white mb-4">Our Story</h2>
               <p className="text-gray-400 leading-relaxed">
@@ -38,7 +38,7 @@ export default function AboutPage() {
               </p>
             </section>
 
-            {/* Our Mission */}
+            {}
             <section className="bg-white/[0.02] backdrop-blur-lg rounded-3xl p-8 border border-white/5">
               <h2 className="text-3xl font-bold text-white mb-4">Our Mission</h2>
               <p className="text-gray-400 leading-relaxed">
@@ -48,7 +48,7 @@ export default function AboutPage() {
               </p>
             </section>
 
-            {/* Why Choose Us */}
+            {}
             <section className="bg-white/[0.02] backdrop-blur-lg rounded-3xl p-8 border border-white/5">
               <h2 className="text-3xl font-bold text-white mb-6">Why Choose Us</h2>
               <div className="grid md:grid-cols-2 gap-6">
@@ -69,7 +69,7 @@ export default function AboutPage() {
               </div>
             </section>
 
-            {/* Contact CTA */}
+            {}
             <section className="bg-gradient-to-r from-red-500/10 to-pink-500/10 backdrop-blur-lg rounded-3xl p-12 border border-red-500/20 text-center">
               <h2 className="text-3xl font-bold text-white mb-4">Ready to Experience the Difference?</h2>
               <p className="text-gray-400 mb-8">

@@ -68,7 +68,7 @@ export default function RewardsPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 pt-24 pb-12 px-4">
             <div className="max-w-7xl mx-auto">
-                {/* Header */}
+                {}
                 <div className="text-center mb-12">
                     <div className="inline-flex items-center gap-3 bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full shadow-lg mb-6">
                         <Trophy className="text-yellow-500" size={32} />
@@ -81,7 +81,7 @@ export default function RewardsPage() {
                     </p>
                 </div>
 
-                {/* Stats Cards */}
+                {}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                     <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-purple-200">
                         <div className="flex items-center gap-3 mb-2">
@@ -140,7 +140,7 @@ export default function RewardsPage() {
                     </div>
                 </div>
 
-                {/* Tabs */}
+                {}
                 <div className="flex gap-4 mb-8 bg-white/80 backdrop-blur-sm p-2 rounded-2xl shadow-lg w-fit mx-auto">
                     <button
                         onClick={() => setActiveTab("achievements")}
@@ -164,7 +164,7 @@ export default function RewardsPage() {
                     </button>
                 </div>
 
-                {/* Content */}
+                {}
                 <div className="bg-white rounded-3xl p-8 shadow-xl">
                     {activeTab === "achievements" ? (
                         <AchievementsDisplay />
@@ -173,7 +173,7 @@ export default function RewardsPage() {
                     )}
                 </div>
 
-                {/* Rewards Info */}
+                {}
                 <div className="mt-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-3xl p-8 text-white shadow-xl">
                     <div className="flex items-start gap-4">
                         <Gift size={48} className="flex-shrink-0" />

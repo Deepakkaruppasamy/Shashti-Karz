@@ -20,7 +20,7 @@ export function RealtimeIndicator({
 
     return (
         <div className="flex items-center gap-4">
-            {/* Connection Status */}
+            {}
             <div className="flex items-center gap-2">
                 <motion.div
                     animate={{
@@ -54,7 +54,7 @@ export function RealtimeIndicator({
                 </AnimatePresence>
             </div>
 
-            {/* Online Users Count */}
+            {}
             {showOnlineUsers && isConnected && (
                 <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -67,7 +67,7 @@ export function RealtimeIndicator({
                 </motion.div>
             )}
 
-            {/* Last Update Time */}
+            {}
             {lastUpdate && isConnected && (
                 <motion.div
                     initial={{ opacity: 0 }}
@@ -84,7 +84,6 @@ export function RealtimeIndicator({
     );
 }
 
-// Pulsing Live Badge
 export function LiveBadge() {
     return (
         <div className="flex items-center gap-2">

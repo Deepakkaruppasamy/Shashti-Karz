@@ -13,7 +13,6 @@ export async function GET(request: NextRequest) {
 
         const supabase = await createClient();
 
-        // 1. Fetch all bookings for historical data
         const { data: bookings, error: bookingsError } = await supabase
             .from("bookings")
             .select("*, services(name, price)")
@@ -21,21 +20,18 @@ export async function GET(request: NextRequest) {
 
         if (bookingsError) throw bookingsError;
 
-        // 2. Fetch fleet data
         const { data: fleets, error: fleetsError } = await supabase
             .from("fleet_accounts")
             .select("*");
 
         if (fleetsError) throw fleetsError;
 
-        // 3. Fetch reviews
         const { data: reviews, error: reviewsError } = await supabase
             .from("reviews")
             .select("rating, sentiment_score");
 
         if (reviewsError) throw reviewsError;
 
-        // 4. Process Revenue Trends (Last 6 Months)
         const monthlyRevenue: Record<string, number> = {};
         const fleetRevenue: Record<string, number> = { corporate: 0, individual: 0 };
         const servicePerformance: Record<string, { count: number; revenue: number }> = {};
@@ -44,17 +40,14 @@ export async function GET(request: NextRequest) {
             const date = new Date(booking.date);
             const month = date.toLocaleString('default', { month: 'short', year: '2-digit' });
 
-            // Monthly revenue
             monthlyRevenue[month] = (monthlyRevenue[month] || 0) + (booking.price || 0);
 
-            // Corporate vs Individual
             if (booking.fleet_id) {
                 fleetRevenue.corporate += (booking.price || 0);
             } else {
                 fleetRevenue.individual += (booking.price || 0);
             }
 
-            // Service Performance
             const serviceName = (booking as any).services?.name || "Unknown";
             if (!servicePerformance[serviceName]) {
                 servicePerformance[serviceName] = { count: 0, revenue: 0 };
@@ -63,14 +56,12 @@ export async function GET(request: NextRequest) {
             servicePerformance[serviceName].revenue += (booking.price || 0);
         });
 
-        // 5. Calculate Efficiency (Mocked for now, but could use service_tracking)
         const efficiency = {
             avgServiceTime: "2.4 hours",
             onTimeRate: "94%",
             resourceUtilization: "82%"
         };
 
-        // 6. Customer Satisfaction
         const avgRating = reviews.length > 0
             ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
             : 5;

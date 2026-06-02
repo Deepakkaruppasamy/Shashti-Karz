@@ -1,6 +1,3 @@
-# ─────────────────────────────────────────
-# Terraform Outputs — Shashti Karz on Render
-# ─────────────────────────────────────────
 
 output "service_id" {
   description = "Render service ID"

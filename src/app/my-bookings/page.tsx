@@ -27,7 +27,6 @@ export default function MyBookingsPage() {
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<"all" | "upcoming" | "completed">("all");
 
-    // Modal State
     const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
     const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
     const [isReviewOpen, setIsReviewOpen] = useState(false);
@@ -38,7 +37,6 @@ export default function MyBookingsPage() {
         }
     }, [user]);
 
-    // Real-time subscription for bookings
     useRealtimeSubscription({
         table: 'bookings',
         filter: user ? `user_id=eq.${user.id}` : undefined,
@@ -113,7 +111,7 @@ export default function MyBookingsPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 pt-24 pb-12 px-4">
             <div className="max-w-6xl mx-auto">
-                {/* Header */}
+                {}
                 <div className="mb-8 flex justify-between items-end">
                     <div>
                         <h1 className="text-4xl font-bold text-gray-900 mb-2">My Bookings</h1>
@@ -121,14 +119,14 @@ export default function MyBookingsPage() {
                             Hello, <strong>{profile?.full_name || "Customer"}</strong>!
                         </p>
                     </div>
-                    {/* Live Indicator */}
+                    {}
                     <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase tracking-wider animate-pulse">
                         <div className="w-2 h-2 rounded-full bg-green-500"></div>
                         Live Updates
                     </div>
                 </div>
 
-                {/* Filters */}
+                {}
                 <div className="flex gap-4 mb-8 bg-white p-2 rounded-2xl shadow-lg w-fit">
                     {(["all", "upcoming", "completed"] as const).map((t) => (
                         <button
@@ -144,7 +142,7 @@ export default function MyBookingsPage() {
                     ))}
                 </div>
 
-                {/* Bookings List */}
+                {}
                 {loading ? (
                     <BrandedLoader />
                 ) : filteredBookings.length === 0 ? (
@@ -172,7 +170,7 @@ export default function MyBookingsPage() {
                             >
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                                     <div className="flex-1">
-                                        {/* Status Badges */}
+                                        {}
                                         <div className="flex gap-2 mb-3">
                                             <span
                                                 className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${getStatusColor(
@@ -191,12 +189,12 @@ export default function MyBookingsPage() {
                                             </span>
                                         </div>
 
-                                        {/* Service Name */}
+                                        {}
                                         <h3 className="text-xl font-bold text-gray-900 mb-4">
                                             {booking.service_name}
                                         </h3>
 
-                                        {/* Details Grid */}
+                                        {}
                                         <div className="grid grid-cols-2 gap-y-2 gap-x-8 text-sm">
                                             <div className="flex items-center gap-3 text-gray-600">
                                                 <Calendar size={16} className="text-blue-600" />
@@ -217,10 +215,10 @@ export default function MyBookingsPage() {
                                         </div>
                                     </div>
 
-                                    {/* Actions */}
+                                    {}
                                     <div className="flex md:flex-col gap-3 shrink-0">
                                         <Link
-                                            href={`/booking?id=${booking.id}`} // Assuming redirect to re-book or similar if detailed view is missing
+                                            href={`/booking?id=${booking.id}`}
                                             className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors text-sm font-bold text-center"
                                         >
                                             View
@@ -252,7 +250,7 @@ export default function MyBookingsPage() {
                     </div>
                 )}
 
-                {/* Quick Book */}
+                {}
                 <div className="mt-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 text-white shadow-xl">
                     <h2 className="text-2xl font-bold mb-2">Ready for Your Next Detail?</h2>
                     <p className="mb-4 text-white/90">
@@ -267,7 +265,7 @@ export default function MyBookingsPage() {
                 </div>
             </div>
 
-            {/* Modals */}
+            {}
             {selectedBooking && selectedBooking && (
                 <>
                     <RescheduleModal
@@ -275,7 +273,6 @@ export default function MyBookingsPage() {
                         isOpen={isRescheduleOpen}
                         onClose={() => setIsRescheduleOpen(false)}
                         onSuccess={() => {
-                            // Realtime will catch the update, but we can optimistically refresh too
                             fetchBookings();
                         }}
                     />
@@ -284,7 +281,6 @@ export default function MyBookingsPage() {
                         isOpen={isReviewOpen}
                         onClose={() => setIsReviewOpen(false)}
                         onSuccess={() => {
-                            // Refresh logic if needed
                         }}
                     />
                 </>

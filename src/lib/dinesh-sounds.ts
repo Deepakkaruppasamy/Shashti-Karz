@@ -1,7 +1,3 @@
-/**
- * Dinesh Voice Assistant Sound Effects
- * Professional audio feedback for premium UX
- */
 
 export class DineshSoundManager {
     private audioContext: AudioContext | null = null;
@@ -17,9 +13,6 @@ export class DineshSoundManager {
         this.enabled = enabled;
     }
 
-    /**
-     * Play when Dinesh starts listening
-     */
     playListeningStart() {
         if (!this.enabled || !this.audioContext) return;
 
@@ -29,9 +22,8 @@ export class DineshSoundManager {
         oscillator.connect(gainNode);
         gainNode.connect(this.audioContext.destination);
 
-        // Pleasant ascending tone
-        oscillator.frequency.setValueAtTime(440, this.audioContext.currentTime); // A4
-        oscillator.frequency.exponentialRampToValueAtTime(880, this.audioContext.currentTime + 0.1); // A5
+        oscillator.frequency.setValueAtTime(440, this.audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(880, this.audioContext.currentTime + 0.1);
 
         gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.15);
@@ -41,9 +33,6 @@ export class DineshSoundManager {
         oscillator.stop(this.audioContext.currentTime + 0.15);
     }
 
-    /**
-     * Play when Dinesh stops listening
-     */
     playListeningStop() {
         if (!this.enabled || !this.audioContext) return;
 
@@ -53,9 +42,8 @@ export class DineshSoundManager {
         oscillator.connect(gainNode);
         gainNode.connect(this.audioContext.destination);
 
-        // Pleasant descending tone
-        oscillator.frequency.setValueAtTime(880, this.audioContext.currentTime); // A5
-        oscillator.frequency.exponentialRampToValueAtTime(440, this.audioContext.currentTime + 0.1); // A4
+        oscillator.frequency.setValueAtTime(880, this.audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(440, this.audioContext.currentTime + 0.1);
 
         gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.15);
@@ -65,9 +53,6 @@ export class DineshSoundManager {
         oscillator.stop(this.audioContext.currentTime + 0.15);
     }
 
-    /**
-     * Play when task is completed successfully
-     */
     playSuccess() {
         if (!this.enabled || !this.audioContext) return;
 
@@ -79,9 +64,8 @@ export class DineshSoundManager {
         oscillator2.connect(gainNode);
         gainNode.connect(this.audioContext.destination);
 
-        // Major chord: C - E - G
-        oscillator1.frequency.setValueAtTime(523.25, this.audioContext.currentTime); // C5
-        oscillator2.frequency.setValueAtTime(659.25, this.audioContext.currentTime); // E5
+        oscillator1.frequency.setValueAtTime(523.25, this.audioContext.currentTime);
+        oscillator2.frequency.setValueAtTime(659.25, this.audioContext.currentTime);
 
         gainNode.gain.setValueAtTime(0.08, this.audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.2);
@@ -95,9 +79,6 @@ export class DineshSoundManager {
         oscillator2.stop(this.audioContext.currentTime + 0.2);
     }
 
-    /**
-     * Play when message is sent
-     */
     playMessageSent() {
         if (!this.enabled || !this.audioContext) return;
 
@@ -117,9 +98,6 @@ export class DineshSoundManager {
         oscillator.stop(this.audioContext.currentTime + 0.05);
     }
 
-    /**
-     * Play when Dinesh opens
-     */
     playOpen() {
         if (!this.enabled || !this.audioContext) return;
 
@@ -129,8 +107,7 @@ export class DineshSoundManager {
         oscillator.connect(gainNode);
         gainNode.connect(this.audioContext.destination);
 
-        // Welcoming ascending arpeggio
-        const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+        const notes = [523.25, 659.25, 783.99];
         let time = this.audioContext.currentTime;
 
         notes.forEach((freq, index) => {
@@ -150,9 +127,6 @@ export class DineshSoundManager {
         });
     }
 
-    /**
-     * Play error sound
-     */
     playError() {
         if (!this.enabled || !this.audioContext) return;
 
@@ -173,7 +147,6 @@ export class DineshSoundManager {
     }
 }
 
-// Singleton instance
 let soundManagerInstance: DineshSoundManager | null = null;
 
 export function getDineshSoundManager(): DineshSoundManager {

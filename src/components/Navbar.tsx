@@ -74,7 +74,7 @@ export function Navbar() {
               </Link>
             ))}
 
-            {/* Language Switcher */}
+            {}
             <div className="relative">
               <button
                 onClick={() => setShowLang(!showLang)}

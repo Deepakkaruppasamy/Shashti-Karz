@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-// GET /api/achievements - Get user achievements
 export async function GET(request: NextRequest) {
     try {
         const supabase = await createClient();
@@ -11,7 +10,6 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Get all achievements
         const { data: allAchievements, error: achievementsError } = await supabase
             .from("achievements")
             .select("*")
@@ -22,7 +20,6 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: achievementsError.message }, { status: 500 });
         }
 
-        // Get user's unlocked achievements
         const { data: userAchievements, error: userError } = await supabase
             .from("user_achievements")
             .select("*, achievement:achievements(*)")
@@ -32,7 +29,6 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: userError.message }, { status: 500 });
         }
 
-        // Get user points
         const { data: points, error: pointsError } = await supabase
             .from("user_points")
             .select("*")

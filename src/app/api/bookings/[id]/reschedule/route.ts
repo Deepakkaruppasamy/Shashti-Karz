@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-// POST /api/bookings/[id]/reschedule - Request reschedule
 export async function POST(
     request: NextRequest,
     { params }: { params: { id: string } }
@@ -17,7 +16,6 @@ export async function POST(
         const body = await request.json();
         const { reason, reason_details, requested_date, requested_time } = body;
 
-        // Get booking
         const { data: booking, error: bookingError } = await supabase
             .from("bookings")
             .select("*")
@@ -28,7 +26,6 @@ export async function POST(
             return NextResponse.json({ error: "Booking not found" }, { status: 404 });
         }
 
-        // Generate suggested slots
         const { data: suggestionsData } = await supabase.rpc(
             "suggest_alternative_slots",
             {
@@ -37,7 +34,6 @@ export async function POST(
             }
         );
 
-        // Create reschedule request
         const { data, error } = await supabase
             .from("reschedule_requests")
             .insert({
@@ -58,7 +54,6 @@ export async function POST(
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
-        // Send notification
         await supabase.from("notifications").insert({
             user_id: user.id,
             type: "booking_rescheduled",
@@ -80,7 +75,6 @@ export async function POST(
     }
 }
 
-// GET /api/bookings/[id]/reschedule - Get reschedule requests for booking
 export async function GET(
     request: NextRequest,
     { params }: { params: { id: string } }

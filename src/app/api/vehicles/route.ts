@@ -34,7 +34,6 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const supabase = await createClient();
 
-  // Verify authentication
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (authError || !user) {
@@ -44,7 +43,6 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    // Ensure user_id is set to authenticated user and provide fallback name
     const vehicleData = {
       ...body,
       user_id: user.id,

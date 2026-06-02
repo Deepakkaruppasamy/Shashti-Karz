@@ -45,7 +45,6 @@ export default function PricingRulesPage() {
     conditions: {} as Record<string, string | number | boolean>,
   });
 
-  // Real-time subscription
   useRealtimeSubscription({
     table: "pricing_rules",
     onInsert: (newRule) => {
@@ -63,7 +62,6 @@ export default function PricingRulesPage() {
   useEffect(() => {
     loadRules();
     generateAiInsights();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadRules = async () => {
@@ -167,7 +165,7 @@ export default function PricingRulesPage() {
 
       <div className="flex-1 overflow-auto pb-24 lg:pb-8">
         <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-          {/* Header */}
+          {}
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
             <div>
               <h1 className="text-3xl lg:text-4xl font-black tracking-tighter flex items-center gap-3">
@@ -199,7 +197,7 @@ export default function PricingRulesPage() {
 
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">
-              {/* AI Insight Bar */}
+              {}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -221,7 +219,7 @@ export default function PricingRulesPage() {
                 </div>
               </motion.div>
 
-              {/* Strategy Feed */}
+              {}
               <div className="glass-card rounded-2xl lg:rounded-[2.5rem] p-4 lg:p-8 border border-white/5">
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#444]">Revenue Algorithms</h3>
@@ -275,7 +273,7 @@ export default function PricingRulesPage() {
             </div>
 
             <div className="space-y-6">
-              {/* Simulator Overlay/Card */}
+              {}
               <AnimatePresence>
                 {testMode && (
                   <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="glass-card rounded-[2rem] p-6 lg:p-8 border border-blue-500/20 bg-blue-500/5 shadow-2xl overflow-hidden relative">
@@ -327,7 +325,7 @@ export default function PricingRulesPage() {
                 )}
               </AnimatePresence>
 
-              {/* Status Pool */}
+              {}
               <div className="glass-card rounded-[2rem] p-6 lg:p-8 border border-white/5">
                 <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#333] mb-6 flex items-center gap-2"><Target size={14} /> Algorithm Health</h3>
                 <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
@@ -346,7 +344,7 @@ export default function PricingRulesPage() {
         </div>
       </div>
 
-      {/* Provisioning Modal */}
+      {}
       <AnimatePresence>
         {showModal && (
           <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/90 backdrop-blur-md" onClick={() => setShowModal(false)}>

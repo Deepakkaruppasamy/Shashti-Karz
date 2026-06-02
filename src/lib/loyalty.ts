@@ -30,7 +30,6 @@ export async function updateLoyaltyPoints(
   try {
     const pointsEarned = type === "earned" ? Math.floor(amount * 0.1) : points || 0;
 
-    // Prevent double counting for the same booking
     if (booking_id && type === "earned") {
       const { data: existingTransaction } = await supabase
         .from("loyalty_transactions")
@@ -53,7 +52,6 @@ export async function updateLoyaltyPoints(
 
     if (fetchError) {
       if (fetchError.code === "PGRST116") {
-        // If doesn't exist, create it (should have been created on first GET, but safe to handle)
         const { data: newData, error: insertError } = await supabase
           .from("loyalty_points")
           .insert({

@@ -2,7 +2,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Local font fallbacks */
 @font-face {
   font-family: 'Montserrat';
   font-style: normal;
@@ -181,7 +180,6 @@
   background: radial-gradient(ellipse at center top, rgba(255, 23, 68, 0.1) 0%, transparent 70%), #0a0a0a;
 }
 
-/* Mobile Performance Optimizations */
 @media (max-width: 768px) {
   .glass-card {
     backdrop-filter: blur(4px) !important;

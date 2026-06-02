@@ -147,7 +147,6 @@ export async function GET(request: NextRequest) {
             })
           ];
 
-          // invoice_generated in-app notification for the customer
           const invoiceUrl = (session.invoice as { hosted_invoice_url?: string })?.hosted_invoice_url || null;
           checkoutPromises.push(
             sendNotification({
@@ -165,7 +164,6 @@ export async function GET(request: NextRequest) {
             })
           );
 
-          // We await them all in parallel
           await Promise.allSettled(checkoutPromises);
         } catch (notifError) {
           console.error('Failed to process payment notifications:', notifError);

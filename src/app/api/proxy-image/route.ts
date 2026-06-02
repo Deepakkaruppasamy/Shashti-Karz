@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
             headers: {
                 'Content-Type': contentType || 'image/jpeg',
                 'Cache-Control': 'public, max-age=31536000, immutable',
-                'Access-Control-Allow-Origin': '*', // Allow WebGL access
+                'Access-Control-Allow-Origin': '*',
             },
         });
     } catch (error) {

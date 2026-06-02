@@ -131,7 +131,7 @@ export function LoyaltyProgram({ userId, showDemo = false }: LoyaltyProgramProps
 
         {loyalty && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-            {/* Main Stats and Card */}
+            {}
             <div className="lg:col-span-8 space-y-6">
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -205,7 +205,7 @@ export function LoyaltyProgram({ userId, showDemo = false }: LoyaltyProgramProps
               </motion.div>
 
               <div className="grid sm:grid-cols-2 gap-6">
-                {/* Referral Card */}
+                {}
                 <div className="glass-card rounded-3xl p-6 border border-white/5">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-bold flex items-center gap-2">
@@ -232,7 +232,7 @@ export function LoyaltyProgram({ userId, showDemo = false }: LoyaltyProgramProps
                   </div>
                 </div>
 
-                {/* Quick Earnings */}
+                {}
                 <div className="glass-card rounded-3xl p-6 border border-white/5">
                   <h3 className="font-bold mb-4 flex items-center gap-2">
                     <TrendingUp size={18} className="text-[#d4af37]" />
@@ -257,7 +257,7 @@ export function LoyaltyProgram({ userId, showDemo = false }: LoyaltyProgramProps
               </div>
             </div>
 
-            {/* Tiers Sidebar */}
+            {}
             <div className="lg:col-span-4 space-y-6">
               <div className="glass-card rounded-[2rem] p-6 lg:p-8 border border-white/5">
                 <h3 className="font-bold text-lg mb-6 flex items-center gap-2">

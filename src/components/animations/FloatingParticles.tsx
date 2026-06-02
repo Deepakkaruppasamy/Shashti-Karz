@@ -41,7 +41,6 @@ export function FloatingParticles({
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        // Set canvas size
         const resizeCanvas = () => {
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
@@ -49,7 +48,6 @@ export function FloatingParticles({
         resizeCanvas();
         window.addEventListener("resize", resizeCanvas);
 
-        // Initialize particles
         const initParticles = () => {
             particlesRef.current = Array.from({ length: count }, () => ({
                 x: Math.random() * canvas.width,
@@ -63,22 +61,18 @@ export function FloatingParticles({
         };
         initParticles();
 
-        // Animation loop
         const animate = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             particlesRef.current.forEach((particle) => {
-                // Update position
                 particle.x += particle.speedX;
                 particle.y += particle.speedY;
 
-                // Wrap around edges
                 if (particle.x < 0) particle.x = canvas.width;
                 if (particle.x > canvas.width) particle.x = 0;
                 if (particle.y < 0) particle.y = canvas.height;
                 if (particle.y > canvas.height) particle.y = 0;
 
-                // Draw particle
                 ctx.beginPath();
                 ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
                 ctx.fillStyle = particle.color;

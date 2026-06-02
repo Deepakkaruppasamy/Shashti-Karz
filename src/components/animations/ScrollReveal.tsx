@@ -14,7 +14,7 @@ interface ScrollRevealProps {
   className?: string;
   once?: boolean;
   threshold?: number;
-  isMobile?: boolean; // Prop to force mobile behavior if detection is available upstream
+  isMobile?: boolean;
 }
 
 const variants: Record<AnimationVariant, { hidden: Variant; visible: Variant }> = {
@@ -86,12 +86,10 @@ export function ScrollReveal({
     return <div className={className}>{children}</div>;
   }
 
-  // Optimized for mobile: use simpler transitions and no physics
   const transition: any = mobileMode
     ? { duration: 0.3, delay: delay * 0.3, ease: "easeOut" }
     : { duration, delay, ease: [0.25, 0.1, 0.25, 1] };
 
-  // Skip expensive filters on mobile
   const finalVariants = mobileMode && variant === "blur"
     ? { hidden: { opacity: 0 }, visible: { opacity: 1 } }
     : variants[variant];

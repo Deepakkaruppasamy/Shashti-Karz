@@ -15,9 +15,6 @@ export async function GET(request: NextRequest) {
     try {
         const supabase = await createServiceClient();
 
-        // 1. Get User ID by Email (Admin API)
-        // We list users because getUser by email isn't direct in generic client sometimes, 
-        // but admin.listUsers works reliably with service role.
         const { data: { users }, error: userError } = await supabase.auth.admin.listUsers();
 
         if (userError) throw userError;
@@ -30,7 +27,6 @@ export async function GET(request: NextRequest) {
 
         const updates: string[] = [];
 
-        // 2. Confirm Email (Fix Login Issue)
         if (!targetUser.email_confirmed_at) {
             const { error: confirmError } = await supabase.auth.admin.updateUserById(
                 targetUser.id,
@@ -40,8 +36,6 @@ export async function GET(request: NextRequest) {
             updates.push("Email Verified");
         }
 
-        // 3. Promote to Admin (Fix RLS/Upload Issue)
-        // Update public Profile
         const { error: profileError } = await supabase
             .from("profiles")
             .update({ role: "admin" })

@@ -3,14 +3,12 @@ import { createClient } from "@/lib/supabase/server";
 import { chatWithGemini } from "@/lib/gemini";
 import { sendAIInsight } from "@/lib/notification-service";
 
-// Centralized AI utility (Groq with Gemini fallback)
 
 export async function POST(req: Request) {
   try {
     const { vehicleId } = await req.json();
     const supabase = await createClient();
 
-    // Fetch vehicle details
     const { data: vehicle, error: vehicleError } = await supabase
       .from("user_vehicles")
       .select("*")
@@ -21,11 +19,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Vehicle not found" }, { status: 404 });
     }
 
-    // Fetch service history
     const { data: bookings, error: bookingsError } = await supabase
       .from("bookings")
       .select("*, service:services(*)")
-      .eq("car_model", vehicle.model) // or use a more precise link if available
+      .eq("car_model", vehicle.model)
       .eq("status", "completed")
       .order("date", { ascending: false });
 
@@ -52,11 +49,9 @@ export async function POST(req: Request) {
 
     const text = await chatWithGemini([{ role: "user", content: userPrompt }], systemPrompt);
 
-    // Parse the JSON from the response
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     const aiData = jsonMatch ? JSON.parse(jsonMatch[0]) : { health_summary: text };
 
-    // Send AI insight notification to the vehicle owner
     try {
       const healthScore = aiData.health_score || 0;
       const emoji = healthScore >= 80 ? "🌟" : healthScore >= 60 ? "✅" : "⚠️";

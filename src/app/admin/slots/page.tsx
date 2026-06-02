@@ -33,7 +33,6 @@ export default function SlotsPage() {
     max_capacity: 2,
   });
 
-  // Real-time subscription
   useRealtimeSubscription<AvailabilitySlot>({
     table: "availability_slots",
     onUpdate: (updatedSlot) => {
@@ -159,7 +158,7 @@ export default function SlotsPage() {
 
       <div className="flex-1 overflow-auto pb-24 lg:pb-8">
         <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-          {/* Header */}
+          {}
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
             <div>
               <h1 className="text-3xl lg:text-4xl font-black tracking-tighter flex items-center gap-3">
@@ -180,7 +179,7 @@ export default function SlotsPage() {
             </button>
           </div>
 
-          {/* AI Scheduler Insight */}
+          {}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -201,7 +200,7 @@ export default function SlotsPage() {
             </div>
           </motion.div>
 
-          {/* Stats Bar */}
+          {}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {[
               { label: "Total Units", value: totalSlots, icon: Zap, color: "text-blue-500" },
@@ -221,7 +220,7 @@ export default function SlotsPage() {
             ))}
           </div>
 
-          {/* Calendar View */}
+          {}
           <div className="glass-card rounded-2xl lg:rounded-[2.5rem] p-4 lg:p-8 border border-white/5 overflow-hidden">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-6">
               <div className="flex flex-col sm:flex-row sm:items-center gap-6">
@@ -247,7 +246,7 @@ export default function SlotsPage() {
               <BrandedLoader className="py-20" />
             ) : (
               <div className="space-y-8">
-                {/* Horizontal Date Picker for Mobile */}
+                {}
                 <div className="flex lg:hidden overflow-x-auto no-scrollbar gap-3 -mx-4 px-4 pb-2">
                   {weekDays.map((day, i) => {
                     const isSelected = day.toDateString() === selectedDate.toDateString();
@@ -266,7 +265,7 @@ export default function SlotsPage() {
                   })}
                 </div>
 
-                {/* Mobile Slot List */}
+                {}
                 <div className="lg:hidden grid grid-cols-1 gap-3">
                   {timeSlots.map((time) => {
                     const slot = getSlotForDateTime(selectedDate, time);
@@ -315,7 +314,7 @@ export default function SlotsPage() {
                   })}
                 </div>
 
-                {/* Desktop Grid View */}
+                {}
                 <div className="hidden lg:block overflow-x-auto">
                   <table className="w-full border-separate border-spacing-2">
                     <thead>
@@ -409,7 +408,7 @@ export default function SlotsPage() {
                   </table>
                 </div>
 
-                {/* Legend */}
+                {}
                 <div className="mt-8 flex flex-wrap items-center gap-6 lg:gap-8 justify-center pt-8 border-t border-white/5">
                   {[
                     { label: "Optimal", color: "bg-white/5 border-white/10" },

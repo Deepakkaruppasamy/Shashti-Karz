@@ -10,7 +10,7 @@ export default function PrivacyPage() {
 
       <main className="container mx-auto px-4 py-20">
         <div className="max-w-4xl mx-auto">
-          {/* Header */}
+          {}
           <div className="text-center mb-16">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-red-500 via-pink-500 to-red-600 bg-clip-text text-transparent">
               Privacy Policy
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
             </p>
           </div>
 
-          {/* Content */}
+          {}
           <div className="space-y-8 text-gray-300">
             <section className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
               <h2 className="text-2xl font-bold text-white mb-4">1. Introduction</h2>

@@ -8,13 +8,6 @@ terraform {
     }
   }
 
-  # Optional: Use Terraform Cloud or S3 for remote state.
-  # For local state, comment out this block.
-  # backend "s3" {
-  #   bucket = "shashti-karz-terraform-state"
-  #   key    = "prod/terraform.tfstate"
-  #   region = "us-east-1"
-  # }
 }
 
 provider "render" {
@@ -22,9 +15,6 @@ provider "render" {
   owner_id = var.render_owner_id
 }
 
-# ─────────────────────────────────────────────
-# Shashti Karz — Next.js Web Service on Render
-# ─────────────────────────────────────────────
 resource "render_web_service" "shashti_karz" {
   name   = "shashti-karz"
   plan   = "free"

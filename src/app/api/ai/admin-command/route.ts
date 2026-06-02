@@ -23,7 +23,6 @@ export async function POST(req: Request) {
     let prompt = "";
 
     if (context) {
-      // Analysis Mode
       prompt = `
         You are Shashti AI, an expert business analyst for a premium car detailing studio.
         
@@ -41,7 +40,6 @@ export async function POST(req: Request) {
         2. "action_suggested": A short label for a suggested action button (optional).
       `;
     } else {
-      // Command/Navigation Mode
       prompt = `
         You are Shashti AI, an admin assistant for a car detailing platform.
         The admin typed this command: "${command}"

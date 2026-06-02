@@ -51,7 +51,6 @@ export default function EquipmentAdminPage() {
     const [showRegisterModal, setShowRegisterModal] = useState(false);
     const router = useRouter();
 
-    // Real-time subscription
     useRealtimeSubscription({
         table: "equipment",
         onUpdate: (updatedEq) => {
@@ -124,7 +123,7 @@ export default function EquipmentAdminPage() {
         <div className="flex min-h-screen bg-[#0a0a0a] text-white">
             <div className="flex-1 overflow-auto pb-24 lg:pb-8">
                 <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-                    {/* Header */}
+                    {}
                     <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
                         <div>
                             <h1 className="text-3xl lg:text-4xl font-black tracking-tighter flex items-center gap-3">
@@ -145,7 +144,7 @@ export default function EquipmentAdminPage() {
                         </button>
                     </div>
 
-                    {/* AI Predictor Insight */}
+                    {}
                     <div className="glass-card rounded-[2rem] p-6 lg:p-10 border border-[#ff1744]/20 bg-[#ff1744]/5 relative overflow-hidden mb-8">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff1744]/5 rounded-full blur-[80px]" />
                         <div className="flex flex-col md:flex-row items-start justify-between gap-8 relative z-10">
@@ -187,7 +186,7 @@ export default function EquipmentAdminPage() {
 
                     <div className="grid lg:grid-cols-3 gap-8">
                         <div className="lg:col-span-2 space-y-6">
-                            {/* Stats Overview */}
+                            {}
                             <div className="grid grid-cols-2 gap-4">
                                 {[
                                     { label: "Asset Count", value: equipment.length, icon: Box, color: "text-blue-500", bg: "bg-blue-500/10" },
@@ -205,7 +204,7 @@ export default function EquipmentAdminPage() {
                                 ))}
                             </div>
 
-                            {/* Equipment List */}
+                            {}
                             <div className="glass-card rounded-3xl lg:rounded-[2.5rem] p-4 lg:p-8 border border-white/5">
                                 <div className="flex items-center justify-between mb-8 px-2">
                                     <h3 className="text-[10px] font-black text-[#555] uppercase tracking-[0.3em]">Asset Registry</h3>
@@ -256,7 +255,7 @@ export default function EquipmentAdminPage() {
                         </div>
 
                         <div className="space-y-6">
-                            {/* Critical Insights */}
+                            {}
                             <div className="glass-card rounded-3xl p-6 lg:p-8 border border-white/5 space-y-6">
                                 <h3 className="text-[10px] font-black text-[#555] uppercase tracking-[0.3em]">Critical Insights</h3>
                                 <div className="space-y-4">
@@ -271,7 +270,7 @@ export default function EquipmentAdminPage() {
                                 </div>
                             </div>
 
-                            {/* Maintenance Logs */}
+                            {}
                             <div className="glass-card rounded-3xl p-6 lg:p-8 border border-white/5">
                                 <div className="flex items-center justify-between mb-6">
                                     <h3 className="text-[10px] font-black text-[#555] uppercase tracking-[0.3em]">Log Feed</h3>
@@ -298,7 +297,7 @@ export default function EquipmentAdminPage() {
                 </div>
             </div>
 
-            {/* Register Modal - Bottom Sheet */}
+            {}
             <AnimatePresence>
                 {showRegisterModal && (
                     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/95 backdrop-blur-md" onClick={() => setShowRegisterModal(false)}>

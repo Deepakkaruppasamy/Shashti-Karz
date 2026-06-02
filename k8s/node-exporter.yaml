@@ -1,7 +1,3 @@
-# ─────────────────────────────────────────────────────────────
-# Node Exporter — DaemonSet
-# Collects hardware and OS metrics from the nodes
-# ─────────────────────────────────────────────────────────────
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:

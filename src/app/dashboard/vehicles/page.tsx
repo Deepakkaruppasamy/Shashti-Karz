@@ -337,7 +337,7 @@ export default function VehiclesPage() {
                     </div>
                   </div>
 
-                  {/* Health Score Card */}
+                  {}
                   {healthScore && (
                     <div className="glass-card rounded-2xl p-6 border border-[#ff1744]/20 bg-gradient-to-br from-[#ff1744]/5 to-transparent">
                       <h3 className="font-semibold mb-4 flex items-center gap-2">

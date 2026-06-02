@@ -43,7 +43,6 @@ export default function WhatsAppAdminPage() {
 
     useEffect(() => {
         fetchWhatsAppData();
-        // Simulate loading settings
         setTimeout(() => setIsLoading(false), 500);
     }, []);
 
@@ -102,7 +101,7 @@ export default function WhatsAppAdminPage() {
         <div className="flex min-h-screen bg-[#0a0a0a] text-white">
             <div className="flex-1 overflow-auto pb-24 lg:pb-8">
                 <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-                    {/* Header */}
+                    {}
                     <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
                         <div>
                             <h1 className="text-3xl lg:text-4xl font-black tracking-tighter flex items-center gap-3">
@@ -123,7 +122,7 @@ export default function WhatsAppAdminPage() {
                         </button>
                     </div>
 
-                    {/* Stats */}
+                    {}
                     {historyLoading ? (
                         <BrandedLoader className="py-20" />
                     ) : broadcastHistory.length === 0 && !historyLoading && (
@@ -149,7 +148,7 @@ export default function WhatsAppAdminPage() {
                         )
                     )}
 
-                    {/* AI Template Architect */}
+                    {}
                     <div className="glass-card rounded-[2rem] p-6 lg:p-10 border border-[#25D366]/20 bg-[#25D366]/5 relative overflow-hidden mb-8">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-[#25D366]/5 rounded-full blur-[80px]" />
                         <div className="flex flex-col md:flex-row items-start justify-between gap-8 relative z-10">
@@ -213,7 +212,7 @@ export default function WhatsAppAdminPage() {
                         </div>
                     </div>
 
-                    {/* Approved Templates */}
+                    {}
                     <div className="glass-card rounded-2xl lg:rounded-[2.5rem] p-4 lg:p-8 border border-white/5">
                         <div className="flex items-center justify-between mb-8 px-2">
                             <h3 className="text-[10px] font-black text-[#555] uppercase tracking-[0.3em]">Approved Registry</h3>
@@ -249,7 +248,7 @@ export default function WhatsAppAdminPage() {
                 </div>
             </div>
 
-            {/* Broadcast Modal - Bottom Sheet */}
+            {}
             <AnimatePresence>
                 {showBroadcastModal && (
                     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/95 backdrop-blur-md" onClick={() => setShowBroadcastModal(false)}>

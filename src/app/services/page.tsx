@@ -27,7 +27,6 @@ function ServiceCard({ service, carTypes, index }: { service: any; carTypes: any
   const [likesCount, setLikesCount] = useState(0);
 
   useEffect(() => {
-    // Delay fetching to prevent simultaneous requests locking up the browser
     const timer = setTimeout(() => {
       checkInitialStatus();
     }, index * 150 + 100);
@@ -37,7 +36,6 @@ function ServiceCard({ service, carTypes, index }: { service: any; carTypes: any
 
   const checkInitialStatus = async () => {
     try {
-      // Fetch likes count
       const { count } = await supabase
         .from("service_likes")
         .select("*", { count: "exact", head: true })
@@ -45,7 +43,6 @@ function ServiceCard({ service, carTypes, index }: { service: any; carTypes: any
 
       setLikesCount(count || 0);
 
-      // Check if user liked
       if (user) {
         const { data } = await supabase
           .from("service_likes")
@@ -104,7 +101,7 @@ function ServiceCard({ service, carTypes, index }: { service: any; carTypes: any
         >
           <div className="relative h-56 overflow-hidden">
             <Image
-              src={service.image_url || service.image} // Fallback for old data structure
+              src={service.image_url || service.image}
               alt={service.name}
               fill
               className="object-cover"
@@ -254,7 +251,6 @@ export default function ServicesPage() {
   if (loading) return <BrandedLoader fullPage />;
 
   const filteredServices = services.filter((service) => {
-    // Exclude packages from the services catalog
     const packageIds = ['basic', 'premium', 'ultimate'];
     const packageNames = ['Basic Wash', 'Ultimate Protection', 'Premium Detail'];
     const isPackage = packageIds.includes(service.id) || packageNames.includes(service.name);
@@ -263,7 +259,7 @@ export default function ServicesPage() {
 
     if (filter === "popular") return service.popular || service.is_popular;
     if (filter === "premium") return service.premium || service.is_premium;
-    return service.active !== false; // Only show active services
+    return service.active !== false;
   });
 
   return (
@@ -331,7 +327,7 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Master Detailers Section */}
+      {}
       <section className="py-24 bg-white/[0.02]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-6">

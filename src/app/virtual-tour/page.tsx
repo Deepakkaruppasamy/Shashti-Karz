@@ -27,7 +27,6 @@ export default function VirtualTourPage() {
     const currentScene = SCENES[currentSceneId];
 
     useEffect(() => {
-        // Initial welcome message
         triggerAiGuide(`Welcome to our 360° Virtual Experience. ${currentScene.description}`);
     }, [currentSceneId]);
 
@@ -65,7 +64,7 @@ export default function VirtualTourPage() {
 
     return (
         <div className="relative w-full h-screen bg-black overflow-hidden font-sans">
-            {/* 360 Viewer */}
+            {}
             <VirtualTourViewer
                 currentScene={currentScene}
                 onNavigate={handleNavigate}
@@ -74,7 +73,7 @@ export default function VirtualTourPage() {
 
             <AmbientSound isMuted={isMuted} sceneId={currentSceneId} />
 
-            {/* TOP NAVIGATION HUD */}
+            {}
             <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-start z-50 pointer-events-none">
                 <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="pointer-events-auto">
                     <Link href="/" className="flex items-center gap-3 bg-black/40 backdrop-blur-xl border border-white/10 px-6 py-3 rounded-2xl group hover:border-[#ff1744] transition-all duration-500 shadow-2xl">
@@ -103,7 +102,7 @@ export default function VirtualTourPage() {
                 </div>
             </div>
 
-            {/* AI ASSISTANT GUIDE */}
+            {}
             <AnimatePresence>
                 {showAIChat && (
                     <motion.div
@@ -145,7 +144,7 @@ export default function VirtualTourPage() {
                 )}
             </AnimatePresence>
 
-            {/* QUICK ACTIONS SIDEBAR */}
+            {}
             <div className="absolute left-8 bottom-8 flex flex-col gap-3 z-50">
                 <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.5 }}>
                     <button onClick={() => setShowMap(!showMap)} className="w-14 h-14 bg-black/60 backdrop-blur-2xl border border-white/10 rounded-2xl flex items-center justify-center group hover:bg-[#ff1744] transition-all duration-500 shadow-2xl">
@@ -161,7 +160,7 @@ export default function VirtualTourPage() {
                 )}
             </div>
 
-            {/* MAP OVERLAY */}
+            {}
             <AnimatePresence>
                 {showMap && (
                     <motion.div
@@ -203,7 +202,7 @@ export default function VirtualTourPage() {
                 )}
             </AnimatePresence>
 
-            {/* LUXURY SCENE LOADING BAR */}
+            {}
             <AnimatePresence>
                 {!currentScene && (
                     <motion.div exit={{ opacity: 0 }} className="absolute inset-0 bg-black z-[200] flex flex-col items-center justify-center">

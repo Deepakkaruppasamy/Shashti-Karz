@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-// In production, store this in environment variables
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
 
 export async function POST(request: NextRequest) {
@@ -15,20 +14,17 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Verify password
         if (password === ADMIN_PASSWORD) {
-            // Create a session token (in production, use a more secure token)
             const sessionToken = Buffer.from(
                 `${Date.now()}-${Math.random()}`
             ).toString("base64");
 
-            // Set cookie with session token
             const cookieStore = await cookies();
             cookieStore.set("admin_session", sessionToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "lax",
-                maxAge: 60 * 60 * 24, // 24 hours
+                maxAge: 60 * 60 * 24,
                 path: "/",
             });
 
@@ -51,7 +47,6 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// Logout endpoint
 export async function DELETE() {
     try {
         const cookieStore = await cookies();

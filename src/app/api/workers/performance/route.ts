@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 
-// GET /api/workers/performance - Get worker performance
 export async function GET(request: NextRequest) {
     try {
         const isAdminSession = request.cookies.get("admin_session");
@@ -16,7 +15,6 @@ export async function GET(request: NextRequest) {
         const workerId = searchParams.get("worker_id");
 
         if (workerId) {
-            // Get specific worker performance
             const { data, error } = await supabase
                 .from("worker_performance")
                 .select(`
@@ -33,7 +31,6 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ performance: data });
         }
 
-        // Check role if not an admin session
         if (!isAdminSession && user) {
             const { data: profile } = await supabase
                 .from("profiles")

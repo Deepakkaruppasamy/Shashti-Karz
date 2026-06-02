@@ -38,7 +38,6 @@ export function useAppSettings() {
         }
     };
 
-    // Real-time subscriptions
     useRealtimeSubscription({
         table: 'app_settings',
         filter: "key=eq.business_info",

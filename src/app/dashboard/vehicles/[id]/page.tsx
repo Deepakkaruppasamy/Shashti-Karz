@@ -70,23 +70,18 @@ export default function VehicleGaragePage({
     try {
       setIsLoading(true);
 
-      // Load vehicle basic info & history
       const historyRes = await fetch(`/api/vehicles/${vehicleId}/history`);
       const historyData = await historyRes.json();
 
-      // Load service journal entries
       const journalRes = await fetch(`/api/service-journal?vehicle_id=${vehicleId}`);
       const journalData = await journalRes.json();
 
-      // Load maintenance reminders
       const remindersRes = await fetch(`/api/maintenance-reminders?vehicle_id=${vehicleId}&status=active`);
       const remindersData = await remindersRes.json();
 
-      // Load certificates
       const certsRes = await fetch(`/api/certificates?vehicle_id=${vehicleId}`);
       const certsData = await certsRes.json();
 
-      // Load health score
       const healthRes = await fetch(`/api/vehicles/${vehicleId}/health-score`);
       const healthData = await healthRes.json();
 
@@ -99,7 +94,6 @@ export default function VehicleGaragePage({
         health_score: healthData,
       });
 
-      // Also try to load the extended AI health data if it exists or just generate it once
       if (historyData.vehicle) {
         generatePremiumJournal(historyData.vehicle.id);
       }
@@ -226,7 +220,7 @@ export default function VehicleGaragePage({
 
       <div className="pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
+          {}
           <div className="mb-8">
             <button
               onClick={() => router.push("/dashboard/vehicles")}
@@ -255,7 +249,7 @@ export default function VehicleGaragePage({
                 </div>
               </div>
 
-              {/* Health Score Badge */}
+              {}
               {vehicle.health_score && (
                 <div className="glass-card rounded-2xl p-4 md:p-6 text-center w-full md:w-auto md:min-w-[200px]">
                   <div className="flex items-center justify-center gap-2 mb-2">
@@ -273,7 +267,7 @@ export default function VehicleGaragePage({
             </div>
           </div>
 
-          {/* Quick Stats */}
+          {}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <div className="glass-card rounded-xl p-4 text-center">
               <Calendar size={24} className="mx-auto text-[#ff1744] mb-2" />
@@ -297,7 +291,7 @@ export default function VehicleGaragePage({
             </div>
           </div>
 
-          {/* Tabs */}
+          {}
           <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
             {[
               { id: "journal", label: "Service Journal", icon: FileText },
@@ -319,7 +313,7 @@ export default function VehicleGaragePage({
             ))}
           </div>
 
-          {/* Tab Content */}
+          {}
           <AnimatePresence mode="wait">
             {activeTab === "journal" && (
               <motion.div
@@ -622,7 +616,7 @@ export default function VehicleGaragePage({
                 exit={{ opacity: 0, y: -10 }}
                 className="space-y-12"
               >
-                {/* Premium Journal Section */}
+                {}
                 <section>
                   <div className="flex items-center justify-between mb-8">
                     <div>
@@ -663,7 +657,7 @@ export default function VehicleGaragePage({
 
                 {vehicle.health_score ? (
                   <div className="space-y-6">
-                    {/* Overall Score */}
+                    {}
                     <div className="glass-card rounded-2xl p-8 text-center bg-gradient-to-b from-white/[0.03] to-transparent">
                       <div className="w-32 h-32 rounded-full mx-auto mb-4 flex items-center justify-center"
                         style={{
@@ -691,7 +685,7 @@ export default function VehicleGaragePage({
                       </p>
                     </div>
 
-                    {/* Category Scores */}
+                    {}
                     <div className="grid md:grid-cols-2 gap-4">
                       {[
                         { label: "Exterior", score: vehicle.health_score.exterior_score, icon: Sparkles },
@@ -722,7 +716,7 @@ export default function VehicleGaragePage({
                       ))}
                     </div>
 
-                    {/* Statistics */}
+                    {}
                     <div className="glass-card rounded-xl p-6">
                       <h3 className="font-semibold mb-4">Service Statistics</h3>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -747,7 +741,7 @@ export default function VehicleGaragePage({
                       </div>
                     </div>
 
-                    {/* Recommendations */}
+                    {}
                     {vehicle.health_score.recommendations?.length > 0 && (
                       <div className="glass-card rounded-xl p-6">
                         <h3 className="font-semibold mb-4 flex items-center gap-2">
@@ -765,7 +759,7 @@ export default function VehicleGaragePage({
                       </div>
                     )}
 
-                    {/* AI Detections Detail */}
+                    {}
                     {vehicle.health_score.detections && (vehicle.health_score.detections as any[]).length > 0 && (
                       <div className="glass-card rounded-xl p-6">
                         <h3 className="font-semibold mb-4 flex items-center gap-2">
@@ -796,7 +790,7 @@ export default function VehicleGaragePage({
                       </div>
                     )}
 
-                    {/* Diagnostic Image Reference */}
+                    {}
                     {vehicle.health_score.diagnostic_image && (
                       <div className="glass-card rounded-xl p-6">
                         <h3 className="font-semibold mb-4">Diagnostic Scan Reference</h3>

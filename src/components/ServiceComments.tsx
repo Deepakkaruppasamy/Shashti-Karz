@@ -44,10 +44,8 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
     const [isLoading, setIsLoading] = useState(true);
     const [commentsEnabled, setCommentsEnabled] = useState(true);
 
-    // Fetch comments
     const fetchComments = useCallback(async () => {
         try {
-            // Get top-level comments
             const { data: topComments, error } = await supabase
                 .from('service_comments')
                 .select('*')
@@ -58,7 +56,6 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
 
             if (error) throw error;
 
-            // Get all replies
             const { data: allReplies } = await supabase
                 .from('service_comments')
                 .select('*')
@@ -67,7 +64,6 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
                 .eq('status', 'approved')
                 .order('created_at', { ascending: true });
 
-            // Get user's likes
             let userLikes: string[] = [];
             if (user) {
                 const { data: likes } = await supabase
@@ -77,7 +73,6 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
                 userLikes = likes?.map(l => l.comment_id) || [];
             }
 
-            // Build nested structure
             const commentsWithReplies = topComments?.map(comment => ({
                 ...comment,
                 user_liked: userLikes.includes(comment.id),
@@ -92,7 +87,6 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
         }
     }, [serviceId, user]);
 
-    // Build nested replies
     const buildRepliesTree = (parentId: string, allReplies: any[], userLikes: string[]): Comment[] => {
         const replies = allReplies.filter(r => r.parent_id === parentId);
         return replies.map(reply => ({
@@ -102,7 +96,6 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
         }));
     };
 
-    // Post new comment
     const handlePostComment = async () => {
         if (!newComment.trim() || !user) return;
 
@@ -131,7 +124,6 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
         }
     };
 
-    // Post reply
     const handlePostReply = async (parentId: string) => {
         if (!replyContent.trim() || !user) return;
 
@@ -162,7 +154,6 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
         }
     };
 
-    // Like/Unlike comment
     const handleLike = async (commentId: string, currentlyLiked: boolean) => {
         if (!user) {
             toast.error('Please sign in to like comments');
@@ -171,14 +162,12 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
 
         try {
             if (currentlyLiked) {
-                // Unlike
                 await supabase
                     .from('comment_likes')
                     .delete()
                     .eq('comment_id', commentId)
                     .eq('user_id', user.id);
             } else {
-                // Like
                 await supabase
                     .from('comment_likes')
                     .insert({
@@ -193,7 +182,6 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
         }
     };
 
-    // Delete comment
     const handleDelete = async (commentId: string) => {
         if (!confirm('Delete this comment?')) return;
 
@@ -213,7 +201,6 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
         }
     };
 
-    // Real-time subscription
     useEffect(() => {
         fetchComments();
 
@@ -249,7 +236,6 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
         };
     }, [serviceId, fetchComments]);
 
-    // Render single comment
     const renderComment = (comment: Comment, depth: number = 0) => (
         <motion.div
             key={comment.id}
@@ -258,7 +244,7 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
             className={`${depth > 0 ? 'ml-8 md:ml-12' : ''}`}
         >
             <div className="flex gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-colors">
-                {/* Avatar */}
+                {}
                 <div className="flex-shrink-0">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ff1744] to-[#d4af37] flex items-center justify-center text-white font-bold">
                         {comment.user_avatar ? (
@@ -269,7 +255,7 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
                     </div>
                 </div>
 
-                {/* Content */}
+                {}
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                         <span className="font-bold text-sm">{comment.user_name}</span>
@@ -302,7 +288,7 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
                                     Cancel
                                 </button>
                                 <button
-                                    onClick={() => {/* TODO: Implement edit */ }}
+                                    onClick={() => { }}
                                     className="px-3 py-1 rounded-lg bg-[#ff1744] text-white text-xs"
                                 >
                                     Save
@@ -313,7 +299,7 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
                         <p className="text-sm text-white/90 whitespace-pre-wrap">{comment.content}</p>
                     )}
 
-                    {/* Actions */}
+                    {}
                     <div className="flex items-center gap-4 mt-3">
                         <button
                             onClick={() => handleLike(comment.id, comment.user_liked || false)}
@@ -343,7 +329,7 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
                         )}
                     </div>
 
-                    {/* Reply Form */}
+                    {}
                     {replyingTo === comment.id && (
                         <motion.div
                             initial={{ opacity: 0, height: 0 }}
@@ -380,7 +366,7 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
                 </div>
             </div>
 
-            {/* Nested Replies */}
+            {}
             {comment.replies && comment.replies.length > 0 && (
                 <div className="mt-2 space-y-2">
                     {comment.replies.map(reply => renderComment(reply, depth + 1))}
@@ -400,7 +386,7 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
 
     return (
         <div className="space-y-6">
-            {/* Header */}
+            {}
             <div className="flex items-center justify-between">
                 <h3 className="text-xl font-bold flex items-center gap-2">
                     <MessageCircle className="text-[#ff1744]" />
@@ -408,7 +394,7 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
                 </h3>
             </div>
 
-            {/* New Comment Form */}
+            {}
             {user ? (
                 <div className="glass-card rounded-2xl p-4 border border-white/5">
                     <textarea
@@ -438,7 +424,7 @@ export function ServiceComments({ serviceId, serviceName }: ServiceCommentsProps
                 </div>
             )}
 
-            {/* Comments List */}
+            {}
             {isLoading ? (
                 <div className="text-center py-12">
                     <div className="w-8 h-8 border-2 border-[#ff1744] border-t-transparent rounded-full animate-spin mx-auto mb-4" />

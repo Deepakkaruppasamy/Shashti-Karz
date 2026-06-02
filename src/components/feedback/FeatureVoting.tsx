@@ -70,7 +70,7 @@ export function FeatureVoting() {
 
     return (
         <div className="space-y-6">
-            {/* Header */}
+            {}
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-900">Feature Requests</h2>
@@ -84,7 +84,7 @@ export function FeatureVoting() {
                 </button>
             </div>
 
-            {/* New Feature Form */}
+            {}
             {showForm && (
                 <form onSubmit={handleSubmit} className="bg-white rounded-lg border border-gray-200 p-6">
                     <h3 className="text-lg font-semibold mb-4">Request a New Feature</h3>
@@ -141,7 +141,7 @@ export function FeatureVoting() {
                 </form>
             )}
 
-            {/* Features List */}
+            {}
             <div className="space-y-4">
                 {features.map((feature) => (
                     <div

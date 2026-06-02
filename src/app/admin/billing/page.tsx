@@ -93,7 +93,6 @@ export default function AdminBillingPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Real-time subscription
   useRealtimeSubscription<Invoice>({
     table: "invoices",
     onInsert: (newInvoice) => {
@@ -231,7 +230,6 @@ export default function AdminBillingPage() {
     const qrData = encodeURIComponent(`Invoice: ${invoice.invoice_number} | Amount: Rs.${invoice.total_amount}`);
     const qrUrl = `${QR_CODE_BASE}${qrData}`;
 
-    // Helper to add images from URL
     const addImageFromUrl = (url: string, x: number, y: number, w: number, h: number) => {
       try {
         doc.addImage(url, 'PNG', x, y, w, h);
@@ -240,25 +238,22 @@ export default function AdminBillingPage() {
       }
     };
 
-    // 1. Header Section - 3 Column Grid
     addImageFromUrl(LOGO_URL, margin, 15, 25, 25);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(24);
-    doc.setTextColor(229, 57, 53); // Premium Red
+    doc.setTextColor(229, 57, 53);
     doc.text(COMPANY_INFO.name, 50, 27);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
-    doc.setTextColor(66, 66, 66); // Dark Gray
+    doc.setTextColor(66, 66, 66);
     doc.text(COMPANY_INFO.tagline, 50, 33);
 
-    // Header Red Line
     doc.setDrawColor(229, 57, 53);
     doc.setLineWidth(0.7);
     doc.line(margin, 43, pageWidth - margin, 43);
 
-    // 2. Invoice Meta Block
     let yMeta = 52;
     doc.setFontSize(9);
     doc.setTextColor(97, 97, 97);
@@ -271,7 +266,6 @@ export default function AdminBillingPage() {
     doc.text(invoice.invoice_number, pageWidth - margin, yMeta, { align: "right" });
     doc.text(new Date(invoice.invoice_date).toLocaleDateString(), pageWidth - margin, yMeta + 6, { align: "right" });
 
-    // 3. Billing Context Section (50/50 Split)
     let yBill = 75;
     doc.setFontSize(8);
     doc.setTextColor(158, 158, 158);
@@ -299,9 +293,8 @@ export default function AdminBillingPage() {
     doc.setTextColor(229, 57, 53);
     doc.text(`VEHICLE NO: ${invoice.vehicle_number || "N/A"}`, margin + (contentWidth / 2), yBill);
 
-    // 4. Line Items Table
     let yTable = 110;
-    doc.setFillColor(33, 33, 33); // Dark Gray / Black
+    doc.setFillColor(33, 33, 33);
     doc.rect(margin, yTable, contentWidth, 10, "F");
 
     doc.setFontSize(8);
@@ -315,7 +308,6 @@ export default function AdminBillingPage() {
 
     yTable += 10;
     invoice.invoice_items.forEach((item, idx) => {
-      // Stripe background
       if (idx % 2 === 0) {
         doc.setFillColor(250, 250, 250);
         doc.rect(margin, yTable, contentWidth, 12, "F");
@@ -348,7 +340,6 @@ export default function AdminBillingPage() {
       yTable += 12;
     });
 
-    // 5. Price Summary Block
     yTable += 10;
     const summaryLabelX = margin + 110;
     const summaryValueX = margin + contentWidth - 3;
@@ -377,8 +368,7 @@ export default function AdminBillingPage() {
     doc.line(summaryLabelX, yTable, summaryValueX, yTable);
 
     yTable += 8;
-    // Total Payable Highlight
-    doc.setFillColor(255, 245, 245); // Extremely light red
+    doc.setFillColor(255, 245, 245);
     doc.rect(summaryLabelX - 5, yTable - 7, (summaryValueX - summaryLabelX) + 10, 11, "F");
 
     doc.setFontSize(10);
@@ -395,10 +385,9 @@ export default function AdminBillingPage() {
     doc.setTextColor(158, 158, 158);
     doc.text("(Inclusive of all taxes)", summaryLabelX, yTable);
 
-    // 6. QR Code Section (Aligned Left)
     let yQR = yTable + 15;
     doc.setDrawColor(245, 245, 245);
-    doc.rect(margin, yQR, 60, 45); // QR Box
+    doc.rect(margin, yQR, 60, 45);
 
     doc.setFontSize(8);
     doc.setFont("helvetica", "bold");
@@ -412,7 +401,6 @@ export default function AdminBillingPage() {
     doc.setTextColor(117, 117, 117);
     doc.text("UPI / Fast Verification", margin + 30, yQR + 41, { align: "center" });
 
-    // 7. Jurisdictions & Signature
     let yBottom = 245;
     doc.setFontSize(7);
     doc.setTextColor(189, 189, 189);
@@ -432,7 +420,6 @@ export default function AdminBillingPage() {
     doc.setTextColor(158, 158, 158);
     doc.text("AUTHORIZED SIGNATORY", pageWidth - margin - 25, yBottom + 10, { align: "center" });
 
-    // 8. Footer Bar
     doc.setFillColor(33, 33, 33);
     doc.rect(0, 282, pageWidth, 15, "F");
     doc.setTextColor(255, 255, 255);
@@ -463,7 +450,7 @@ export default function AdminBillingPage() {
 
       <div className="flex-1 overflow-auto pb-24 lg:pb-8">
         <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-          {/* Header */}
+          {}
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
             <div>
               <h1 className="text-3xl lg:text-4xl font-black tracking-tighter flex items-center gap-3">
@@ -489,7 +476,7 @@ export default function AdminBillingPage() {
             </div>
           </div>
 
-          {/* Core Stats */}
+          {}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {[
               { label: "Gross Revenue", value: `₹${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-green-500", bg: "bg-green-500/10" },
@@ -517,7 +504,7 @@ export default function AdminBillingPage() {
           {activeTab === "create" ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col lg:grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-6">
-                {/* Template Selection */}
+                {}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-2">
                   {BILLING_TEMPLATES.map((tmpl, idx) => (
                     <button
@@ -537,7 +524,7 @@ export default function AdminBillingPage() {
                     </button>
                   ))}
                 </div>
-                {/* Customer Matrix */}
+                {}
                 <div className="glass-card rounded-2xl lg:rounded-[2.5rem] p-6 lg:p-8 border border-white/5">
                   <div className="flex items-center gap-3 mb-6">
                     <User className="text-[#ff1744]" size={20} />
@@ -563,7 +550,7 @@ export default function AdminBillingPage() {
                   </div>
                 </div>
 
-                {/* Service Matrix */}
+                {}
                 <div className="glass-card rounded-2xl lg:rounded-[2.5rem] p-6 lg:p-8 border border-white/5">
                   <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-3">
@@ -602,7 +589,7 @@ export default function AdminBillingPage() {
                   </div>
                 </div>
 
-                {/* Logistics */}
+                {}
                 <div className="glass-card rounded-2xl lg:rounded-[2.5rem] p-6 lg:p-8 border border-white/5">
                   <div className="flex items-center gap-3 mb-8">
                     <CreditCard className="text-blue-500" size={20} />
@@ -635,7 +622,7 @@ export default function AdminBillingPage() {
                 </div>
               </div>
 
-              {/* Master Summary Side */}
+              {}
               <div className="lg:col-span-1">
                 <div className="glass-card rounded-[2.5rem] p-8 border border-white/5 sticky top-8">
                   <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#444] mb-8">Yield Recalculation</h2>
@@ -713,7 +700,7 @@ export default function AdminBillingPage() {
             </motion.div>
           )}
 
-          {/* Core Invoice Inspector Overlay */}
+          {}
           <AnimatePresence>
             {showPreview && selectedInvoice && (
               <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-8 bg-black/90 backdrop-blur-md" onClick={() => setShowPreview(false)}>
@@ -724,7 +711,7 @@ export default function AdminBillingPage() {
                   className="w-full max-w-4xl bg-[#f8f9fa] rounded-3xl relative overflow-hidden flex flex-col max-h-[90vh]"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {/* Action Bar */}
+                  {}
                   <div className="bg-white border-b border-gray-200 p-4 flex items-center justify-between sticky top-0 z-20">
                     <div className="flex items-center gap-4">
                       <span className="text-gray-900 font-bold ml-2">Invoice Review</span>
@@ -745,11 +732,11 @@ export default function AdminBillingPage() {
                     </button>
                   </div>
 
-                  {/* The Actual Bill Container */}
+                  {}
                   <div className="flex-1 overflow-y-auto p-8 lg:p-12">
                     <div className="bg-white shadow-2xl rounded-2xl p-8 lg:p-14 text-gray-800 font-sans border border-gray-100 min-h-[1056px] w-full max-w-[800px] mx-auto">
 
-                      {/* Bill Header */}
+                      {}
                       <div className="flex justify-between items-start mb-12">
                         <div>
                           <div className="text-3xl font-black text-[#ff1744] tracking-tighter mb-1 uppercase">Shashti Karz</div>
@@ -773,7 +760,7 @@ export default function AdminBillingPage() {
                         </div>
                       </div>
 
-                      {/* Billing Info */}
+                      {}
                       <div className="grid grid-cols-2 gap-12 mb-12">
                         <div>
                           <p className="text-[10px] text-gray-400 uppercase font-black mb-3 border-b border-gray-100 pb-2">Billed To</p>
@@ -794,7 +781,7 @@ export default function AdminBillingPage() {
                         </div>
                       </div>
 
-                      {/* Line Items Table */}
+                      {}
                       <div className="mb-12">
                         <table className="w-full">
                           <thead>
@@ -823,7 +810,7 @@ export default function AdminBillingPage() {
                         </table>
                       </div>
 
-                      {/* Calculations */}
+                      {}
                       <div className="flex justify-end">
                         <div className="w-full max-w-[300px] space-y-3">
                           <div className="flex justify-between items-center text-xs">
@@ -850,7 +837,7 @@ export default function AdminBillingPage() {
                         </div>
                       </div>
 
-                      {/* Bill Footer */}
+                      {}
                       <div className="mt-24 pt-12 border-t border-gray-100">
                         <div className="grid grid-cols-2 gap-12">
                           <div>

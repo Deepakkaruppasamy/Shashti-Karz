@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-/**
- * Send Email Notification API
- * Sends automated emails for support requests and feedback
- */
 
 interface EmailPayload {
     to: string;
@@ -27,11 +23,8 @@ export async function POST(request: NextRequest) {
         const body: EmailPayload = await request.json();
         const { to, subject, type, data } = body;
 
-        // Generate email HTML based on type
         const htmlContent = generateEmailHTML(type, data);
 
-        // In production, integrate with your email service (SendGrid, Resend, etc.)
-        // For now, we'll log the email content
         console.log("=== EMAIL NOTIFICATION ===");
         console.log("To:", to);
         console.log("Subject:", subject);
@@ -39,27 +32,10 @@ export async function POST(request: NextRequest) {
         console.log("Content:", htmlContent);
         console.log("========================");
 
-        // TODO: Replace with actual email service integration
-        /*
-        const response = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: "Shashti Karz <noreply@shashtikarz.com>",
-            to,
-            subject,
-            html: htmlContent,
-          }),
-        });
-        */
 
         return NextResponse.json({
             success: true,
             message: "Email notification sent successfully",
-            // Include email preview in development
             preview: process.env.NODE_ENV === "development" ? htmlContent : undefined
         });
 

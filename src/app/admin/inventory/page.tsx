@@ -32,7 +32,6 @@ export default function InventoryPage() {
     cost_per_unit: 0,
   });
 
-  // Real-time subscription
   useRealtimeSubscription<any>({
     table: "inventory",
     onInsert: (newItem) => {
@@ -169,7 +168,7 @@ export default function InventoryPage() {
 
       <div className="flex-1 overflow-auto pb-24 lg:pb-8">
         <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-          {/* Header Section */}
+          {}
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
             <div>
               <h1 className="text-3xl lg:text-4xl font-black tracking-tighter flex items-center gap-3">
@@ -326,7 +325,7 @@ export default function InventoryPage() {
             </div>
 
             <div className="lg:col-span-4 space-y-6">
-              {/* AI insights Card */}
+              {}
               <div className="glass-card rounded-[2rem] lg:rounded-[2.5rem] p-6 lg:p-8 border border-[#d4af37]/20 bg-gradient-to-br from-[#d4af37]/5 to-transparent relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4af37]/10 rounded-full blur-[80px]" />
                 <div className="flex items-center gap-4 mb-8">
@@ -354,7 +353,7 @@ export default function InventoryPage() {
                 </div>
               </div>
 
-              {/* Activity Log */}
+              {}
               <div className="glass-card rounded-[2rem] lg:rounded-[2.5rem] p-6 lg:p-8 border border-white/5">
                 <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#444] mb-6 flex items-center gap-2">
                   <History size={14} /> Neural Events
@@ -379,7 +378,7 @@ export default function InventoryPage() {
             </div>
           </div>
 
-          {/* Provision Modal */}
+          {}
           {showModal && (
             <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/90 backdrop-blur-md" onClick={() => setShowModal(false)}>
               <div className="absolute inset-0" />
@@ -481,7 +480,7 @@ export default function InventoryPage() {
             </div>
           )}
 
-          {/* Restock Modal */}
+          {}
           {showRestockModal && selectedItem && (
             <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/95 backdrop-blur-xl" onClick={() => setShowRestockModal(false)}>
               <motion.div

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 
-// Helper to validate admin session
 async function validateAdmin() {
     const cookieStore = await cookies();
     const adminSession = cookieStore.get("admin_session");
@@ -16,10 +15,8 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Use service client to bypass RLS since we validated admin_session
         const supabase = await createServiceClient();
 
-        // Fetch all ads
         const { data: ads, error } = await supabase
             .from("ads")
             .select("*")
@@ -48,7 +45,6 @@ export async function POST(request: NextRequest) {
         const supabase = await createServiceClient();
         const body = await request.json();
 
-        // Validate required fields
         if (!body.title || !body.position || !body.media_url) {
             return NextResponse.json(
                 { error: "Missing required fields (title, position, media_url)" },

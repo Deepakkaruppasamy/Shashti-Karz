@@ -12,7 +12,6 @@ export function createClient() {
           autoRefreshToken: true,
           detectSessionInUrl: true,
           storageKey: "shashti-karz-auth",
-            // Use a dummy lock implementation to bypass navigator.locks issue in Firefox
             lockType: "custom",
             async lock(name: string, acquireTimeoutMs: number, fn: () => Promise<any>) {
               return fn();

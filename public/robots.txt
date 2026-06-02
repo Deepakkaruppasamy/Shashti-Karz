@@ -1,4 +1,3 @@
-# Robots.txt for shashtikarz.app
 User-agent: *
 Allow: /
 Disallow: /api/
@@ -8,8 +7,6 @@ Disallow: /worker/
 Disallow: /my-bookings/
 Disallow: /payment/
 
-# Host
 Host: https://shashtikarz.app
 
-# Sitemap
 Sitemap: https://shashtikarz.app/sitemap.xml

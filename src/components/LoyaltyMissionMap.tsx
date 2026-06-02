@@ -77,10 +77,10 @@ export const LoyaltyMissionMap: React.FC<LoyaltyMissionMapProps> = ({ currentPoi
 
     return (
         <div className="relative w-full py-12 px-4 overflow-hidden">
-            {/* Background Decorative Path */}
+            {}
             <div className="absolute top-1/2 left-0 w-full h-1 bg-white/5 -translate-y-1/2 hidden md:block" />
 
-            {/* Mission Nodes */}
+            {}
             <div className="relative flex flex-col md:flex-row justify-between items-center gap-12 md:gap-4 z-10">
                 {MISSIONS.map((mission, index) => {
                     const isAchieved = currentPoints >= mission.threshold;
@@ -89,12 +89,12 @@ export const LoyaltyMissionMap: React.FC<LoyaltyMissionMapProps> = ({ currentPoi
 
                     return (
                         <div key={mission.id} className="relative flex flex-col items-center">
-                            {/* Connection Line (Mobile) */}
+                            {}
                             {index < MISSIONS.length - 1 && (
                                 <div className="absolute top-full left-1/2 -translate-x-1/2 w-0.5 h-12 bg-white/5 md:hidden" />
                             )}
 
-                            {/* Path Progress (Desktop) */}
+                            {}
                             {index < MISSIONS.length - 1 && (
                                 <div className="absolute top-1/2 left-full w-full h-1 bg-white/5 -translate-y-1/2 hidden md:block origin-left">
                                     {isAchieved && (
@@ -107,14 +107,14 @@ export const LoyaltyMissionMap: React.FC<LoyaltyMissionMapProps> = ({ currentPoi
                                 </div>
                             )}
 
-                            {/* Node Card */}
+                            {}
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
                                 className={`relative group cursor-help`}
                             >
-                                {/* Outer Glow */}
+                                {}
                                 <AnimatePresence>
                                     {(isAchieved || isCurrent) && (
                                         <motion.div
@@ -126,18 +126,18 @@ export const LoyaltyMissionMap: React.FC<LoyaltyMissionMapProps> = ({ currentPoi
                                     )}
                                 </AnimatePresence>
 
-                                {/* Central Icon */}
+                                {}
                                 <div className={`relative w-20 h-20 lg:w-24 lg:h-24 rounded-[2rem] flex items-center justify-center border-2 transition-all duration-500 shadow-2xl ${isAchieved
                                     ? `bg-black/40 border-${mission.color}/30 text-white`
                                     : "bg-black/20 border-white/5 text-white/20"
                                     } ${isCurrent ? "scale-110 -translate-y-2 border-[#ff1744]/50" : ""}`}>
 
-                                    {/* Glass Background */}
+                                    {}
                                     <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-xl rounded-[2rem]" />
 
                                     <mission.icon size={isCurrent ? 40 : 32} className={`relative z-10 transition-colors ${isAchieved ? "text-white" : "text-white/20"}`} />
 
-                                    {/* Status Indicator */}
+                                    {}
                                     <div className="absolute -top-2 -right-2 z-20">
                                         {isAchieved ? (
                                             <div className="p-1.5 rounded-full bg-green-500 shadow-lg shadow-green-500/50">
@@ -150,7 +150,7 @@ export const LoyaltyMissionMap: React.FC<LoyaltyMissionMapProps> = ({ currentPoi
                                         )}
                                     </div>
 
-                                    {/* Achievement Particle Effects (Current Only) */}
+                                    {}
                                     {isCurrent && (
                                         <div className="absolute inset-0 overflow-hidden rounded-[2rem]">
                                             <motion.div
@@ -162,7 +162,7 @@ export const LoyaltyMissionMap: React.FC<LoyaltyMissionMapProps> = ({ currentPoi
                                     )}
                                 </div>
 
-                                {/* Tooltip Content */}
+                                {}
                                 <div className="mt-6 text-center">
                                     <h4 className={`text-sm lg:text-base font-black italic uppercase tracking-tighter ${isAchieved ? "text-white" : "text-[#444]"}`}>
                                         {mission.name}
@@ -172,7 +172,7 @@ export const LoyaltyMissionMap: React.FC<LoyaltyMissionMapProps> = ({ currentPoi
                                     </p>
                                 </div>
 
-                                {/* Benefit Badge (Hover) */}
+                                {}
                                 <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 w-40 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                                     <div className="glass-card p-3 rounded-xl border border-white/10 shadow-2xl text-center">
                                         <p className="text-[8px] font-black text-[#666] uppercase mb-1">UNLOCKED PERK</p>
@@ -185,7 +185,7 @@ export const LoyaltyMissionMap: React.FC<LoyaltyMissionMapProps> = ({ currentPoi
                 })}
             </div>
 
-            {/* Current Progress HUD */}
+            {}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -240,7 +240,7 @@ export const LoyaltyMissionMap: React.FC<LoyaltyMissionMapProps> = ({ currentPoi
                     </div>
                 </div>
 
-                {/* Action Button */}
+                {}
                 <div className="mt-8 flex flex-col sm:flex-row gap-4">
                     <button className="btn-premium px-8 py-4 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-[#ff1744]/20">
                         <Star size={18} /> Points Dynamics
@@ -250,7 +250,7 @@ export const LoyaltyMissionMap: React.FC<LoyaltyMissionMapProps> = ({ currentPoi
                     </button>
                 </div>
 
-                {/* Floating Icons Decor */}
+                {}
                 <div className="absolute -bottom-10 -right-10 opacity-5 pointer-events-none">
                     <Crown size={200} />
                 </div>

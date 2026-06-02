@@ -1,7 +1,3 @@
-/**
- * Multi-language support for Dinesh Voice Assistant
- * Supports English, Tamil, and Hindi
- */
 
 export interface LanguageResponse {
     greeting: string;
@@ -51,27 +47,18 @@ export const languageResponses: Record<"en-US" | "ta-IN" | "hi-IN", LanguageResp
     }
 };
 
-/**
- * Detect language from query
- */
 export function detectLanguage(query: string): "en-US" | "ta-IN" | "hi-IN" {
-    // Tamil script detection
     if (/[\u0B80-\u0BFF]/.test(query)) {
         return "ta-IN";
     }
 
-    // Devanagari script (Hindi) detection
     if (/[\u0900-\u097F]/.test(query)) {
         return "hi-IN";
     }
 
-    // Default to English
     return "en-US";
 }
 
-/**
- * Multi-language command keywords
- */
 export const commandKeywords = {
     booking: {
         "en-US": ["book", "booking", "appointment", "schedule"],
@@ -110,9 +97,6 @@ export const commandKeywords = {
     }
 };
 
-/**
- * Check if query contains any keyword from a category
- */
 export function matchesCategory(query: string, category: keyof typeof commandKeywords, language: "en-US" | "ta-IN" | "hi-IN"): boolean {
     const keywords = commandKeywords[category][language];
     return keywords.some(keyword => query.toLowerCase().includes(keyword.toLowerCase()));

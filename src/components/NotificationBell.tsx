@@ -150,7 +150,6 @@ export function NotificationBell() {
     }
   };
 
-  // No client-side filtering needed — API now handles category filtering
   const filteredNotifications = notifications;
 
   const formatTime = (dateString: string) => {
@@ -218,7 +217,7 @@ export function NotificationBell() {
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
               className={`fixed bottom-0 left-0 right-0 z-50 bg-[#111] border-t border-white/10 rounded-t-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh] lg:absolute lg:bottom-auto lg:left-auto lg:right-0 lg:top-full lg:mt-4 lg:w-[400px] lg:rounded-2xl lg:border lg:max-h-[600px] shadow-[0_-20px_50px_rgba(0,0,0,0.5)] lg:shadow-2xl`}
             >
-              {/* Handle for mobile bottom sheet */}
+              {}
               <div className="lg:hidden w-12 h-1.5 bg-white/10 rounded-full mx-auto mt-4 mb-2 flex-shrink-0" />
 
               <div className="p-4 lg:p-6 border-b border-white/10">

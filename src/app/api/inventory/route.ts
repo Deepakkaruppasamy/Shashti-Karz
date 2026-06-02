@@ -31,7 +31,6 @@ export async function GET(request: Request) {
     );
   }
 
-  // Map to match frontend expectations
   const mappedData = filteredData.map(item => ({
     id: item.id,
     name: item.name,
@@ -58,14 +57,11 @@ export async function POST(request: Request) {
   const supabase = await createClient();
   const body = await request.json();
 
-  // Handle restock action
   if (body.action === "restock") {
     const { item_id, quantity } = body;
 
-    // Get current user
     const { data: { user } } = await supabase.auth.getUser();
 
-    // Create transaction record
     const { error: transactionError } = await supabase
       .from("inventory_transactions")
       .insert({
@@ -80,8 +76,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: transactionError.message }, { status: 500 });
     }
 
-    // The trigger will automatically update the inventory quantity
-    // Fetch the updated item
     const { data, error } = await supabase
       .from("inventory")
       .select("*")
@@ -95,7 +89,6 @@ export async function POST(request: Request) {
     return NextResponse.json(data);
   }
 
-  // Handle new item creation
   const inventoryData = {
     name: body.name,
     category: body.category,

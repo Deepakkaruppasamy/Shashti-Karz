@@ -1,7 +1,3 @@
-# ─────────────────────────────────────────────────────────────
-# Ingress — Routes external traffic to services
-# Uses NGINX Ingress Controller with TLS via cert-manager
-# ─────────────────────────────────────────────────────────────
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -9,7 +5,7 @@ metadata:
   namespace: shashti-karz
   annotations:
     kubernetes.io/ingress.class: "nginx"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"   # Auto TLS via Let's Encrypt
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-body-size: "10m"
@@ -20,7 +16,6 @@ spec:
         - www.shashtikarz.app
       secretName: shashti-karz-tls
   rules:
-    # ── Main App ──────────────────────────────
     - host: shashtikarz.app
       http:
         paths:
@@ -32,7 +27,6 @@ spec:
                 port:
                   number: 80
 
-    # ── www redirect ──────────────────────────
     - host: www.shashtikarz.app
       http:
         paths:
@@ -44,9 +38,6 @@ spec:
                 port:
                   number: 80
 ---
-# ─────────────────────────────────────────────────────────────
-# Internal Ingress — Grafana (accessible at /grafana path)
-# ─────────────────────────────────────────────────────────────
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:

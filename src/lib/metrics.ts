@@ -15,7 +15,6 @@ if (!global._prometheusRegistry) {
   global._prometheusRegistry = register;
 }
 
-// Helper to avoid duplicate metrics during Next.js Hot Module Replacement
 function getOrCreateMetric<T>(type: 'Counter' | 'Summary' | 'Histogram', config: any): T {
   const existing = register.getSingleMetric(config.name);
   if (existing) return existing as unknown as T;
@@ -26,7 +25,6 @@ function getOrCreateMetric<T>(type: 'Counter' | 'Summary' | 'Histogram', config:
   throw new Error('Unknown metric type');
 }
 
-// Http request duration histogram
 export const httpRequestDurationMicroseconds = getOrCreateMetric<Histogram>('Histogram', {
   name: 'http_request_duration_seconds',
   help: 'Duration of HTTP requests in microseconds',
@@ -35,7 +33,6 @@ export const httpRequestDurationMicroseconds = getOrCreateMetric<Histogram>('His
   registers: [register],
 });
 
-// Counter for total requests
 export const httpRequestsTotal = getOrCreateMetric<Counter>('Counter', {
   name: 'http_requests_total',
   help: 'Total number of HTTP requests',
@@ -43,7 +40,6 @@ export const httpRequestsTotal = getOrCreateMetric<Counter>('Counter', {
   registers: [register],
 });
 
-// Business Metrics for Shashti Karz
 export const totalBookings = getOrCreateMetric<Counter>('Counter', {
   name: 'shashti_karz_bookings_total',
   help: 'Total number of bookings made on the platform',
@@ -69,7 +65,6 @@ export const serviceBookings = getOrCreateMetric<Counter>('Counter', {
   registers: [register],
 });
 
-// Initialize to 0 to prevent "No data" in Grafana
 ['Basic Wash', 'Premium Detailing', 'Interior Cleaning'].forEach(service => {
   serviceBookings.labels(service).inc(0);
 });

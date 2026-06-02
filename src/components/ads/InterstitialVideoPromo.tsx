@@ -15,7 +15,6 @@ export default function InterstitialVideoPromo({ position }: InterstitialProps) 
 
     useEffect(() => {
         const checkAd = async () => {
-            // Frequency capping: check session storage
             if (sessionStorage.getItem(`seen_ad_${position}`)) return;
 
             try {
@@ -24,10 +23,8 @@ export default function InterstitialVideoPromo({ position }: InterstitialProps) 
 
                 if (data.ad) {
                     setAd(data.ad);
-                    // Small delay before showing to not jar the user immediately on load
                     setTimeout(() => setIsVisible(true), 2000);
 
-                    // Track Impression
                     fetch('/api/ads/track', {
                         method: 'POST',
                         body: JSON.stringify({ adId: data.ad.id, eventType: 'impression' })

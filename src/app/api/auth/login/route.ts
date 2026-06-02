@@ -22,7 +22,6 @@ export async function POST(request: Request) {
     .eq("id", data.user.id)
     .single();
 
-  // Trigger login notification
   try {
     await sendAuthNotification({
       type: "login",

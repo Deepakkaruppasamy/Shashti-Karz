@@ -13,7 +13,6 @@ export async function POST(
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Check if already liked
     const { data: existingLike } = await supabase
         .from("showroom_post_likes")
         .select("id")
@@ -22,7 +21,6 @@ export async function POST(
         .single();
 
     if (existingLike) {
-        // Unlike
         const { error } = await supabase
             .from("showroom_post_likes")
             .delete()
@@ -35,7 +33,6 @@ export async function POST(
 
         return NextResponse.json({ liked: false });
     } else {
-        // Like
         const { error } = await supabase
             .from("showroom_post_likes")
             .insert({

@@ -61,7 +61,6 @@ export default function ReschedulingAdminPage() {
     useEffect(() => {
         fetchRequests();
 
-        // Subscribe to realtime changes
         const channel = supabase
             .channel('reschedule_requests')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'reschedule_requests' }, () => {
@@ -76,9 +75,6 @@ export default function ReschedulingAdminPage() {
 
     const fetchRequests = async () => {
         try {
-            // Note: We're doing a join here manually or assuming the view returns this structure
-            // For now, let's fetch requests and then fetch related data if needed
-            // Or rely on a Supabase query with foreign keys
             const { data, error } = await supabase
                 .from('reschedule_requests')
                 .select(`
@@ -105,7 +101,6 @@ export default function ReschedulingAdminPage() {
                 const req = requests.find(r => r.id === id);
                 if (!req) return;
 
-                // 1. Update request status
                 const { error: reqError } = await supabase
                     .from('reschedule_requests')
                     .update({
@@ -118,13 +113,12 @@ export default function ReschedulingAdminPage() {
 
                 if (reqError) throw reqError;
 
-                // 2. Update actual booking
                 const { error: bookingError } = await supabase
                     .from('bookings')
                     .update({
                         date: req.requested_date,
                         time: req.requested_time,
-                        status: 'approved' // Reset status to approved if it was something else?
+                        status: 'approved'
                     })
                     .eq('id', req.booking_id);
 
@@ -193,7 +187,7 @@ export default function ReschedulingAdminPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Stats Cards */}
+                {}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}

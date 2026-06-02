@@ -82,11 +82,11 @@ export function ReviewsDisplay({ serviceId, limit = 10 }: ReviewsDisplayProps) {
 
     return (
         <div className="space-y-6">
-            {/* Rating Summary */}
+            {}
             {ratings && (
                 <div className="bg-white rounded-xl border border-gray-200 p-6">
                     <div className="grid md:grid-cols-2 gap-6">
-                        {/* Overall Rating */}
+                        {}
                         <div className="text-center md:text-left">
                             <div className="flex items-center gap-3 justify-center md:justify-start mb-2">
                                 <div className="text-5xl font-bold text-gray-900">
@@ -101,7 +101,7 @@ export function ReviewsDisplay({ serviceId, limit = 10 }: ReviewsDisplayProps) {
                             </div>
                         </div>
 
-                        {/* Rating Breakdown */}
+                        {}
                         <div className="space-y-2">
                             {[5, 4, 3, 2, 1].map((star) => (
                                 <div key={star} className="flex items-center gap-2">
@@ -122,7 +122,7 @@ export function ReviewsDisplay({ serviceId, limit = 10 }: ReviewsDisplayProps) {
                 </div>
             )}
 
-            {/* Reviews List */}
+            {}
             <div className="space-y-4">
                 {reviews.map((review) => (
                     <div
@@ -130,7 +130,7 @@ export function ReviewsDisplay({ serviceId, limit = 10 }: ReviewsDisplayProps) {
                         className={`bg-white rounded-xl border ${review.is_featured ? "border-yellow-400 bg-yellow-50/50" : "border-gray-200"
                             } p-6`}
                     >
-                        {/* Review Header */}
+                        {}
                         <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center gap-3">
                                 <img
@@ -156,10 +156,10 @@ export function ReviewsDisplay({ serviceId, limit = 10 }: ReviewsDisplayProps) {
                             </div>
                         </div>
 
-                        {/* Review Comment */}
+                        {}
                         <p className="text-gray-700 mb-4">{review.comment}</p>
 
-                        {/* Review Photos */}
+                        {}
                         {review.photos && review.photos.length > 0 && (
                             <div className="flex gap-2 mb-4 overflow-x-auto">
                                 {review.photos.map((photo, index) => (
@@ -173,7 +173,7 @@ export function ReviewsDisplay({ serviceId, limit = 10 }: ReviewsDisplayProps) {
                             </div>
                         )}
 
-                        {/* Recommendation Badge */}
+                        {}
                         {review.recommend !== null && (
                             <div className="mb-4">
                                 <span
@@ -187,7 +187,7 @@ export function ReviewsDisplay({ serviceId, limit = 10 }: ReviewsDisplayProps) {
                             </div>
                         )}
 
-                        {/* Admin Response */}
+                        {}
                         {review.admin_response && (
                             <div className="mt-4 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
                                 <div className="flex items-center gap-2 mb-2">
@@ -203,7 +203,7 @@ export function ReviewsDisplay({ serviceId, limit = 10 }: ReviewsDisplayProps) {
                             </div>
                         )}
 
-                        {/* Review Footer */}
+                        {}
                         <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-200">
                             <button className="flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600 transition-colors">
                                 <ThumbsUp size={16} />

@@ -1,6 +1,4 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
 /node_modules
 /.pnp
 .pnp.*
@@ -10,45 +8,34 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
 /coverage
 
-# next.js
 /.next/
 /out/
 
-# production
 /build
 
-# misc
 .DS_Store
 *.pem
 
-# debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# vercel
 .vercel
 
-# typescript
 *.tsbuildinfo
 next-env.d.ts
 
-# env files
 .env
 .env.local
 .env.*
 !.env.example
 
-# Monitoring secrets and logs
 alertmanager/slack_webhook.txt
 *.log
 
-# ── Terraform ──────────────────────────────────
-# Never commit real tfvars or state files
 terraform/terraform.tfvars
 terraform/*.tfstate
 terraform/*.tfstate.backup
@@ -56,6 +43,4 @@ terraform/.terraform/
 terraform/.terraform.lock.hcl
 terraform/tfplan
 
-# ── Kubernetes ─────────────────────────────────
-# Never commit real secrets YAML with values
 k8s/secrets-values.yaml

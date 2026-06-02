@@ -49,8 +49,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Send notifications in parallel to avoid blocking the response
-  // This makes the booking process feel much faster
   const notificationPromises = [
     sendBookingNotification(
       data.id,
@@ -97,8 +95,6 @@ export async function POST(request: Request) {
     );
   }
 
-  // We await them in parallel to ensure reliability on Render before the response is returned.
-  // Using Promise.allSettled ensures that one failed notification doesn't break the booking response.
   await Promise.allSettled(notificationPromises);
 
   return NextResponse.json(data);

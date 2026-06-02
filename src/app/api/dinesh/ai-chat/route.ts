@@ -13,7 +13,6 @@ export async function POST(req: NextRequest) {
 
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-        // Build context-aware prompt with business information
         const businessContext = `
 You are Dinesh, a friendly and helpful voice assistant for Shashti Karz, a premium car detailing service.
 

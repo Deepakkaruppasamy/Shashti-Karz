@@ -39,7 +39,6 @@ export default function PackagesPage() {
     is_popular: false,
   });
 
-  // Real-time subscription
   useRealtimeSubscription({
     table: "service_packages",
     onInsert: (newPkg) => {
@@ -186,7 +185,7 @@ export default function PackagesPage() {
     <div className="flex min-h-screen bg-[#0a0a0a] text-white">
       <div className="flex-1 overflow-auto pb-24 lg:pb-8">
         <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-          {/* Header */}
+          {}
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
             <div>
               <h1 className="text-3xl lg:text-4xl font-black tracking-tighter">
@@ -206,7 +205,7 @@ export default function PackagesPage() {
             </button>
           </div>
 
-          {/* Stats Grid */}
+          {}
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             {stats.map((stat, i) => (
               <motion.div
@@ -227,7 +226,7 @@ export default function PackagesPage() {
             ))}
           </div>
 
-          {/* AI Insights Bar */}
+          {}
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -323,7 +322,7 @@ export default function PackagesPage() {
         </div>
       </div>
 
-      {/* Simplified Modal for Admin with responsive focus */}
+      {}
       <AnimatePresence>
         {showModal && (
           <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/90 backdrop-blur-md" onClick={() => setShowModal(false)}>

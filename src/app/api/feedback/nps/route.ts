@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-// POST /api/feedback/nps - Submit NPS survey
 export async function POST(request: NextRequest) {
     try {
         const supabase = await createClient();
@@ -14,7 +13,6 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { booking_id, score, feedback_text } = body;
 
-        // Determine category
         let category = "passive";
         if (score >= 9) category = "promoter";
         else if (score <= 6) category = "detractor";
@@ -45,7 +43,6 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// GET /api/feedback/nps - Get NPS data
 export async function GET(request: NextRequest) {
     try {
         const supabase = await createClient();
@@ -55,7 +52,6 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Calculate NPS score
         const { data, error } = await supabase
             .from("nps_surveys")
             .select("score, category");

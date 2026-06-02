@@ -13,7 +13,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { BrandedLoader } from "@/components/animations/BrandedLoader";
 
-// Define stages for progress tracking
 const SERVICE_STAGES = [
     { id: "received", name: "Car Received", icon: Car, description: "Vehicle checked in at facility" },
     { id: "inspection", name: "Inspection", icon: Eye, description: "Detailed condition report creating" },
@@ -56,7 +55,6 @@ export default function BookingDetailsPage() {
     const [tracking, setTracking] = useState<ServiceTracking[]>([]);
     const [loading, setLoading] = useState(true);
 
-    // Fetch initial data
     useEffect(() => {
         if (params.id) {
             fetchBookingDetails();
@@ -72,13 +70,11 @@ export default function BookingDetailsPage() {
             setTracking(data.tracking || []);
         } catch (error) {
             console.error("Error fetching booking:", error);
-            // router.push("/my-bookings"); // Redirect on error for better UX? or show error state
         } finally {
             setLoading(false);
         }
     };
 
-    // Real-time: Listen for Booking Status Updates
     useRealtimeSubscription({
         table: 'bookings',
         filter: `id=eq.${params.id}`,
@@ -87,7 +83,6 @@ export default function BookingDetailsPage() {
         }
     });
 
-    // Real-time: Listen for Service Progress Updates
     useRealtimeSubscription({
         table: 'service_tracking',
         filter: `booking_id=eq.${params.id}`,
@@ -100,7 +95,6 @@ export default function BookingDetailsPage() {
     });
 
     const getCurrentStageIndex = () => {
-        // Find the last completed stage or the current in-progress one
         const completedStages = tracking.filter(t => t.status === 'completed');
         const inProgressStage = tracking.find(t => t.status === 'in_progress');
 
@@ -109,12 +103,10 @@ export default function BookingDetailsPage() {
         }
 
         if (completedStages.length > 0) {
-            // Return the last completed one logic, maybe tricky if out of order
-            // Let's assume sequential for simplicity or map by id
             return Math.max(...completedStages.map(t => SERVICE_STAGES.findIndex(s => s.id === t.stage)));
         }
 
-        return -1; // Not started
+        return -1;
     };
 
     const currentStageIndex = getCurrentStageIndex();
@@ -136,7 +128,7 @@ export default function BookingDetailsPage() {
         <div className="min-h-screen bg-[#0a0a0a] text-white p-4 lg:p-8 pb-24">
             <div className="max-w-4xl mx-auto space-y-8">
 
-                {/* Header */}
+                {}
                 <div className="flex items-center gap-4">
                     <Link href="/my-bookings" className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors">
                         <ArrowLeft size={20} />
@@ -147,7 +139,7 @@ export default function BookingDetailsPage() {
                     </div>
                 </div>
 
-                {/* Status Card */}
+                {}
                 <div className="glass-card p-6 rounded-3xl border border-blue-500/20 bg-gradient-to-br from-blue-900/20 to-transparent relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
 
@@ -166,7 +158,7 @@ export default function BookingDetailsPage() {
                         </div>
 
                         <div className="flex gap-4">
-                            {/* Quick Stats or Actions */}
+                            {}
                             <div className="text-right">
                                 <p className="text-sm text-[#888] uppercase tracking-wider font-bold">Estimated Completion</p>
                                 <p className="text-xl font-bold">
@@ -177,7 +169,7 @@ export default function BookingDetailsPage() {
                     </div>
                 </div>
 
-                {/* Timeline */}
+                {}
                 <div className="glass-card p-6 rounded-3xl border border-white/5 bg-white/[0.02]">
                     <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
                         <Activity className="text-blue-500" /> Service Timeline
@@ -233,7 +225,7 @@ export default function BookingDetailsPage() {
                     </div>
                 </div>
 
-                {/* Additional Info Grid */}
+                {}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="glass-card p-6 rounded-3xl border border-white/5 bg-white/[0.02]">
                         <h3 className="font-bold mb-4 flex items-center gap-2">

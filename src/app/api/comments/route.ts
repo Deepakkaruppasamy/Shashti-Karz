@@ -41,14 +41,12 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     try {
-        // Get current user
         const { data: { user } } = await supabase.auth.getUser();
 
         if (!user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Get user profile
         const { data: profile } = await supabase
             .from("profiles")
             .select("full_name, avatar_url, role")
@@ -64,7 +62,7 @@ export async function POST(request: Request) {
             user_avatar: profile?.avatar_url,
             content: body.content,
             is_admin: profile?.role === 'admin',
-            status: 'approved' // Auto-approve for now
+            status: 'approved'
         };
 
         const { data, error } = await supabase
@@ -128,7 +126,6 @@ export async function DELETE(request: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Check if user owns the comment or is admin
         const { data: profile } = await supabase
             .from("profiles")
             .select("role")
@@ -140,7 +137,6 @@ export async function DELETE(request: Request) {
             .delete()
             .eq("id", id!);
 
-        // Non-admins can only delete their own comments
         if (profile?.role !== 'admin') {
             query = query.eq("user_id", user.id);
         }

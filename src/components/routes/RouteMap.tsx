@@ -82,7 +82,7 @@ export function RouteMap({ workerId, date }: RouteMapProps) {
 
     return (
         <div className="space-y-4">
-            {/* Route Summary */}
+            {}
             <div className="bg-white rounded-lg border border-gray-200 p-4">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold">Today's Route</h3>
@@ -119,7 +119,7 @@ export function RouteMap({ workerId, date }: RouteMapProps) {
                 )}
             </div>
 
-            {/* Route Stops */}
+            {}
             <div className="space-y-3">
                 {route?.stops?.map((stop, index) => (
                     <div

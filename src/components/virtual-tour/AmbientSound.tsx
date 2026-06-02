@@ -10,7 +10,7 @@ interface AmbientSoundProps {
 }
 
 const SOUNDS: Record<string, string> = {
-    outside: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // Temporary placeholder
+    outside: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
     workshop: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
     service_bay: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
 };
@@ -19,14 +19,12 @@ export default function AmbientSound({ isMuted, sceneId }: AmbientSoundProps) {
     const soundRef = useRef<Howl | null>(null);
 
     useEffect(() => {
-        // Stop previous sound
         if (soundRef.current) {
             soundRef.current.fade(soundRef.current.volume(), 0, 1000);
             const oldSound = soundRef.current;
             setTimeout(() => oldSound.stop(), 1000);
         }
 
-        // Load and play new sound
         const soundUrl = SOUNDS[sceneId] || SOUNDS.outside;
         soundRef.current = new Howl({
             src: [soundUrl],

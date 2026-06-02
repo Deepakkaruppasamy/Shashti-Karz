@@ -28,7 +28,6 @@ export default function ReviewsAdminPage() {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [smartSummary, setSmartSummary] = useState<string>("");
 
-  // Real-time subscription
   useRealtimeSubscription<Review>({
     table: "reviews",
     onInsert: (newReview) => {
@@ -192,7 +191,7 @@ export default function ReviewsAdminPage() {
 
       <div className="flex-1 overflow-auto pb-24 lg:pb-8">
         <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-          {/* Header */}
+          {}
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
             <div>
               <h1 className="text-3xl lg:text-4xl font-black tracking-tighter flex items-center gap-3">
@@ -220,7 +219,7 @@ export default function ReviewsAdminPage() {
           <AnimatePresence mode="wait">
             {activeTab === "list" ? (
               <motion.div key="list" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                {/* AI Smart Summary Bar */}
+                {}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -241,7 +240,7 @@ export default function ReviewsAdminPage() {
                   </div>
                 </motion.div>
 
-                {/* Stats Grid */}
+                {}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                   {[
                     { label: "Inbox", value: reviews.length, icon: MessageSquare, color: "text-blue-500" },
@@ -324,7 +323,7 @@ export default function ReviewsAdminPage() {
                               </div>
                             </div>
 
-                            {/* Mobile Actions */}
+                            {}
                             <div className="flex sm:hidden items-center gap-2 mt-4 pt-4 border-t border-white/5 justify-end">
                               <button
                                 onClick={(e) => { e.stopPropagation(); handleApprove(review.id, !review.approved); }}
@@ -347,12 +346,12 @@ export default function ReviewsAdminPage() {
                     )}
                   </div>
 
-                  {/* Inspector Panel - Modal on Mobile, Sidebar on Desktop */}
+                  {}
                   <div className="lg:col-span-1">
                     <AnimatePresence>
                       {selectedReview && (
                         <>
-                          {/* Desktop Side Panel */}
+                          {}
                           <motion.div
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
@@ -418,7 +417,7 @@ export default function ReviewsAdminPage() {
                             </div>
                           </motion.div>
 
-                          {/* Mobile Bottom Sheet */}
+                          {}
                           <div className="lg:hidden fixed inset-0 z-[60] flex items-end justify-center px-4 pb-4">
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedReview(null)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
                             <motion.div
@@ -485,7 +484,7 @@ export default function ReviewsAdminPage() {
             ) : (
               <motion.div key="analytics" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6 lg:space-y-8">
                 <div className="grid lg:grid-cols-12 gap-6 lg:gap-8">
-                  {/* AI Interface */}
+                  {}
                   <div className="lg:col-span-4 space-y-6 lg:space-y-8">
                     <div className="glass-card rounded-[2rem] lg:rounded-[2.5rem] p-6 lg:p-8 border border-[#ff1744]/20 bg-gradient-to-br from-[#ff1744]/5 to-transparent relative overflow-hidden group">
                       <div className="absolute top-0 right-0 w-32 h-32 bg-[#ff1744]/10 rounded-full blur-[80px]" />
@@ -546,7 +545,7 @@ export default function ReviewsAdminPage() {
                     </div>
                   </div>
 
-                  {/* Visualization */}
+                  {}
                   <div className="lg:col-span-8 space-y-6 lg:space-y-8">
                     <div className="glass-card rounded-[2rem] lg:rounded-[2.5rem] p-6 lg:p-10 relative overflow-hidden">
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 lg:mb-12 gap-6">

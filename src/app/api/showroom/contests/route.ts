@@ -40,7 +40,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Check if user is admin
     const { data: profile } = await supabase
         .from("profiles")
         .select("role")

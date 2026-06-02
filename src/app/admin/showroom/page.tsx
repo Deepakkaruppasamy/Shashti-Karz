@@ -28,7 +28,6 @@ export default function ShowroomAdminPage() {
 
     const supabase = createClient();
 
-    // Mock data for initial render
     const MOCK_POSTS = [
         {
             id: "1",
@@ -97,7 +96,6 @@ export default function ShowroomAdminPage() {
 
     const handleAction = (id: string, action: 'approve' | 'reject' | 'delete') => {
         toast.success(`Post ${action}d successfully`);
-        // Optimistic update
         setPosts(prev => prev.map(p =>
             p.id === id ? { ...p, status: action === 'approve' ? 'approved' : 'rejected' } : p
         ));
@@ -110,7 +108,7 @@ export default function ShowroomAdminPage() {
 
     return (
         <div className="min-h-screen bg-[#0a0a0a] p-4 lg:p-8 space-y-8">
-            {/* Header */}
+            {}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-display text-white mb-2 flex items-center gap-3">

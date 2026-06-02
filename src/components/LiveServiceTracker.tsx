@@ -77,7 +77,6 @@ export function LiveServiceTracker({ bookingId, isClient = false }: LiveServiceT
         console.log(`Realtime subscription status for booking ${booking.id}:`, status);
       });
 
-    // Fallback polling every 10 seconds if realtime is slow or disabled
     const pollInterval = setInterval(() => {
       fetchTrackingData(booking.id, true);
     }, 10000);

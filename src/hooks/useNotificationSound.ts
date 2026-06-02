@@ -15,7 +15,6 @@ export function useNotificationSound() {
         if (!isSoundEnabled()) return;
 
         try {
-            // Use Web Audio API for better control
             const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
@@ -23,7 +22,6 @@ export function useNotificationSound() {
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
 
-            // Different frequencies for different notification types
             const frequencies: Record<SoundType, number> = {
                 success: 800,
                 warning: 600,
@@ -36,7 +34,6 @@ export function useNotificationSound() {
             oscillator.frequency.value = frequencies[type];
             oscillator.type = 'sine';
 
-            // Envelope
             gainNode.gain.setValueAtTime(0, audioContext.currentTime);
             gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);

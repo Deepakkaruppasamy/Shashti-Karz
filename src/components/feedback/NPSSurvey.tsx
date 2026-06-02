@@ -58,7 +58,7 @@ export function NPSSurvey({ bookingId, onSubmit }: NPSSurveyProps) {
                 Rate from 0 (Not likely) to 10 (Extremely likely)
             </p>
 
-            {/* Score Buttons */}
+            {}
             <div className="flex gap-2 mb-6 flex-wrap">
                 {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
                     <button
@@ -78,7 +78,7 @@ export function NPSSurvey({ bookingId, onSubmit }: NPSSurveyProps) {
                 ))}
             </div>
 
-            {/* Feedback Text */}
+            {}
             {score !== null && (
                 <div className="mb-6">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -94,7 +94,7 @@ export function NPSSurvey({ bookingId, onSubmit }: NPSSurveyProps) {
                 </div>
             )}
 
-            {/* Submit Button */}
+            {}
             <button
                 onClick={handleSubmit}
                 disabled={score === null || loading}

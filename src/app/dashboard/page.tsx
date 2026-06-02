@@ -144,7 +144,6 @@ export default function DashboardPage() {
       const data = await response.json();
       setBookings(Array.isArray(data) ? data : []);
 
-      // Fetch existing reviews to know which ones are already rated
       const reviewsRes = await fetch(`/api/reviews?user_id=${user.id}`);
       if (reviewsRes.ok) {
         const reviews = await reviewsRes.json();
@@ -262,7 +261,6 @@ export default function DashboardPage() {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [user]);
 
-  // Real-time Service Tracking
   useRealtimeSubscription({
     table: 'service_tracking',
     onInsert: (newTracking) => {
@@ -290,14 +288,13 @@ export default function DashboardPage() {
     }
   });
 
-  // Real-time Booking Status
   useRealtimeSubscription({
     table: 'bookings',
     onUpdate: (updatedBooking) => {
       setBookings(prev => prev.map(b => b.id === updatedBooking.id ? { ...b, ...updatedBooking } : b));
       if (updatedBooking.status === 'completed') {
         toast.success("Service Completed! Your car is ready.");
-        refreshBookings(); // Fetch full details to be safe
+        refreshBookings();
       }
     }
   });
@@ -678,7 +675,7 @@ export default function DashboardPage() {
                   </div>
                 )}
 
-                {/* Digital Garage / AI Diagnostics section */}
+                {}
                 <div className="glass-card rounded-2xl p-6">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-semibold flex items-center gap-2">

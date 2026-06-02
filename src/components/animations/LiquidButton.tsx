@@ -67,7 +67,7 @@ export function LiquidButton({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
         >
-            {/* Liquid blob effect */}
+            {}
             <motion.div
                 className="absolute inset-0 opacity-50"
                 style={{
@@ -77,7 +77,7 @@ export function LiquidButton({
                 }}
             />
 
-            {/* Ripple effect */}
+            {}
             <motion.div
                 className="absolute inset-0"
                 initial={false}
@@ -91,7 +91,7 @@ export function LiquidButton({
                 }}
             />
 
-            {/* Shimmer effect */}
+            {}
             <motion.div
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
                 animate={{
@@ -104,7 +104,7 @@ export function LiquidButton({
                 }}
             />
 
-            {/* Content */}
+            {}
             <span className="relative z-10">{children}</span>
         </motion.button>
     );
@@ -125,7 +125,7 @@ export function LiquidButtonSimple({
             }}
             whileTap={{ scale: 0.95 }}
         >
-            {/* Wave animation */}
+            {}
             <motion.div
                 className="absolute inset-0 bg-gradient-to-r from-[#d4af37] to-[#ff1744]"
                 initial={{ x: "-100%" }}
@@ -133,7 +133,7 @@ export function LiquidButtonSimple({
                 transition={{ duration: 0.6, ease: "easeInOut" }}
             />
 
-            {/* Content */}
+            {}
             <span className="relative z-10">{children}</span>
         </motion.button>
     );

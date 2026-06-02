@@ -10,11 +10,7 @@ export async function logActivity(activity: {
     metadata?: any;
 }) {
     try {
-        // Use service role if possible, but here we'll use the provided client or server client
-        // For simplicity in this project, we'll use the server client if called from server, 
-        // or client-side supabase if called from client.
         
-        // Since this might be called from both, let's detect
         if (typeof window === 'undefined') {
             const serverSupabase = await createClient();
             await serverSupabase.from('system_activities').insert([activity]);

@@ -62,7 +62,7 @@ export function PerformanceDashboard({ workerId }: PerformanceDashboardProps) {
 
     return (
         <div className="space-y-6">
-            {/* Overall Stats */}
+            {}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-white rounded-lg border border-gray-200 p-4">
                     <div className="text-sm text-gray-600">Total Services</div>
@@ -90,11 +90,11 @@ export function PerformanceDashboard({ workerId }: PerformanceDashboardProps) {
                 </div>
             </div>
 
-            {/* Performance Scores */}
+            {}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <h3 className="text-lg font-semibold mb-4">Performance Scores</h3>
                 <div className="space-y-4">
-                    {/* Quality Score */}
+                    {}
                     <div>
                         <div className="flex justify-between items-center mb-2">
                             <span className="text-sm font-medium">Quality Score</span>
@@ -110,7 +110,7 @@ export function PerformanceDashboard({ workerId }: PerformanceDashboardProps) {
                         </div>
                     </div>
 
-                    {/* Efficiency Score */}
+                    {}
                     <div>
                         <div className="flex justify-between items-center mb-2">
                             <span className="text-sm font-medium">Efficiency Score</span>
@@ -126,7 +126,7 @@ export function PerformanceDashboard({ workerId }: PerformanceDashboardProps) {
                         </div>
                     </div>
 
-                    {/* Customer Satisfaction */}
+                    {}
                     <div>
                         <div className="flex justify-between items-center mb-2">
                             <span className="text-sm font-medium">Customer Satisfaction</span>
@@ -144,7 +144,7 @@ export function PerformanceDashboard({ workerId }: PerformanceDashboardProps) {
                         </div>
                     </div>
 
-                    {/* On-Time Percentage */}
+                    {}
                     <div>
                         <div className="flex justify-between items-center mb-2">
                             <span className="text-sm font-medium">On-Time Delivery</span>
@@ -162,7 +162,7 @@ export function PerformanceDashboard({ workerId }: PerformanceDashboardProps) {
                 </div>
             </div>
 
-            {/* Performance Insights */}
+            {}
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200 p-6">
                 <h3 className="text-lg font-semibold mb-3">💡 Performance Insights</h3>
                 <ul className="space-y-2 text-sm">

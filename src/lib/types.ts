@@ -446,7 +446,6 @@ export interface ServiceInventoryUsage {
   created_at: string;
 }
 
-// Dinesh Voice Assistant Types
 export interface SupportRequest {
   id: string;
   user_id: string | null;
@@ -531,11 +530,11 @@ export interface VoiceAssistantContext {
 }
 
 export interface VoiceSettings {
-  voiceGender: "male" | "female"; // Dinesh or Deepika
-  voiceName: string; // Browser voice name
-  speechRate: number; // 0.5 to 2.0
-  pitch: number; // 0 to 2.0
-  language: "en-US" | "ta-IN" | "hi-IN"; // English, Tamil, Hindi
+  voiceGender: "male" | "female";
+  voiceName: string;
+  speechRate: number;
+  pitch: number;
+  language: "en-US" | "ta-IN" | "hi-IN";
   soundEffectsEnabled: boolean;
 }
 
@@ -569,7 +568,6 @@ export interface AdminPulseEvent {
   status?: string;
 }
 
-// Digital Car Garage & Service Journal Types
 export interface ServiceJournalEntry {
   id: string;
   vehicle_id: string;
@@ -675,7 +673,6 @@ export interface VehicleHealthScore {
   updated_at: string;
 }
 
-// Community Showroom Types
 export interface ShowroomPost {
   id: string;
   user_id: string;

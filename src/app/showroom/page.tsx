@@ -149,7 +149,7 @@ export default function ShowroomPage() {
 
             <div className="pt-24 pb-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Hero Header */}
+                    {}
                     <div className="mb-12 text-center">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
@@ -192,7 +192,7 @@ export default function ShowroomPage() {
                         )}
                     </div>
 
-                    {/* Tabs Navigation */}
+                    {}
                     <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
                         {[
                             { id: "feed", label: "Community Feed", icon: Camera },
@@ -213,9 +213,9 @@ export default function ShowroomPage() {
                         ))}
                     </div>
 
-                    {/* Tab Content */}
+                    {}
                     <AnimatePresence mode="wait">
-                        {/* Community Feed Tab */}
+                        {}
                         {activeTab === "feed" && (
                             <motion.div
                                 key="feed"
@@ -223,7 +223,7 @@ export default function ShowroomPage() {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
                             >
-                                {/* Filters */}
+                                {}
                                 <div className="flex flex-wrap gap-4 mb-8">
                                     <div className="flex-1 min-w-[200px]">
                                         <div className="relative">
@@ -254,7 +254,7 @@ export default function ShowroomPage() {
                                     </div>
                                 </div>
 
-                                {/* Posts Grid */}
+                                {}
                                 {isLoading ? (
                                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         {[...Array(6)].map((_, i) => (
@@ -289,7 +289,7 @@ export default function ShowroomPage() {
                                                 className="glass-card rounded-2xl overflow-hidden hover:scale-105 transition-transform duration-300 cursor-pointer group"
                                                 onClick={() => router.push(`/showroom/${post.id}`)}
                                             >
-                                                {/* Media */}
+                                                {}
                                                 <div className="relative aspect-square bg-white/5 overflow-hidden">
                                                     {post.media_url && (
                                                         <img
@@ -314,14 +314,14 @@ export default function ShowroomPage() {
                                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                                                 </div>
 
-                                                {/* Content */}
+                                                {}
                                                 <div className="p-6">
                                                     <h3 className="text-lg font-semibold mb-2 line-clamp-2">{post.title}</h3>
                                                     {post.description && (
                                                         <p className="text-sm text-[#888] mb-4 line-clamp-2">{post.description}</p>
                                                     )}
 
-                                                    {/* User Info */}
+                                                    {}
                                                     <div className="flex items-center gap-3 mb-4">
                                                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ff1744] to-[#d4af37]" />
                                                         <div>
@@ -332,7 +332,7 @@ export default function ShowroomPage() {
                                                         </div>
                                                     </div>
 
-                                                    {/* Engagement Stats */}
+                                                    {}
                                                     <div className="flex items-center justify-between">
                                                         <button
                                                             onClick={(e) => {
@@ -359,7 +359,7 @@ export default function ShowroomPage() {
                                                         </div>
                                                     </div>
 
-                                                    {/* Contest Badge */}
+                                                    {}
                                                     {post.contest_entry && (
                                                         <div className="mt-4 px-3 py-2 rounded-lg bg-[#ff1744]/10 border border-[#ff1744]/30 text-xs font-medium flex items-center gap-2">
                                                             <Trophy size={14} className="text-[#ff1744]" />
@@ -374,7 +374,7 @@ export default function ShowroomPage() {
                             </motion.div>
                         )}
 
-                        {/* Contests Tab */}
+                        {}
                         {activeTab === "contests" && (
                             <motion.div
                                 key="contests"
@@ -435,7 +435,7 @@ export default function ShowroomPage() {
                                                         )}
                                                     </div>
 
-                                                    {/* Contest Stats */}
+                                                    {}
                                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                                                         <div className="text-center">
                                                             <div className="text-2xl font-bold text-[#ff1744]">{contest.total_entries}</div>
@@ -455,7 +455,7 @@ export default function ShowroomPage() {
                                                         </div>
                                                     </div>
 
-                                                    {/* Actions */}
+                                                    {}
                                                     <div className="flex gap-4">
                                                         <button
                                                             onClick={() => router.push(`/showroom/contests/${contest.id}`)}
@@ -480,7 +480,7 @@ export default function ShowroomPage() {
                             </motion.div>
                         )}
 
-                        {/* Leaderboard Tab */}
+                        {}
                         {activeTab === "leaderboard" && (
                             <motion.div
                                 key="leaderboard"
@@ -516,12 +516,12 @@ export default function ShowroomPage() {
                                             >
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-4 flex-1">
-                                                        {/* Rank */}
+                                                        {}
                                                         <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/5 font-bold">
                                                             {getRankBadge(entry.current_rank) || `#${entry.current_rank}`}
                                                         </div>
 
-                                                        {/* User */}
+                                                        {}
                                                         <div className="flex items-center gap-3 flex-1">
                                                             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#ff1744] to-[#d4af37]" />
                                                             <div>
@@ -538,7 +538,7 @@ export default function ShowroomPage() {
                                                             </div>
                                                         </div>
 
-                                                        {/* Stats */}
+                                                        {}
                                                         <div className="hidden md:flex gap-8">
                                                             <div className="text-center">
                                                                 <div className="text-xl font-bold">{entry.total_referrals}</div>

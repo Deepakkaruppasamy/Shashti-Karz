@@ -56,14 +56,7 @@ function useVisualEffectsConfig(): VisualEffectsConfig {
 
     checkSettings();
     window.addEventListener("storage", checkSettings);
-    // Custom event listener for same-tab updates
     const handleStorage = () => checkSettings();
-    // We can't easily listen to "storage" on same tab, so we need a custom event or just rely on the fact that 
-    // we dispatched a 'storage' event manually in the admin page? 
-    // Manually dispatched 'storage' events work in the same window in some browsers, but let's add a custom event "visual-prefs-changed" for robustness if needed.
-    // For now, window.dispatchEvent(new Event("storage")) DOES trigger window.addEventListener("storage") in the same window? Actually NO, it usually doesn't.
-    // But since Admin is a different route than Customer page, the user is likely switching tabs or navigating.
-    // If they navigate (SPA navigation), the component remounts, so checkSettings() runs.
     return () => window.removeEventListener("storage", checkSettings);
   }, []);
 

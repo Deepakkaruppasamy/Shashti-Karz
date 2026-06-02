@@ -164,10 +164,8 @@ export async function sendNotification(params: SendNotificationParams): Promise<
 
   if (error) {
     console.error("Failed to create notification record in DB:", error);
-    // Continue with other channels even if DB record fails
   }
 
-  // Send to external channels in parallel (non-blocking)
   const deliveryPromises: Promise<any>[] = [];
 
   if (channels.includes("email") && params.userId) {
@@ -178,7 +176,6 @@ export async function sendNotification(params: SendNotificationParams): Promise<
     deliveryPromises.push(sendWhatsAppNotification(params.userId, params.message));
   }
 
-  // Use allSettled to ensure all delivery attempts are made regardless of individual failures
   if (deliveryPromises.length > 0) {
     Promise.allSettled(deliveryPromises).then(results => {
       results.forEach((res, idx) => {
@@ -446,7 +443,7 @@ export async function sendBookingNotification(
   const notificationType: NotificationType =
     type === "created" ? "booking_created"
       : type === "approved" ? "booking_approved"
-        : type === "cancelled" ? "booking_created" // or admin_booking_cancelled? For customer let's stick to base
+        : type === "cancelled" ? "booking_created"
           : "service_completed";
 
   const notification = await sendNotification({
@@ -495,16 +492,13 @@ export async function sendAdminNotification(
 ) {
   const supabase = await createServiceClient();
 
-  // Always include ADMIN_EMAIL from env as a guaranteed fallback
   const envAdminEmail = process.env.ADMIN_EMAIL;
 
-  // Fetch all admin profiles (id + email) from DB
   let { data: dbAdmins } = await supabase
     .from("profiles")
     .select("id, email, full_name")
     .eq("role", "admin");
 
-  // Failsafe: If the env admin isn't explicitly marked as admin in DB, find their profile anyway
   if (envAdminEmail) {
     const isAlreadyIn = dbAdmins?.some(a => a.email?.toLowerCase() === envAdminEmail.toLowerCase());
     if (!isAlreadyIn) {
@@ -522,7 +516,6 @@ export async function sendAdminNotification(
 
   const admins = dbAdmins || [];
 
-  // Collect unique email recipients: all DB admins + the env ADMIN_EMAIL
   const emailRecipients = new Set<string>(
     admins.map((a: { email: string }) => a.email).filter(Boolean)
   );
@@ -552,7 +545,6 @@ export async function sendAdminNotification(
     : type === "payment_failed" || type === "payment_received" ? "admin_payment_failed"
     : "admin_new_booking";
 
-  // Step 1 & 2: Send in-app notifications and build email in parallel
   const adminPromises: Promise<any>[] = [];
   
   for (const admin of admins) {
@@ -570,7 +562,6 @@ export async function sendAdminNotification(
 
   console.log(`[Admin Notification] Processing ${type} for ${admins.length} DB admins and ${emailRecipients.size} email recipients`);
 
-  // Step 3: Build the HTML email body once
   let html = "";
   try {
     switch (type) {
@@ -636,12 +627,10 @@ export async function sendAdminNotification(
     console.error("[Admin Email] Failed to build email HTML:", buildErr);
   }
 
-  // Step 4: Send email to every unique admin recipient in parallel
   if (html) {
     for (const recipientEmail of emailRecipients) {
       adminPromises.push((async () => {
         try {
-          // console.log(`[Admin Email] Attempting send to ${recipientEmail}...`);
           const result = await sendEmail({
             to: recipientEmail,
             subject: `[Shashti Karz Admin] ${titles[type]}`,
@@ -660,8 +649,6 @@ export async function sendAdminNotification(
     }
   }
 
-  // Wait for all admin notification tasks (DB + Email) to complete or fail
-  // Use allSettled so one failure doesn't stop others
   await Promise.allSettled(adminPromises);
 }
 

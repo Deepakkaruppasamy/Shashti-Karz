@@ -27,7 +27,6 @@ export function Leaderboard() {
         fetchLeaderboard();
     }, []);
 
-    // Real-time updates for leaderboard
     useRealtimeSubscription({
         table: 'points_transactions',
         onInsert: () => fetchLeaderboard(),
@@ -39,7 +38,6 @@ export function Leaderboard() {
             const response = await fetch("/api/gamification/leaderboard");
             const data = await response.json();
 
-            // Normalize data in case of field name differences
             const normalized = (data.leaderboard || []).map((entry: any) => ({
                 ...entry,
                 total_points: entry.total_points ?? entry.points ?? 0,
@@ -120,12 +118,12 @@ export function Leaderboard() {
                             transition={{ delay: index * 0.1 }}
                             className={`glass-card p-4 flex items-center gap-6 group hover:bg-white/5 transition-all relative overflow-hidden`}
                         >
-                            {/* Rank Badge */}
+                            {}
                             <div className={`w-14 h-14 rounded-xl border flex flex-col items-center justify-center bg-gradient-to-br ${getRankStyles(entry.rank)}`}>
                                 {getRankIcon(entry.rank)}
                             </div>
 
-                            {/* User Info */}
+                            {}
                             <div className="flex-1 flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#ff1744]/20 to-[#d4af37]/20 border border-white/10 flex items-center justify-center text-xl font-bold text-white">
                                     {entry.user?.full_name?.[0] || entry.user_id[0].toUpperCase()}
@@ -150,7 +148,7 @@ export function Leaderboard() {
                                 </div>
                             </div>
 
-                            {/* Points Detail */}
+                            {}
                             <div className="text-right">
                                 <div className="text-lg font-black text-white group-hover:scale-110 transition-transform origin-right flex items-center gap-1.5 justify-end">
                                     {entry.total_points.toLocaleString()}
@@ -161,7 +159,7 @@ export function Leaderboard() {
                                 </div>
                             </div>
 
-                            {/* Shine Effect for Top 3 */}
+                            {}
                             {entry.rank <= 3 && (
                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-shimmer pointer-events-none" />
                             )}

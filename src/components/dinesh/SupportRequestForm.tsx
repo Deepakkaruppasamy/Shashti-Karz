@@ -38,7 +38,6 @@ export function SupportRequestForm({ userName, userEmail, onSuccess }: SupportFo
             if (!response.ok) throw new Error("Failed to submit support request");
             const requestData = await response.json();
 
-            // Trigger Email Notification
             if (formData.customer_email) {
                 try {
                     await fetch("/api/notifications/email", {
@@ -60,7 +59,6 @@ export function SupportRequestForm({ userName, userEmail, onSuccess }: SupportFo
                     });
                 } catch (notiErr) {
                     console.error("Failed to send notification:", notiErr);
-                    // Don't fail the whole submission if notification fails
                 }
             }
 

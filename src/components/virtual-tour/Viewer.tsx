@@ -16,7 +16,6 @@ interface ViewerProps {
 }
 
 function SceneSphere({ url }: { url: string }) {
-    // Force use of local proxy for all external images to bypass CORS
     const proxyUrl = url.startsWith('http')
         ? `/api/proxy-image?url=${encodeURIComponent(url)}`
         : url;
@@ -25,7 +24,7 @@ function SceneSphere({ url }: { url: string }) {
 
     return (
         <mesh scale={[-1, 1, 1]} rotation={[0, -Math.PI / 2, 0]}>
-            {/* Using a 180-degree cylinder segment for 2D photos to create a natural panorama feel */}
+            {}
             <cylinderGeometry args={[50, 50, 60, 60, 1, true, 0, Math.PI]} />
             <meshBasicMaterial map={texture} side={THREE.BackSide} transparent />
         </mesh>

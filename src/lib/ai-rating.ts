@@ -1,12 +1,11 @@
 import { chatWithGemini } from "./gemini";
 
-// Using centralized AI utility (Groq with Gemini fallback)
 
 export interface SentimentResult {
-  score: number; // -1 to 1
+  score: number;
   label: "Positive" | "Neutral" | "Negative";
   themes: string[];
-  intensity: number; // 0 to 1
+  intensity: number;
   is_abusive: boolean;
   is_low_effort: boolean;
 }
@@ -70,19 +69,14 @@ export function calculateWeightedRating(inputs: RatingInput[]): {
   let weightedSum = 0;
 
   inputs.forEach((input) => {
-    // 1. Recency Weight (decay over 365 days)
     const recencyWeight = Math.max(0.1, 1 - input.days_ago / 365);
 
-    // 2. Trust Weight
     let trustWeight = 1.0;
     if (input.is_repeat_customer) trustWeight *= 1.5;
     if (!input.is_verified) trustWeight *= 0.5;
     if (input.sentiment.is_low_effort) trustWeight *= 0.7;
-    if (input.sentiment.is_abusive) trustWeight = 0.01; // Almost ignore
+    if (input.sentiment.is_abusive) trustWeight = 0.01;
 
-    // 3. Sentiment Adjustment
-    // If stars are high but sentiment is negative, pull down. 
-    // If stars are low but sentiment is positive, pull up slightly.
     const sentimentAdjustment = input.sentiment.score * 0.5;
     const adjustedStars = Math.max(1, Math.min(5, input.stars + sentimentAdjustment));
 
@@ -94,7 +88,6 @@ export function calculateWeightedRating(inputs: RatingInput[]): {
 
   const finalRating = totalWeight > 0 ? weightedSum / totalWeight : 0;
 
-  // Confidence calculation
   let confidence: "High" | "Medium" | "Low" = "Low";
   if (inputs.length > 50 && totalWeight > 20) confidence = "High";
   else if (inputs.length > 10) confidence = "Medium";

@@ -41,7 +41,7 @@ export default function AdminLoginPage() {
 
     return (
         <div className="min-h-screen bg-[#020202] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden selection:bg-[#ff1744]/50">
-            {/* Background elements */}
+            {}
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute top-0 right-0 w-[80%] h-[80%] bg-[#ff1744]/5 rounded-full blur-[160px] animate-pulse" />
                 <div className="absolute bottom-0 left-0 w-[80%] h-[80%] bg-blue-600/5 rounded-full blur-[160px] animate-pulse delay-1000" />

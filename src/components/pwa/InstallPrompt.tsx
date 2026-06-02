@@ -16,7 +16,6 @@ export function PWAInstallPrompt() {
     const [showQR, setShowQR] = useState(false);
 
     useEffect(() => {
-        // Check if already installed
         if (typeof window !== "undefined") {
             if (window.matchMedia("(display-mode: standalone)").matches || (navigator as any).standalone) {
                 setIsInstalled(true);
@@ -24,12 +23,10 @@ export function PWAInstallPrompt() {
             }
         }
 
-        // Listen for install prompt
         const handler = (e: Event) => {
             e.preventDefault();
             setDeferredPrompt(e as BeforeInstallPromptEvent);
             
-            // Show prompt after a short delay
             const dismissed = localStorage.getItem("pwa-prompt-dismissed");
             if (!dismissed) {
                 setTimeout(() => setShowPrompt(true), 5000);
@@ -38,14 +35,12 @@ export function PWAInstallPrompt() {
 
         window.addEventListener("beforeinstallprompt", handler);
 
-        // Listen for successful install
         window.addEventListener("appinstalled", () => {
             setIsInstalled(true);
             setShowPrompt(false);
             localStorage.setItem("pwa-installed", "true");
         });
 
-        // Show generic prompt on desktop after 10s if not installed
         const timer = setTimeout(() => {
             const dismissed = localStorage.getItem("pwa-prompt-dismissed");
             if (!isInstalled && !dismissed && !deferredPrompt) {
@@ -68,7 +63,6 @@ export function PWAInstallPrompt() {
             }
             setDeferredPrompt(null);
         } else {
-            // Probably on desktop or iOS where native prompt isn't supported via API
             setShowQR(true);
         }
     };
@@ -132,14 +126,14 @@ export function PWAInstallPrompt() {
                                 </div>
                             </div>
                             
-                            {/* Accent line */}
+                            {}
                             <div className="h-1 w-full bg-gradient-to-r from-[#ff1744] via-[#d4af37] to-[#ff1744]" />
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* QR Code Modal */}
+            {}
             <AnimatePresence>
                 {showQR && (
                     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">

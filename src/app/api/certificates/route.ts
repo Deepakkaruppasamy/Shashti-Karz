@@ -36,7 +36,6 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     const supabase = await createClient();
 
-    // 1. Verify Authentication
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -44,7 +43,6 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
-    // 2. Verify Vehicle Ownership
     if (body.vehicle_id) {
         const { data: vehicle } = await supabase
             .from("user_vehicles")
@@ -60,18 +58,15 @@ export async function POST(request: Request) {
 
     const adminSupabase = await createServiceClient();
 
-    // Generate certificate number if not provided
     if (!body.certificate_number) {
         const { data: certNumberData } = await adminSupabase.rpc('generate_certificate_number');
         body.certificate_number = certNumberData || `SK-AI-${Math.random().toString(36).substring(7).toUpperCase()}`;
     }
 
-    // Generate verification hash
     if (!body.verification_hash) {
         body.verification_hash = crypto.randomUUID();
     }
 
-    // Ensure user_id is set
     if (!body.user_id) {
         body.user_id = user.id;
     }

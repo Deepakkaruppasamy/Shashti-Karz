@@ -3,13 +3,11 @@ import { supabase } from '@/lib/supabase/client';
 import { useRealtimeSubscription } from './useRealtimeSubscription';
 
 export interface AnalyticsData {
-    // Revenue Metrics
     totalRevenue: number;
     todayRevenue: number;
     yesterdayRevenue: number;
     revenueGrowth: number;
 
-    // Booking Metrics
     totalBookings: number;
     todayBookings: number;
     yesterdayBookings: number;
@@ -18,24 +16,19 @@ export interface AnalyticsData {
     completedBookings: number;
     cancelledBookings: number;
 
-    // Service Metrics
     popularServices: Array<{ name: string; count: number; revenue: number }>;
     serviceCompletion: number;
 
-    // Worker Metrics
     activeWorkers: number;
     topWorkers: Array<{ name: string; completions: number; rating: number }>;
 
-    // Customer Metrics
     averageRating: number;
     totalReviews: number;
     satisfactionScore: number;
 
-    // Inventory Metrics
     lowStockItems: number;
     totalInventoryValue: number;
 
-    // Time-series data
     revenueByHour: Array<{ hour: string; revenue: number }>;
     bookingsByDay: Array<{ date: string; bookings: number }>;
 }
@@ -45,7 +38,6 @@ export function useRealtimeAnalytics(timeRange: string = 'today') {
     const [isLoading, setIsLoading] = useState(true);
     const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
-    // Calculate date ranges
     const getDateRange = useCallback(() => {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -68,7 +60,6 @@ export function useRealtimeAnalytics(timeRange: string = 'today') {
         }
     }, [timeRange]);
 
-    // Fetch analytics data
     const fetchAnalytics = useCallback(async () => {
         try {
             const { start, end } = getDateRange();
@@ -77,7 +68,6 @@ export function useRealtimeAnalytics(timeRange: string = 'today') {
             const yesterday = new Date(today);
             yesterday.setDate(yesterday.getDate() - 1);
 
-            // Fetch bookings
             const { data: bookings } = await supabase
                 .from('bookings')
                 .select('*, service:services(name)')
@@ -95,23 +85,19 @@ export function useRealtimeAnalytics(timeRange: string = 'today') {
                 .gte('created_at', yesterday.toISOString())
                 .lt('created_at', today.toISOString());
 
-            // Fetch reviews
             const { data: reviews } = await supabase
                 .from('reviews')
                 .select('rating');
 
-            // Fetch workers
             const { data: workers } = await supabase
                 .from('workers')
                 .select('*')
                 .eq('status', 'active');
 
-            // Fetch inventory
             const { data: inventory } = await supabase
                 .from('inventory')
                 .select('*');
 
-            // Calculate metrics
             const totalRevenue = bookings?.reduce((sum, b) => sum + (b.price || 0), 0) || 0;
             const todayRev = todayBookings?.reduce((sum, b) => sum + (b.price || 0), 0) || 0;
             const yesterdayRev = yesterdayBookings?.reduce((sum, b) => sum + (b.price || 0), 0) || 0;
@@ -121,7 +107,6 @@ export function useRealtimeAnalytics(timeRange: string = 'today') {
                 ? (((todayBookings?.length || 0) - (yesterdayBookings?.length || 0)) / (yesterdayBookings?.length || 0)) * 100
                 : 0;
 
-            // Service popularity
             const serviceMap = new Map<string, { count: number; revenue: number }>();
             bookings?.forEach(b => {
                 const serviceName = b.service?.name || 'Unknown';
@@ -136,16 +121,13 @@ export function useRealtimeAnalytics(timeRange: string = 'today') {
                 .sort((a, b) => b.count - a.count)
                 .slice(0, 5);
 
-            // Reviews
             const avgRating = reviews?.length
                 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
                 : 0;
 
-            // Inventory
             const lowStock = inventory?.filter(i => i.quantity <= i.min_quantity).length || 0;
             const inventoryValue = inventory?.reduce((sum, i) => sum + (i.quantity * i.price_per_unit), 0) || 0;
 
-            // Time-series data
             const revenueByHour: Array<{ hour: string; revenue: number }> = [];
             for (let h = 0; h < 24; h++) {
                 const hourBookings = todayBookings?.filter(b => {
@@ -174,14 +156,14 @@ export function useRealtimeAnalytics(timeRange: string = 'today') {
                 popularServices,
                 serviceCompletion: bookings?.length ? (bookings.filter(b => b.status === 'completed').length / bookings.length) * 100 : 0,
                 activeWorkers: workers?.length || 0,
-                topWorkers: [], // TODO: Calculate from bookings
+                topWorkers: [],
                 averageRating: avgRating,
                 totalReviews: reviews?.length || 0,
-                satisfactionScore: avgRating * 20, // Convert 5-star to 100-point scale
+                satisfactionScore: avgRating * 20,
                 lowStockItems: lowStock,
                 totalInventoryValue: inventoryValue,
                 revenueByHour,
-                bookingsByDay: [] // TODO: Calculate
+                bookingsByDay: []
             });
 
             setLastUpdate(new Date());
@@ -192,12 +174,10 @@ export function useRealtimeAnalytics(timeRange: string = 'today') {
         }
     }, [timeRange, getDateRange]);
 
-    // Initial fetch
     useEffect(() => {
         fetchAnalytics();
     }, [fetchAnalytics]);
 
-    // Real-time updates - refetch on any data change
     useRealtimeSubscription({
         table: 'bookings',
         event: '*',

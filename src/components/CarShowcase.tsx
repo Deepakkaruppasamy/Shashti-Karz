@@ -84,7 +84,7 @@ export function ExplodedCarSection({ service, index }: ExplodedCarProps) {
             </div>
           </motion.div>
 
-          {/* Simple Image/Exploded view */}
+          {}
           <div className="relative aspect-square sm:aspect-[4/3] w-full max-w-2xl mx-auto">
             <div
               className="relative w-full h-full cursor-pointer touch-pan-y"

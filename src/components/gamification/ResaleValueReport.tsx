@@ -5,7 +5,7 @@ import { VehicleHealthScore, UserVehicle } from "@/lib/types";
 
 interface ResaleValueReportProps {
     vehicle: UserVehicle;
-    healthData: any; // The extended AI data from our new API
+    healthData: any;
     onDownload?: () => void;
 }
 
@@ -18,11 +18,11 @@ export const ResaleValueReport: React.FC<ResaleValueReportProps> = ({ vehicle, h
             animate={{ opacity: 1, y: 0 }}
             className="relative overflow-hidden rounded-3xl bg-[#0d0d0d] border-2 border-[#d4af37]/30 shadow-[0_0_50px_rgba(212,175,55,0.1)]"
         >
-            {/* Premium Watermark/Background */}
+            {}
             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#d4af37]/10 to-transparent rounded-full blur-3xl -mr-20 -mt-20" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-[#ff1744]/5 to-transparent rounded-full blur-3xl -ml-20 -mb-20" />
 
-            {/* Header Section */}
+            {}
             <div className="relative p-8 border-b border-white/5 bg-white/[0.02]">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div className="flex items-center gap-4">
@@ -45,9 +45,9 @@ export const ResaleValueReport: React.FC<ResaleValueReportProps> = ({ vehicle, h
                 </div>
             </div>
 
-            {/* Main Content */}
+            {}
             <div className="p-8 grid md:grid-cols-12 gap-8">
-                {/* Left Column: Health Score Circular */}
+                {}
                 <div className="md:col-span-4 flex flex-col items-center justify-center py-6 border-r border-white/5 px-4 text-center">
                     <div className="relative w-40 h-40 mb-6">
                         <svg className="w-full h-full" viewBox="0 0 100 100">
@@ -102,7 +102,7 @@ export const ResaleValueReport: React.FC<ResaleValueReportProps> = ({ vehicle, h
                     </div>
                 </div>
 
-                {/* Right Column: Detailed Insights */}
+                {}
                 <div className="md:col-span-8 space-y-6">
                     <section>
                         <h3 className="text-sm font-black text-[#666] uppercase tracking-widest mb-3 flex items-center gap-2">
@@ -145,7 +145,7 @@ export const ResaleValueReport: React.FC<ResaleValueReportProps> = ({ vehicle, h
                 </div>
             </div>
 
-            {/* Footer / Certification Seal */}
+            {}
             <div className="p-8 pt-0 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-6">
                 <div className="flex items-center gap-4">
                     <div className="p-2 rounded-full bg-white/5 text-[#888]">

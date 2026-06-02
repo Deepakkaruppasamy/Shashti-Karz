@@ -403,7 +403,7 @@ export function PriceCalculator({ services, onBookNow }: PriceCalculatorProps) {
           </motion.div>
         </div>
 
-        {/* Mobile Sticky Bottom Bar */}
+        {}
         <div className="lg:hidden fixed bottom-24 left-0 right-0 z-40 px-3 pb-3 pointer-events-none">
           <motion.div
             initial={{ y: 100, opacity: 0 }}

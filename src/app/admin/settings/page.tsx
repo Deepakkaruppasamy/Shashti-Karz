@@ -24,7 +24,6 @@ import { useSound } from "@/hooks/useSound";
 import { playSound, setSoundEnabled, setSoundVolume as setVolume } from "@/lib/sound-system";
 import { BrandedLoader } from "@/components/animations/BrandedLoader";
 
-// --- Components for Tabs ---
 
 function BusinessSettingsTab({ data, onSave }: { data: any, onSave: (data: any) => void }) {
   const [formData, setFormData] = useState(data || {});
@@ -116,7 +115,7 @@ function ServicesSettingsTab({ services }: { services: any[] }) {
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-xl font-bold text-white">Service Packages</h3>
-        {/* Add New Service Button could go here */}
+        {}
       </div>
 
       <div className="grid grid-cols-1 gap-4">
@@ -196,7 +195,7 @@ function OffersSettingsTab({ offers }: { offers: any[] }) {
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-xl font-bold text-white">Active Campaigns</h3>
-        {/* Create New Offer logic needed */}
+        {}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {offers.map(offer => (
@@ -280,7 +279,6 @@ function SoundSettingsTab() {
   const [settings, setSettings] = useState<any>({});
 
   useEffect(() => {
-    // Load local sound settings
     const saved = localStorage.getItem("shashti_admin_sound_settings");
     if (saved) setSettings(JSON.parse(saved));
   }, []);
@@ -331,7 +329,6 @@ function SoundSettingsTab() {
   );
 }
 
-// --- Main Page Component ---
 
 export default function AdminSettingsPage() {
   const { businessInfo, services, offers, carTypes, loading, refresh } = useAppSettings();
@@ -357,7 +354,7 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] p-4 lg:p-8 space-y-8 text-white">
-      {/* Header */}
+      {}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold font-display text-white mb-2 flex items-center gap-3">
@@ -367,7 +364,7 @@ export default function AdminSettingsPage() {
         </div>
       </div>
 
-      {/* Tabs */}
+      {}
       <div className="flex overflow-x-auto gap-2 pb-2">
         {[
           { id: "business", label: "Business Info", icon: Store },
@@ -390,7 +387,7 @@ export default function AdminSettingsPage() {
         ))}
       </div>
 
-      {/* Content Area */}
+      {}
       <div className="max-w-4xl">
         <AnimatePresence mode="wait">
           {activeTab === "business" && (

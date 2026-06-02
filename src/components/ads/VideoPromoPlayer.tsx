@@ -34,7 +34,7 @@ export default function VideoPromoPlayer({
 
     useEffect(() => {
         if (videoRef.current) {
-            if (autoPlay) { videoRef.current.play().catch(() => {/* Auto-play prevented */ }); }
+            if (autoPlay) { videoRef.current.play().catch(() => { }); }
         }
     }, [autoPlay]);
 
@@ -55,12 +55,11 @@ export default function VideoPromoPlayer({
     const isHero = position === "hero";
     const isPopup = position === "popup";
 
-    // Different styles based on position
     const containerClasses = isHero
         ? "relative w-full h-[500px] overflow-hidden rounded-3xl group"
         : isPopup
             ? "relative w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl"
-            : "relative w-full aspect-[9/16] rounded-xl overflow-hidden group shadow-lg"; // Sidebar/Vertical
+            : "relative w-full aspect-[9/16] rounded-xl overflow-hidden group shadow-lg";
 
     return (
         <div className={containerClasses}>
@@ -78,10 +77,10 @@ export default function VideoPromoPlayer({
                 }}
             />
 
-            {/* Overlay Gradient */}
+            {}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
 
-            {/* Content Overlay */}
+            {}
             <div className="absolute bottom-0 left-0 w-full p-6 md:p-10 flex flex-col items-start gap-4">
                 <div className="space-y-2 max-w-lg">
                     <motion.h3
@@ -124,7 +123,7 @@ export default function VideoPromoPlayer({
                 </div>
             </div>
 
-            {/* Progress Bar */}
+            {}
             <div className="absolute bottom-0 left-0 w-full h-1 bg-white/10">
                 <div
                     className="h-full bg-purple-500 transition-all duration-100 linear"

@@ -1,21 +1,13 @@
-// Google My Business API Helper Functions
 
 const GMB_API_URL = 'https://mybusiness.googleapis.com/v4';
 const GMB_ACCESS_TOKEN = process.env.GMB_ACCESS_TOKEN;
 const GMB_LOCATION_ID = process.env.GMB_LOCATION_ID;
 
-/**
- * Sync reviews from database to Google My Business
- */
 export async function syncReviewsToGMB() {
-    // This would require OAuth2 flow - placeholder for now
     console.log('GMB review sync would happen here');
     return { success: true, synced: 0 };
 }
 
-/**
- * Fetch reviews from Google My Business
- */
 export async function fetchGMBReviews() {
     if (!GMB_ACCESS_TOKEN || !GMB_LOCATION_ID) {
         console.warn('GMB credentials not configured');
@@ -41,9 +33,6 @@ export async function fetchGMBReviews() {
     }
 }
 
-/**
- * Post update to Google My Business
- */
 export async function postGMBUpdate(content: string, imageUrl?: string) {
     if (!GMB_ACCESS_TOKEN || !GMB_LOCATION_ID) {
         console.warn('GMB credentials not configured');
@@ -82,9 +71,6 @@ export async function postGMBUpdate(content: string, imageUrl?: string) {
     }
 }
 
-/**
- * Reply to a Google My Business review
- */
 export async function replyToGMBReview(reviewId: string, replyText: string) {
     if (!GMB_ACCESS_TOKEN || !GMB_LOCATION_ID) {
         console.warn('GMB credentials not configured');

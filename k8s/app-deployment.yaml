@@ -1,7 +1,3 @@
-# ─────────────────────────────────────────────────────────────
-# Shashti Karz — Next.js App Deployment
-# Image pulled from Docker Hub: deepakkaruppasamy/shashti-karz
-# ─────────────────────────────────────────────────────────────
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -11,13 +7,13 @@ metadata:
     app: shashti-karz
     tier: frontend
 spec:
-  replicas: 1                        # 1 pod for local stability
+  replicas: 1
   selector:
     matchLabels:
       app: shashti-karz
       tier: frontend
   strategy:
-    type: RollingUpdate              # Zero-downtime deployments
+    type: RollingUpdate
     rollingUpdate:
       maxUnavailable: 1
       maxSurge: 1
@@ -30,7 +26,7 @@ spec:
       containers:
         - name: shashti-karz
           image: deepakkaruppasamy/shashti-karz:latest
-          imagePullPolicy: Always    # Always pull latest from Docker Hub
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
               name: http
@@ -62,9 +58,6 @@ spec:
             periodSeconds: 5
       restartPolicy: Always
 ---
-# ─────────────────────────────────────────────────────────────
-# Shashti Karz App — ClusterIP Service
-# ─────────────────────────────────────────────────────────────
 apiVersion: v1
 kind: Service
 metadata:

@@ -1,4 +1,3 @@
-// Google Maps API Helper Functions
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -14,16 +13,13 @@ interface RouteStop {
     estimated_duration: number;
 }
 
-/**
- * Calculate distance between two points using Haversine formula
- */
 export function calculateDistance(
     lat1: number,
     lon1: number,
     lat2: number,
     lon2: number
 ): number {
-    const R = 6371; // Radius of Earth in km
+    const R = 6371;
     const dLat = toRad(lat2 - lat1);
     const dLon = toRad(lon2 - lon1);
 
@@ -44,12 +40,8 @@ function toRad(degrees: number): number {
     return (degrees * Math.PI) / 180;
 }
 
-/**
- * Get optimized route using Google Maps Directions API
- */
 export async function getOptimizedRoute(stops: RouteStop[]) {
     if (!GOOGLE_MAPS_API_KEY) {
-        // Fallback to simple optimization
         return optimizeRouteSimple(stops);
     }
 
@@ -89,14 +81,10 @@ export async function getOptimizedRoute(stops: RouteStop[]) {
         };
     } catch (error) {
         console.error('Google Maps API error:', error);
-        // Fallback to simple optimization
         return optimizeRouteSimple(stops);
     }
 }
 
-/**
- * Simple route optimization using nearest neighbor algorithm
- */
 function optimizeRouteSimple(stops: RouteStop[]) {
     if (stops.length <= 2) {
         return {
@@ -157,31 +145,24 @@ function optimizeRouteSimple(stops: RouteStop[]) {
     };
 }
 
-/**
- * Reorder stops based on optimized waypoint order
- */
 function reorderStops(stops: RouteStop[], waypointOrder: number[]): RouteStop[] {
-    const result = [stops[0]]; // First stop (origin)
+    const result = [stops[0]];
 
-    // Reorder middle stops
     for (const index of waypointOrder) {
-        result.push(stops[index + 1]); // +1 because waypoint_order excludes origin
+        result.push(stops[index + 1]);
     }
 
     if (stops.length > 1) {
-        result.push(stops[stops.length - 1]); // Last stop (destination)
+        result.push(stops[stops.length - 1]);
     }
 
     return result;
 }
 
-/**
- * Calculate ETA for a specific stop
- */
 export function calculateETA(
     currentLocation: Location,
     targetLocation: Location,
-    averageSpeed: number = 30 // km/h default
+    averageSpeed: number = 30
 ): Date {
     const distance = calculateDistance(
         currentLocation.lat,
@@ -197,9 +178,6 @@ export function calculateETA(
     return eta;
 }
 
-/**
- * Geocode address to coordinates
- */
 export async function geocodeAddress(address: string): Promise<Location | null> {
     if (!GOOGLE_MAPS_API_KEY) {
         return null;
@@ -229,9 +207,6 @@ export async function geocodeAddress(address: string): Promise<Location | null> 
     }
 }
 
-/**
- * Reverse geocode coordinates to address
- */
 export async function reverseGeocode(lat: number, lng: number): Promise<string | null> {
     if (!GOOGLE_MAPS_API_KEY) {
         return null;

@@ -1,4 +1,3 @@
-// WhatsApp Business API Helper Functions
 
 const WHATSAPP_API_URL = `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}`;
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
@@ -18,9 +17,6 @@ interface WhatsAppMessage {
     };
 }
 
-/**
- * Send a text message via WhatsApp
- */
 export async function sendWhatsAppText(to: string, message: string) {
     try {
         const response = await fetch(`${WHATSAPP_API_URL}/messages`, {
@@ -32,7 +28,7 @@ export async function sendWhatsAppText(to: string, message: string) {
             body: JSON.stringify({
                 messaging_product: 'whatsapp',
                 recipient_type: 'individual',
-                to: to.replace(/[^0-9]/g, ''), // Remove non-numeric characters
+                to: to.replace(/[^0-9]/g, ''),
                 type: 'text',
                 text: {
                     preview_url: false,
@@ -54,9 +50,6 @@ export async function sendWhatsAppText(to: string, message: string) {
     }
 }
 
-/**
- * Send a template message via WhatsApp
- */
 export async function sendWhatsAppTemplate(
     to: string,
     templateName: string,
@@ -97,9 +90,6 @@ export async function sendWhatsAppTemplate(
     }
 }
 
-/**
- * Send booking confirmation via WhatsApp
- */
 export async function sendBookingConfirmation(booking: any) {
     const message = `
 🎉 *Booking Confirmed!*
@@ -123,9 +113,6 @@ Thank you for choosing Shashti Karz! ✨
     return sendWhatsAppText(booking.customer_phone, message);
 }
 
-/**
- * Send service update via WhatsApp
- */
 export async function sendServiceUpdate(booking: any, status: string) {
     const statusMessages: Record<string, string> = {
         'confirmed': '✅ Your service is confirmed!',
@@ -148,9 +135,6 @@ Track live: https://shasthi-karz.com/track/${booking.id}
     return sendWhatsAppText(booking.customer_phone, message);
 }
 
-/**
- * Send payment reminder via WhatsApp
- */
 export async function sendPaymentReminder(booking: any) {
     const message = `
 💳 *Payment Reminder*
@@ -171,9 +155,6 @@ Complete payment to confirm your slot!
     return sendWhatsAppText(booking.customer_phone, message);
 }
 
-/**
- * Send broadcast message to multiple users
- */
 export async function sendBroadcastMessage(
     phoneNumbers: string[],
     message: string
@@ -185,7 +166,6 @@ export async function sendBroadcastMessage(
             const result = await sendWhatsAppText(phone, message);
             results.push({ phone, success: true, result });
 
-            // Rate limiting: wait 100ms between messages
             await new Promise(resolve => setTimeout(resolve, 100));
         } catch (error) {
             results.push({ phone, success: false, error });
@@ -195,9 +175,6 @@ export async function sendBroadcastMessage(
     return results;
 }
 
-/**
- * Mark message as read
- */
 export async function markMessageAsRead(messageId: string) {
     try {
         const response = await fetch(`${WHATSAPP_API_URL}/messages`, {

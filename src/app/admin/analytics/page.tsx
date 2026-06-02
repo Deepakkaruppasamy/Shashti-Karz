@@ -44,7 +44,7 @@ export default function GlobalAnalyticsPage() {
 
     return (
         <div className="p-4 lg:p-8 space-y-8 pb-24 lg:pb-8">
-            {/* Header HUD */}
+            {}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
                     <div className="flex items-center gap-2 mb-2">
@@ -76,7 +76,7 @@ export default function GlobalAnalyticsPage() {
                 </div>
             </div>
 
-            {/* Metric HQ */}
+            {}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
                     { label: "Total Asset Value", value: `₹${data.stats.totalRevenue.toLocaleString()}`, change: "+14.2%", icon: DollarSign, color: "text-green-500" },
@@ -107,7 +107,7 @@ export default function GlobalAnalyticsPage() {
             </div>
 
             <div className="grid lg:grid-cols-3 gap-8">
-                {/* Revenue Trajectory */}
+                {}
                 <div className="lg:col-span-2 glass-card rounded-[3rem] p-8 border border-white/5">
                     <div className="flex justify-between items-center mb-8">
                         <div>
@@ -154,7 +154,7 @@ export default function GlobalAnalyticsPage() {
                     </div>
                 </div>
 
-                {/* Fleet Revenue Strategy */}
+                {}
                 <div className="glass-card rounded-[3rem] p-8 border border-white/5 flex flex-col items-center justify-center text-center">
                     <h3 className="text-sm font-black uppercase tracking-[0.3em] mb-12">Revenue Allocation Mix</h3>
                     <div className="h-[250px] w-full">
@@ -196,7 +196,7 @@ export default function GlobalAnalyticsPage() {
             </div>
 
             <div className="grid lg:grid-cols-2 gap-8">
-                {/* Service Performance Audit */}
+                {}
                 <div className="glass-card rounded-[3rem] p-8 border border-white/5">
                     <h3 className="text-sm font-black uppercase tracking-[0.3em] mb-8">Service Performance Audit</h3>
                     <div className="space-y-6">
@@ -227,7 +227,7 @@ export default function GlobalAnalyticsPage() {
                     </div>
                 </div>
 
-                {/* Operational Efficiency HUD */}
+                {}
                 <div className="glass-card rounded-[3rem] p-8 border border-[#ff1744]/20 bg-[#ff1744]/5 relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-8">
                         <Activity className="text-[#ff1744] animate-pulse" size={32} />

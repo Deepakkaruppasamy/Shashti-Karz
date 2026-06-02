@@ -17,13 +17,11 @@ export async function PATCH(
             conversation_message,
         } = body;
 
-        // Get current user (must be admin)
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Check if user is admin
         const { data: profile } = await supabase
             .from("profiles")
             .select("role")
@@ -34,7 +32,6 @@ export async function PATCH(
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
-        // Get current support request
         const { data: currentRequest } = await supabase
             .from("support_requests")
             .select("*")
@@ -48,7 +45,6 @@ export async function PATCH(
             );
         }
 
-        // Build update object
         const updates: any = {};
 
         if (status) updates.status = status;
@@ -59,7 +55,6 @@ export async function PATCH(
             updates.responded_at = new Date().toISOString();
         }
 
-        // Add conversation message if provided
         if (conversation_message) {
             const newHistory = [
                 ...(currentRequest.conversation_history || []),

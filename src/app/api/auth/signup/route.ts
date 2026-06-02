@@ -29,7 +29,6 @@ export async function POST(request: Request) {
       role: "customer",
     });
 
-    // Trigger welcome notification
     try {
       await sendAuthNotification({
         type: "signup",

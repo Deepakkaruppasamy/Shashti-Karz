@@ -58,7 +58,6 @@ export default function GamificationAdminPage() {
         }
     };
 
-    // Real-time Achievements
     useRealtimeSubscription({
         table: 'achievements',
         onInsert: (newItem) => {
@@ -73,22 +72,16 @@ export default function GamificationAdminPage() {
         }
     });
 
-    // Real-time Leaderboard
     useRealtimeSubscription({
         table: 'customer_leaderboard',
         onUpdate: (updatedUser) => {
-            // Ideally we re-fetch to maintain sort order, but for now we update in place or trigger fetch
             fetchData();
         }
     });
 
-    // Real-time Transactions
     useRealtimeSubscription({
         table: 'points_transactions',
         onInsert: (newTx) => {
-            // We need joined data (profile name), so simplistic insert might miss name. 
-            // We can either fetch the single row with join, or just trigger full refresh
-            // For simplicity, let's just refresh transactions
             fetchTransactions();
             toast.info(`New points transaction: ${newTx.points} pts`);
         }
@@ -120,7 +113,6 @@ export default function GamificationAdminPage() {
             tier: formData.get('tier'),
             category: formData.get('category'),
             active: true,
-            // Simple default criteria since JSON editing is complex
             unlock_criteria: editingAchievement?.unlock_criteria || { manual: true }
         };
 
@@ -143,7 +135,7 @@ export default function GamificationAdminPage() {
 
     return (
         <div className="min-h-screen bg-[#0a0a0a] p-4 lg:p-8 space-y-8">
-            {/* Header */}
+            {}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-display text-white mb-2 flex items-center gap-3">

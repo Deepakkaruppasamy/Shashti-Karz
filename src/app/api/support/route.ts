@@ -46,7 +46,6 @@ export async function POST(request: NextRequest) {
             priority = "medium",
         } = body;
 
-        // Validate required fields
         if (!customer_name || !category || !subject || !message) {
             return NextResponse.json(
                 { error: "Missing required fields" },
@@ -54,7 +53,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Get user if authenticated
         const { data: { user } } = await supabase.auth.getUser();
 
         const { data, error } = await supabase

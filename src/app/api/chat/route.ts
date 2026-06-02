@@ -66,7 +66,6 @@ export async function POST(request: Request) {
     const assistantMessage = await chatWithGemini(messages, systemPrompt);
     console.log("Gemini response generated successfully");
 
-    // Save messages to database if user is logged in
     if (context?.userId) {
       try {
         const supabase = getSupabase();
@@ -103,7 +102,6 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error("Chat API error:", error);
 
-    // Check for specific error types to provide better feedback
     const errorMessage = error.message || "";
     if (errorMessage.toLowerCase().includes("quota") || errorMessage.includes("429")) {
       return NextResponse.json(

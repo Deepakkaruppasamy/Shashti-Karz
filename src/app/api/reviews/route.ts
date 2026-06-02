@@ -36,10 +36,8 @@ export async function POST(request: Request) {
   const supabase = await createClient();
   const body = await request.json();
 
-  // Perform AI Sentiment Analysis
   const sentiment = await analyzeReviewSentiment(body.comment);
 
-  // Check for repeat customer
   let isRepeatCustomer = false;
   if (body.user_id) {
     const { count } = await supabase
@@ -62,7 +60,7 @@ export async function POST(request: Request) {
     is_verified: true,
     abuse_score: sentiment.is_abusive ? 1.0 : 0.0,
     flagged: sentiment.is_abusive,
-    approved: !sentiment.is_abusive && !body.is_private, // Don't auto-approve private feedback for home page
+    approved: !sentiment.is_abusive && !body.is_private,
     feedback_category: body.feedback_category || 'service',
     is_private: body.is_private || false
   };

@@ -12,7 +12,6 @@ export async function GET(request: NextRequest) {
 
         if (error) throw error;
 
-        // Map to the format expected by the frontend
         const activities = data.map(a => ({
             id: a.id,
             type: a.type,

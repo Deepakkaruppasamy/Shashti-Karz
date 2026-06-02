@@ -91,7 +91,6 @@ export async function PUT(
           { ...commonData, customerEmail: data.customer_email }
         );
 
-        // Notify all admins that service was completed
         await sendAdminNotification("service_completed", commonData);
 
       } else if (data.status === "cancelled") {
@@ -102,7 +101,6 @@ export async function PUT(
           commonData
         );
 
-        // Notify all admins that a booking was cancelled
         await sendAdminNotification("booking_cancelled", commonData);
       }
 

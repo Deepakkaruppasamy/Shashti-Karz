@@ -91,13 +91,11 @@ export function useRealtimeSubscription<T = any>({
     return { isConnected, lastUpdate, error };
 }
 
-// Hook for tracking online users
 export function useOnlineUsers() {
     const [onlineCount, setOnlineCount] = useState(0);
     const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
 
     useEffect(() => {
-        // Fetch initial online users
         const fetchOnlineUsers = async () => {
             const { data } = await supabase
                 .from('online_users')
@@ -112,7 +110,6 @@ export function useOnlineUsers() {
 
         fetchOnlineUsers();
 
-        // Subscribe to changes
         const channel = supabase
             .channel('online-users-changes')
             .on(
@@ -129,7 +126,6 @@ export function useOnlineUsers() {
         };
     }, []);
 
-    // Update presence
     const updatePresence = useCallback(async (userId: string, role: string, page: string) => {
         await supabase
             .from('online_users')
@@ -146,7 +142,6 @@ export function useOnlineUsers() {
     return { onlineCount, onlineUsers, updatePresence };
 }
 
-// Hook for real-time notifications
 export function useRealtimeNotifications(userId?: string) {
     const [notifications, setNotifications] = useState<any[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
@@ -172,7 +167,6 @@ export function useRealtimeNotifications(userId?: string) {
             setNotifications(prev =>
                 prev.map(n => n.id === notification.id ? notification : n)
             );
-            // Recalculate unread count
             const unread = notifications.filter(n => !n.read).length;
             setUnreadCount(unread);
         },

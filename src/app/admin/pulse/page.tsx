@@ -94,7 +94,6 @@ export default function AdminPulsePage() {
                 priority: 'medium'
             }));
 
-            // Sort by newest
             newEvents.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
             setEvents(newEvents);
@@ -113,7 +112,6 @@ export default function AdminPulsePage() {
         }
     };
 
-    // Realtime Subscriptions
     useRealtimeSubscription({
         table: 'bookings',
         onInsert: (payload) => {
@@ -179,7 +177,7 @@ export default function AdminPulsePage() {
     });
 
     const addEvent = (event: LayoutEvent) => {
-        setEvents(prev => [event, ...prev].slice(0, 50)); // Keep last 50
+        setEvents(prev => [event, ...prev].slice(0, 50));
     };
 
     const filteredEvents = events.filter(event => {
@@ -213,7 +211,7 @@ export default function AdminPulsePage() {
         <div className="flex min-h-screen bg-[#0a0a0a] text-white">
 
             <div className="flex-1 p-4 lg:p-8 overflow-auto pb-24 lg:pb-8">
-                {/* Header */}
+                {}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                     <div>
                         <h1 className="text-3xl lg:text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400 mb-2">
@@ -234,7 +232,7 @@ export default function AdminPulsePage() {
                     </div>
                 </div>
 
-                {/* Stats Cards */}
+                {}
                 <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6 mb-10">
                     {[
                         { label: "Bookings (24h)", value: stats.bookings, icon: Calendar, color: "text-green-400" },
@@ -262,7 +260,7 @@ export default function AdminPulsePage() {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Main Feed */}
+                    {}
                     <div className="lg:col-span-2 space-y-6">
                         <div className="flex items-center justify-between bg-white/5 border border-white/10 p-1.5 rounded-2xl overflow-x-auto no-scrollbar">
                             {["all", "booking", "support", "review", "reschedule"].map((t) => (
@@ -321,9 +319,9 @@ export default function AdminPulsePage() {
                         </div>
                     </div>
 
-                    {/* Sidebar / Analytics */}
+                    {}
                     <div className="space-y-8">
-                        {/* Live Feed Status */}
+                        {}
                         <div className="p-6 bg-white/5 border border-white/10 rounded-3xl">
                             <div className="flex items-center justify-between mb-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">
                                 <span>System Status</span>
@@ -341,7 +339,7 @@ export default function AdminPulsePage() {
                             </div>
                         </div>
 
-                        {/* Quick Actions */}
+                        {}
                         <div className="bg-gradient-to-br from-purple-600/20 to-indigo-600/20 border border-purple-500/20 rounded-3xl p-6 lg:p-8 relative overflow-hidden group">
                             <div className="absolute -right-8 -bottom-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
                                 <Layers size={160} />

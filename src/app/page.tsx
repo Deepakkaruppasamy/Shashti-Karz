@@ -22,7 +22,6 @@ import { useLanguage } from "@/lib/LanguageContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import dynamic from "next/dynamic";
 
-// Dynamic imports for heavy components
 const DynamicPriceCalculator = dynamic(() => import("@/components/PriceCalculator").then(mod => mod.PriceCalculator), { ssr: false });
 import { FullPageLoader } from "@/components/animations/CarLoader";
 const DynamicExplodedCarSection = dynamic(() => import("@/components/CarShowcase").then(mod => mod.ExplodedCarSection), { ssr: false });
@@ -336,9 +335,9 @@ export default function HomePage() {
 
   useRealtimeSubscription({
     table: 'reviews',
-    onInsert: () => fetchReviews(), // New approved review
-    onUpdate: () => fetchReviews(), // Review status changed
-    onDelete: () => fetchReviews(), // Review deleted
+    onInsert: () => fetchReviews(),
+    onUpdate: () => fetchReviews(),
+    onDelete: () => fetchReviews(),
   });
 
   useEffect(() => {
@@ -402,7 +401,7 @@ export default function HomePage() {
         </>
       )}
 
-      {/* Simplified Sections for Mobile */}
+      {}
       <DynamicLoyaltyProgramDemo />
       <DynamicVideoTestimonials />
 

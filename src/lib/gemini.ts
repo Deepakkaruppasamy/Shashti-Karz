@@ -1,6 +1,5 @@
-// Centralized AI Helper: Supports Gemini (Fallback) and Groq (Primary)
 let lastRequestTime = 0;
-const MIN_REQUEST_GAP = 1000; // Groq is faster, 1s gap is usually fine
+const MIN_REQUEST_GAP = 1000;
 
 export async function chatWithAI(messages: any[], systemPrompt: string) {
   const now = Date.now();
@@ -50,7 +49,6 @@ export async function chatWithAI(messages: any[], systemPrompt: string) {
     }
   }
 
-  // FALLBACK TO GEMINI
   console.log("Falling back to Gemini AI...");
   const geminiKey = process.env.GEMINI_API_KEY;
   const model = "gemini-1.5-flash";
@@ -91,5 +89,4 @@ export async function chatWithAI(messages: any[], systemPrompt: string) {
   return data.candidates[0].content.parts[0].text;
 }
 
-// Keep chatWithGemini for backward compatibility
 export const chatWithGemini = chatWithAI;

@@ -2,14 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 
-/**
- * Admin Pulse Dashboard API
- * Provides real-time feed of customer interactions and requests
- */
 
 export async function GET(request: NextRequest) {
     try {
-        // Check admin session cookie
         const cookieStore = await cookies();
         const adminSession = cookieStore.get("admin_session");
 
@@ -21,9 +16,8 @@ export async function GET(request: NextRequest) {
 
         const { searchParams } = new URL(request.url);
         const limit = parseInt(searchParams.get("limit") || "50");
-        const since = searchParams.get("since"); // Timestamp for real-time updates
+        const since = searchParams.get("since");
 
-        // Fetch recent interactions
         let interactionsQuery = supabase
             .from("dinesh_interactions")
             .select("*")
@@ -38,7 +32,6 @@ export async function GET(request: NextRequest) {
 
         if (interactionsError) throw interactionsError;
 
-        // Fetch recent support requests
         let supportQuery = supabase
             .from("support_requests")
             .select("*")
@@ -53,7 +46,6 @@ export async function GET(request: NextRequest) {
 
         if (supportError) throw supportError;
 
-        // Fetch recent feedback
         let feedbackQuery = supabase
             .from("customer_feedback_dinesh")
             .select("*")
@@ -68,7 +60,6 @@ export async function GET(request: NextRequest) {
 
         if (feedbackError) throw feedbackError;
 
-        // Combine and format all events
         const events = [
             ...(interactions || []).map(item => ({
                 id: item.id,
@@ -102,10 +93,8 @@ export async function GET(request: NextRequest) {
             }))
         ];
 
-        // Sort by timestamp, most recent first
         events.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
-        // Get statistics
         const stats = {
             totalInteractions: interactions?.length || 0,
             totalSupportRequests: supportRequests?.length || 0,
@@ -116,10 +105,9 @@ export async function GET(request: NextRequest) {
             newFeedback: feedback?.filter(f => f.status === "new").length || 0
         };
 
-        // Get common query patterns (word cloud data)
         const queryWords = interactions
             ?.flatMap(i => i.user_query?.toLowerCase().split(" ") || [])
-            .filter(word => word.length > 3) // Filter short words
+            .filter(word => word.length > 3)
             .reduce((acc: Record<string, number>, word) => {
                 acc[word] = (acc[word] || 0) + 1;
                 return acc;

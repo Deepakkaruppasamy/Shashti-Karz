@@ -29,7 +29,6 @@ export default function CommentsAdminPage() {
     const [selectedService, setSelectedService] = useState<string>('all');
     const [services, setServices] = useState<any[]>([]);
 
-    // Fetch comments
     const fetchComments = async () => {
         setIsLoading(true);
         try {
@@ -62,7 +61,6 @@ export default function CommentsAdminPage() {
         }
     };
 
-    // Fetch services
     const fetchServices = async () => {
         const { data } = await supabase
             .from('services')
@@ -76,7 +74,6 @@ export default function CommentsAdminPage() {
         fetchServices();
     }, [filter, selectedService]);
 
-    // Real-time subscription
     useEffect(() => {
         const channel = supabase
             .channel('admin-comments')
@@ -98,7 +95,6 @@ export default function CommentsAdminPage() {
         };
     }, []);
 
-    // Approve comment
     const handleApprove = async (id: string) => {
         try {
             const { error } = await supabase
@@ -114,7 +110,6 @@ export default function CommentsAdminPage() {
         }
     };
 
-    // Hide comment
     const handleHide = async (id: string) => {
         try {
             const { error } = await supabase
@@ -130,7 +125,6 @@ export default function CommentsAdminPage() {
         }
     };
 
-    // Delete comment
     const handleDelete = async (id: string) => {
         if (!confirm('Permanently delete this comment?')) return;
 
@@ -148,7 +142,6 @@ export default function CommentsAdminPage() {
         }
     };
 
-    // Toggle comments for service
     const handleToggleComments = async (serviceId: string, enabled: boolean) => {
         try {
             const { error } = await supabase
@@ -174,7 +167,7 @@ export default function CommentsAdminPage() {
 
     return (
         <div className="p-4 lg:p-8">
-            {/* Header */}
+            {}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-display flex items-center gap-3">
@@ -191,7 +184,7 @@ export default function CommentsAdminPage() {
                 </button>
             </div>
 
-            {/* Stats */}
+            {}
             <div className="grid sm:grid-cols-4 gap-4 mb-8">
                 {[
                     { label: 'Total', value: stats.total, color: 'from-blue-500 to-cyan-500' },
@@ -215,7 +208,7 @@ export default function CommentsAdminPage() {
                 ))}
             </div>
 
-            {/* Filters */}
+            {}
             <div className="glass-card rounded-2xl p-6 border border-white/5 mb-6">
                 <div className="flex flex-col sm:flex-row gap-4">
                     <div className="flex-1">
@@ -250,7 +243,7 @@ export default function CommentsAdminPage() {
                 </div>
             </div>
 
-            {/* Comments List */}
+            {}
             <div className="glass-card rounded-2xl p-6 border border-white/5">
                 {isLoading ? (
                     <BrandedLoader className="py-20" />

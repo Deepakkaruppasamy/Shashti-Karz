@@ -9,20 +9,17 @@ export async function GET(
     const { id } = await params;
     const supabase = await createClient();
 
-    // 0. Verify Authentication
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 1. First, check if there's an existing health score calculated recently (especially if it was by AI)
     const { data: existingScore } = await supabase
         .from("vehicle_health_scores")
         .select("*")
         .eq("vehicle_id", id)
         .single();
 
-    // If there is an AI diagnostic result from the last 24 hours, use it
     if (existingScore && existingScore.calculation_method?.includes('ai_vision')) {
         const lastCalc = new Date(existingScore.calculated_at);
         const now = new Date();
@@ -33,14 +30,12 @@ export async function GET(
         }
     }
 
-    // 2. Fallback to RPC calculation (based on service history)
     const { data: rpcData, error: rpcError } = await supabase.rpc('calculate_vehicle_health_score', {
         p_vehicle_id: id
     });
 
     if (rpcError) {
         console.error("RPC Health Score Error:", rpcError);
-        // If RPC fails but we have a score, just return it
         if (existingScore) {
             return NextResponse.json(existingScore);
         }
@@ -53,7 +48,6 @@ export async function GET(
     const scoreData = rpcData?.[0];
 
     if (scoreData) {
-        // 3. Verify Vehicle Ownership before allowing any system-level updates
         const { data: vehicleOwnership } = await supabase
             .from("user_vehicles")
             .select("id")

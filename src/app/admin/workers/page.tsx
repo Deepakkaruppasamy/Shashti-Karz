@@ -68,7 +68,6 @@ export default function WorkersPage() {
 
     const fetchData = async () => {
         try {
-            // Fetch Workers with Performance
             const { data: workersData, error } = await supabase
                 .from('workers')
                 .select(`
@@ -79,7 +78,6 @@ export default function WorkersPage() {
 
             if (error) throw error;
 
-            // Fetch Training Needs
             const { data: trainingData } = await supabase
                 .from('worker_training_needs')
                 .select('*, worker:worker_id(name)')
@@ -96,7 +94,6 @@ export default function WorkersPage() {
         }
     };
 
-    // Real-time Performance Updates
     useRealtimeSubscription({
         table: 'worker_performance',
         onUpdate: (updatedPerf) => {
@@ -108,7 +105,6 @@ export default function WorkersPage() {
         }
     });
 
-    // Real-time Worker Status Updates
     useRealtimeSubscription({
         table: 'workers',
         onInsert: (newWorker) => {
@@ -120,13 +116,9 @@ export default function WorkersPage() {
         }
     });
 
-    // Real-time Training Needs
     useRealtimeSubscription({
         table: 'worker_training_needs',
         onInsert: (newNeed) => {
-            // Need to fetch worker name separately or invalidate query, but for now just add
-            // Ideally we invalidate or refetch, but here we optimistically add if we have worker info in context
-            // For simplicity, we trigger a refetch or toast
             toast.warning(`New training need identified: ${newNeed.training_area}`);
             fetchData();
         },
@@ -151,7 +143,7 @@ export default function WorkersPage() {
 
     return (
         <div className="min-h-screen bg-[#0a0a0a] p-4 lg:p-8 space-y-8">
-            {/* Header */}
+            {}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-display text-white mb-2 flex items-center gap-3">

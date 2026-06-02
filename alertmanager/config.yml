@@ -12,11 +12,3 @@ receivers:
         channel: '#shashti-karz-status'
 
   - name: 'email-notifications'
-    # email_configs:
-    #   - to: 'your-email@example.com'
-    #     from: 'grafana@shashtikarz.app'
-    #     smarthost: 'smtp.gmail.com:587'
-    #     auth_username: 'your-email@example.com'
-    #     auth_identity: 'your-email@example.com'
-    #     auth_password: 'your-app-password'
-    #     send_resolved: true

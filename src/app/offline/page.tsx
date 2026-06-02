@@ -20,14 +20,14 @@ export default function OfflinePage() {
 
     return (
         <div className="min-h-screen bg-[#060606] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden">
-            {/* HUD Background Elements */}
+            {}
             <div className="absolute inset-0 z-0">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#ff1744]/5 rounded-full blur-[120px] animate-pulse" />
                 <div className="absolute inset-0 opacity-20 pointer-events-none"
                     style={{ backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)`, backgroundSize: '40px 40px' }} />
             </div>
 
-            {/* Signal Recon HUD */}
+            {}
             <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -126,9 +126,9 @@ export default function OfflinePage() {
                 </div>
             </motion.div>
 
-            {/* Footer Tag */}
+            {}
             <div className="absolute bottom-10 text-[9px] font-black uppercase tracking-[0.5em] text-[#333]">
-                SHASHTI KARZ // OPERATIONAL_CONTINUITY_MODULE_v3.01
+                SHASHTI KARZ
             </div>
         </div>
     );

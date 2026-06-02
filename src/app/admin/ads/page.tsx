@@ -19,7 +19,6 @@ export default function AdsAdminPage() {
     const [isCreating, setIsCreating] = useState(false);
     const [uploading, setUploading] = useState(false);
 
-    // Form State
     const [formData, setFormData] = useState<Partial<Ad>>({
         title: "",
         description: "",
@@ -120,7 +119,7 @@ export default function AdsAdminPage() {
 
             <div className="flex-1 overflow-auto pb-24 lg:pb-8">
                 <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-                    {/* Header */}
+                    {}
                     <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
                         <div>
                             <h1 className="text-3xl lg:text-4xl font-black tracking-tighter flex items-center gap-3">
@@ -141,7 +140,7 @@ export default function AdsAdminPage() {
                         </button>
                     </div>
 
-                    {/* Stats Grid */}
+                    {}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                         {[
                             { label: "Total Reach", value: ads.reduce((s, a) => s + (a.impressions || 0), 0).toLocaleString(), icon: Eye, color: "text-blue-400", bg: "bg-blue-400/10" },
@@ -161,7 +160,7 @@ export default function AdsAdminPage() {
                         ))}
                     </div>
 
-                    {/* Main Content */}
+                    {}
                     <div className="glass-card rounded-2xl lg:rounded-[2.5rem] p-4 lg:p-8 border border-white/5">
                         {loading ? (
                             <BrandedLoader className="py-24" />
@@ -225,7 +224,7 @@ export default function AdsAdminPage() {
                 </div>
             </div>
 
-            {/* Creation Modal - Mobile Responsive Bottom Sheet */}
+            {}
             <AnimatePresence>
                 {isCreating && (
                     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/95 backdrop-blur-md" onClick={() => setIsCreating(false)}>
@@ -259,7 +258,7 @@ export default function AdsAdminPage() {
                                     <textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 outline-none focus:border-[#ff1744] h-24 font-medium text-sm" placeholder="Define the value prop..." />
                                 </div>
 
-                                {/* Media Uploader */}
+                                {}
                                 <div className={`relative border-2 border-dashed rounded-[2rem] p-10 lg:p-14 text-center transition-all ${mediaFile ? "border-green-500 bg-green-500/5" : "border-white/10 bg-white/[0.02] hover:border-[#ff1744]/30"}`}>
                                     <input type="file" accept="video/*,image/*" onChange={e => e.target.files && setMediaFile(e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                                     <div className="flex flex-col items-center gap-4">

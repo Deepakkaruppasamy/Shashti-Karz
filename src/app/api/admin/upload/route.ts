@@ -24,7 +24,6 @@ export async function POST(request: NextRequest) {
         const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
         const filePath = `uploads/${fileName}`;
 
-        // Convert file to ArrayBuffer for upload
         const arrayBuffer = await file.arrayBuffer();
         const buffer = new Uint8Array(arrayBuffer);
 

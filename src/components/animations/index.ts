@@ -1,4 +1,3 @@
-// Existing exports
 export * from './AnimatedCounter';
 export * from './ScrollReveal';
 export * from './PageTransition';
@@ -10,7 +9,6 @@ export * from './CarLoader';
 export * from './BrandedLoader';
 export * from './useReducedMotion';
 
-// New animation components
 export * from './FloatingParticles';
 export * from './LiquidButton';
 export * from './TypewriterText';

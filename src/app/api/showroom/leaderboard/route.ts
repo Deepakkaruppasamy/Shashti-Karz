@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
 
     const limit = parseInt(searchParams.get("limit") || "50");
-    const period = searchParams.get("period") || "all"; // all, monthly
+    const period = searchParams.get("period") || "all";
 
     let query = supabase
         .from("referral_leaderboard")

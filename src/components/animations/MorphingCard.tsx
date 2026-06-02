@@ -65,7 +65,7 @@ export function MorphingCard({
             }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
-            {/* Glow effect */}
+            {}
             <motion.div
                 className="absolute inset-0 rounded-2xl opacity-0"
                 style={{
@@ -74,7 +74,7 @@ export function MorphingCard({
                 whileHover={{ opacity: 1 }}
             />
 
-            {/* Content */}
+            {}
             <div style={{ transform: "translateZ(50px)" }}>{children}</div>
         </motion.div>
     );
@@ -100,7 +100,7 @@ export function FlipCard({
                 transition={{ duration: 0.6, type: "spring" }}
                 onClick={() => setIsFlipped(!isFlipped)}
             >
-                {/* Front */}
+                {}
                 <div
                     className="absolute inset-0 backface-hidden"
                     style={{ backfaceVisibility: "hidden" }}
@@ -108,7 +108,7 @@ export function FlipCard({
                     {front}
                 </div>
 
-                {/* Back */}
+                {}
                 <div
                     className="absolute inset-0 backface-hidden"
                     style={{

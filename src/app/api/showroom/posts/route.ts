@@ -46,7 +46,6 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Get current user's likes if authenticated
     const { data: { user } } = await supabase.auth.getUser();
 
     if (user && data) {
@@ -77,10 +76,8 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
-    // Ensure user_id matches authenticated user
     body.user_id = user.id;
 
-    // Set default status to pending for moderation
     if (!body.status) {
         body.status = "pending";
     }
@@ -99,7 +96,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Update user stats
     await supabase.rpc('increment', {
         table_name: 'showroom_user_stats',
         column_name: 'total_posts',

@@ -38,7 +38,6 @@ export function ChecklistForm({ bookingId, checklistId, items, onComplete }: Che
     const [uploading, setUploading] = useState(false);
     const [saving, setSaving] = useState(false);
 
-    // Load existing completion if any
     useEffect(() => {
         loadCompletion();
     }, [bookingId, checklistId]);
@@ -139,7 +138,7 @@ export function ChecklistForm({ bookingId, checklistId, items, onComplete }: Che
 
     return (
         <div className="max-w-4xl mx-auto p-6">
-            {/* Progress Header */}
+            {}
             <div className="mb-8">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-2xl font-bold text-white">Service Checklist</h2>
@@ -149,7 +148,7 @@ export function ChecklistForm({ bookingId, checklistId, items, onComplete }: Che
                     </div>
                 </div>
 
-                {/* Progress Bar */}
+                {}
                 <div className="h-3 bg-white/10 rounded-full overflow-hidden">
                     <motion.div
                         className="h-full bg-gradient-to-r from-[#ff1744] to-[#d4af37]"
@@ -160,7 +159,7 @@ export function ChecklistForm({ bookingId, checklistId, items, onComplete }: Che
                 </div>
             </div>
 
-            {/* Checklist Items */}
+            {}
             <div className="space-y-4">
                 {items
                     .sort((a, b) => a.order - b.order)
@@ -178,7 +177,7 @@ export function ChecklistForm({ bookingId, checklistId, items, onComplete }: Che
                                     }`}
                             >
                                 <div className="flex items-start gap-4">
-                                    {/* Checkbox */}
+                                    {}
                                     <button
                                         onClick={() => toggleItem(item.step)}
                                         className={`flex-shrink-0 w-8 h-8 rounded-lg border-2 flex items-center justify-center transition-all ${completed
@@ -190,7 +189,7 @@ export function ChecklistForm({ bookingId, checklistId, items, onComplete }: Che
                                     </button>
 
                                     <div className="flex-1">
-                                        {/* Step Info */}
+                                        {}
                                         <div className="flex items-center gap-3 mb-3">
                                             <span className="text-sm font-semibold text-[#d4af37]">
                                                 Step {item.order}
@@ -206,7 +205,7 @@ export function ChecklistForm({ bookingId, checklistId, items, onComplete }: Che
                                             {item.step}
                                         </h3>
 
-                                        {/* Photo Upload */}
+                                        {}
                                         <div className="flex items-center gap-3">
                                             {photo ? (
                                                 <div className="relative w-24 h-24 rounded-lg overflow-hidden">
@@ -251,7 +250,7 @@ export function ChecklistForm({ bookingId, checklistId, items, onComplete }: Che
                     })}
             </div>
 
-            {/* Notes */}
+            {}
             <div className="mt-8">
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                     Additional Notes
@@ -265,7 +264,7 @@ export function ChecklistForm({ bookingId, checklistId, items, onComplete }: Che
                 />
             </div>
 
-            {/* Save Button */}
+            {}
             <div className="mt-8 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm text-gray-400">
                     <AlertCircle size={16} />
